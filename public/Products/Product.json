@@ -1,0 +1,29 @@
+{
+  "crop": [
+    "Wheat",
+    "Rice",
+    "Maize",
+    "Sugarcane",
+    "Cotton",
+    "Pulses",
+    "Barley"
+  ],
+  "fruit": [
+    "Mango",
+    "Banana",
+    "Apple",
+    "Guava",
+    "Papaya",
+    "Orange",
+    "Grapes"
+  ],
+  "vegetable": [
+    "Potato",
+    "Tomato",
+    "Onion",
+    "Brinjal",
+    "Cabbage",
+    "Cauliflower",
+    "Spinach"
+  ]
+}

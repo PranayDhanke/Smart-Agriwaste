@@ -1,0 +1,193 @@
+{
+  "waste_management_rules": {
+    "crop": {
+      "Wheat": {
+        "low_moisture": {
+          "process": [
+            "Shredding dry wheat straw",
+            "Mixing with cow dung for C:N balancing",
+            "Aerobic composting for 30–45 days",
+            "Sieving and curing"
+          ],
+          "final_use": "Organic compost",
+          "notes": "Add water if too dry. Avoid contamination."
+        },
+        "medium_moisture": {
+          "process": [
+            "Air-drying wheat residues",
+            "Chopping into smaller particles",
+            "Use as cattle fodder supplement after drying"
+          ],
+          "final_use": "Animal fodder supplement"
+        },
+        "high_moisture": {
+          "process": [
+            "Drying residues for 1–2 days",
+            "Mechanical baling",
+            "Use as biomass for fuel pellets"
+          ],
+          "final_use": "Biofuel pellets"
+        }
+      },
+
+      "Rice": {
+        "low_moisture": {
+          "process": [
+            "Grinding rice husk",
+            "Mixing with natural binders",
+            "Pelletizing into briquettes"
+          ],
+          "final_use": "Biofuel briquettes"
+        },
+        "medium_moisture": {
+          "process": [
+            "Pre-drying paddy straw",
+            "Using as mulch in crop fields"
+          ],
+          "final_use": "Mulching material"
+        },
+        "high_moisture": {
+          "process": [
+            "Anaerobic digestion of wet paddy straw",
+            "Biogas generation",
+            "Digestate used as organic fertilizer"
+          ],
+          "final_use": "Biogas + fertilizer slurry"
+        }
+      },
+
+      "Maize": {
+        "low_moisture": {
+          "process": [
+            "Shredding maize stalks",
+            "Mixing with green waste",
+            "Aerobic composting"
+          ],
+          "final_use": "Compost"
+        },
+        "high_moisture": {
+          "process": [
+            "Chopping maize cobs",
+            "Fermenting for silage production"
+          ],
+          "final_use": "Animal silage"
+        }
+      }
+    },
+
+    "fruit": {
+      "Banana": {
+        "low_moisture": {
+          "process": [
+            "Chopping banana stem",
+            "Solar drying",
+            "Grinding into fiber powder"
+          ],
+          "final_use": "Animal feed additive"
+        },
+        "high_moisture": {
+          "process": [
+            "Pulping banana waste",
+            "Fermentation process",
+            "Producing vinegar or enzymes"
+          ],
+          "final_use": "Banana vinegar or decomposer enzymes"
+        }
+      },
+
+      "Mango": {
+        "low_moisture": {
+          "process": [
+            "Drying mango peels",
+            "Grinding into powder",
+            "Use as natural flavoring"
+          ],
+          "final_use": "Mango peel flavor powder"
+        },
+        "high_moisture": {
+          "process": [
+            "Cold pressing mango seeds",
+            "Extracting mango seed oil"
+          ],
+          "final_use": "Mango seed oil"
+        }
+      },
+
+      "Orange": {
+        "low_moisture": {
+          "process": [
+            "Drying orange peels",
+            "Grinding into powder",
+            "Extraction of limonene oil"
+          ],
+          "final_use": "Citrus powder or essential oil"
+        },
+        "high_moisture": {
+          "process": [
+            "Fermenting orange pulp",
+            "Producing bioenzymes"
+          ],
+          "final_use": "Natural cleaning bioenzyme"
+        }
+      }
+    },
+
+    "vegetable": {
+      "Tomato": {
+        "low_moisture": {
+          "process": [
+            "Drying tomato peels",
+            "Grinding into powder",
+            "Extraction of lycopene"
+          ],
+          "final_use": "Natural food coloring"
+        },
+        "high_moisture": {
+          "process": [
+            "Converting tomato pulp to slurry",
+            "Anaerobic digestion",
+            "Biogas production"
+          ],
+          "final_use": "Biogas + fertilizer"
+        }
+      },
+
+      "Potato": {
+        "low_moisture": {
+          "process": [
+            "Drying potato peels",
+            "Grinding into starch powder",
+            "Use in paper/textile industries"
+          ],
+          "final_use": "Natural starch additive"
+        },
+        "high_moisture": {
+          "process": [
+            "Fermentation of potato waste",
+            "Distillation",
+            "Bioethanol production"
+          ],
+          "final_use": "Bioethanol"
+        }
+      },
+
+      "Onion": {
+        "low_moisture": {
+          "process": [
+            "Drying onion skins",
+            "Grinding into powder",
+            "Use for natural pigment extraction"
+          ],
+          "final_use": "Natural dye"
+        },
+        "high_moisture": {
+          "process": [
+            "Fermentation of onion waste",
+            "Bioenzyme production"
+          ],
+          "final_use": "Bioenzyme cleaner"
+        }
+      }
+    }
+  }
+}

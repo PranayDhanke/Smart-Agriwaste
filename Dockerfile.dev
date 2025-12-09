@@ -1,0 +1,22 @@
+# Dockerfile.dev — for development only (hot reload)
+FROM node:20
+
+WORKDIR /app
+
+# Copy package files first to leverage layer cache
+COPY package.json package-lock.json* 
+
+# Install dev dependencies (npm install ok for dev)
+RUN npm install --silent
+
+# Copy application source
+COPY . .
+
+# Ensure Next dev listens on the container network
+ENV NODE_ENV=development
+
+# Expose port used by Next dev
+EXPOSE 3000
+
+# Start Next in dev mode and bind to 0.0.0.0 so host can reach it
+CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0", "-p", "3000"]
