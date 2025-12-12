@@ -28,6 +28,7 @@ import {
 import { WasteType } from "@/components/types/ListWaste";
 import { SingleWasteItem } from "@/components/types/marketplace";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
 
 const categoryMeta: Record<
   WasteType,
@@ -53,12 +54,15 @@ const categoryMeta: Record<
   },
 };
 
-export default function SingleMarketplace({ id }: { id: string }) {
-  const [product, setProduct] = useState<SingleWasteItem | null>(null);
+export default function SingleMarketplace() {
+  const [product, setProduct] = useState<SingleWasteItem>();
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
 
+  const searchParams = useSearchParams();
+
+  const id = searchParams.get("product")
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -66,7 +70,12 @@ export default function SingleMarketplace({ id }: { id: string }) {
 
         // Axios auto-parses JSON → no res.json()
         const data = res.data;
+
+        console.log(data);
+
         const singleData = data.singleWaste;
+
+        console.log(singleData);
 
         setProduct(singleData);
       } catch (err) {
@@ -153,7 +162,7 @@ export default function SingleMarketplace({ id }: { id: string }) {
     );
   }
 
-  const totalPrice = parseFloat(product.price) * quantity;
+  const totalPrice = product.price * quantity;
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50/20 to-emerald-50">
@@ -249,7 +258,7 @@ export default function SingleMarketplace({ id }: { id: string }) {
                 <span className="text-4xl font-bold text-green-600">
                   ₹{product.price}
                 </span>
-                <span className="text-lg text-gray-600">/unit</span>
+                <span className="text-lg text-gray-600">/{product.unit}</span>
               </div>
               <p className="text-sm text-gray-600 mt-2">
                 Inclusive of all taxes

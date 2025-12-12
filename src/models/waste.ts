@@ -2,7 +2,6 @@ import { WasteFormDataSchema } from "@/components/types/ListWaste";
 import mongoose from "mongoose";
 
 const wasteSchema = new mongoose.Schema<WasteFormDataSchema>({
-  farmerId: { type: String, required: true },
   title: { type: String, required: true },
   wasteType: { type: String, required: true },
   description: { type: String, required: true },
@@ -12,6 +11,7 @@ const wasteSchema = new mongoose.Schema<WasteFormDataSchema>({
   price: { type: Number, required: true },
   imageUrl: { type: String, required: true },
   seller: {
+    farmerId: { type: String, required: true },
     name: { type: String, required: true },
     phone: { type: String, required: true },
     email: { type: String, required: true },
@@ -24,6 +24,7 @@ const wasteSchema = new mongoose.Schema<WasteFormDataSchema>({
     taluka: { type: String, required: true },
     village: { type: String, required: true },
   },
+  unit: { type: String, required: true },
 });
 
 const Waste = mongoose.models.Waste || mongoose.model("Waste", wasteSchema);

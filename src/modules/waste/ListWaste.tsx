@@ -34,7 +34,7 @@ import {
 import ProductList from "@/../public/Products/Product.json";
 import Image from "next/image";
 import { toast } from "sonner";
-import { WasteFormData, WasteType } from "@/components/types/ListWaste";
+import { Unit, WasteFormData, WasteType } from "@/components/types/ListWaste";
 import { FarmerAccount } from "@/components/types/farmerAccount";
 import axios from "axios";
 
@@ -65,6 +65,7 @@ export default function ListWaste() {
       taluka: "",
       village: "",
     },
+    unit: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -116,6 +117,9 @@ export default function ListWaste() {
 
       const farmerData: FarmerAccount = res.data.accountdata;
 
+      console.log(farmerData);
+      
+
       setFormData((prev) => ({
         ...prev,
         address: {
@@ -136,7 +140,7 @@ export default function ListWaste() {
     };
 
     sellerInfo();
-  }, [user, isLoaded]);
+  }, [user]);
 
   // Inline validation
   const validateField = (name: string, value: string) => {
@@ -207,14 +211,13 @@ export default function ListWaste() {
       });
 
       const uploadData = uploadRes.data;
-      toast.dismiss
+      toast.dismiss();
 
       if (!uploadData || !uploadData.url) {
         toast.error("Image upload failed. Please try again.");
       }
 
       const payload = {
-        farmerId: user?.id.replace(/^user_/, "fam_"),
         title: formData.title,
         wasteType: formData.wasteType,
         wasteProduct: formData.wasteProduct,
@@ -225,6 +228,7 @@ export default function ListWaste() {
         seller: formData.seller,
         address: formData.address,
         imageUrl: uploadData.url,
+        unit: formData.unit,
       };
 
       const res = await axios.post("/api/waste/list", payload);
@@ -443,7 +447,69 @@ export default function ListWaste() {
                     )}
                   </div>
 
-                  {/* Moisture */}
+                  <div className="space-y-2">
+                    <Label htmlFor="moisture" className="text-sm font-medium">
+                      Unit <span className="text-red-500">*</span>
+                    </Label>
+                    <Select
+                      required
+                      onValueChange={(value: Unit) =>
+                        setFormData({ ...formData, unit: value })
+                      }
+                      value={formData.unit}
+                    >
+                      <SelectTrigger
+                        id="moisture"
+                        className={`h-12 transition-all ${
+                          formData.unit ? "border-green-300 bg-green-50/30" : ""
+                        }`}
+                      >
+                        <SelectValue placeholder="Select Unit For Quantity" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["kg", "ton", "gram"].map((item, _idx) => (
+                          <SelectItem key={_idx} value={item}>
+                            {item}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* moisture and Price */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="price" className="text-sm font-medium">
+                      Expected Price <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      type="number"
+                      id="price"
+                      required
+                      placeholder="e.g., ₹2000 per ton"
+                      value={formData.price}
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          price: e.target.valueAsNumber,
+                        });
+                        validateField("price", e.target.value);
+                      }}
+                      className={`h-12 transition-all ${
+                        formData.price ? "border-green-300 bg-green-50/30" : ""
+                      } ${errors.price ? "border-red-500" : ""}`}
+                    />
+                    {errors.price && (
+                      <p className="text-sm text-red-500 flex items-center gap-1">
+                        <span className="text-xs">⚠</span> {errors.price}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Provide your expected price with unit (per ton, per kg,
+                      etc.)
+                    </p>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="moisture" className="text-sm font-medium">
                       Moisture Level <span className="text-red-500">*</span>
@@ -472,39 +538,6 @@ export default function ListWaste() {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-
-                {/* Price */}
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="text-sm font-medium">
-                    Expected Price <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    type="number"
-                    id="price"
-                    required
-                    placeholder="e.g., ₹2000 per ton"
-                    value={formData.price}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        price: e.target.valueAsNumber,
-                      });
-                      validateField("price", e.target.value);
-                    }}
-                    className={`h-12 transition-all ${
-                      formData.price ? "border-green-300 bg-green-50/30" : ""
-                    } ${errors.price ? "border-red-500" : ""}`}
-                  />
-                  {errors.price && (
-                    <p className="text-sm text-red-500 flex items-center gap-1">
-                      <span className="text-xs">⚠</span> {errors.price}
-                    </p>
-                  )}
-                  <p className="text-xs text-gray-500">
-                    Provide your expected price with unit (per ton, per kg,
-                    etc.)
-                  </p>
                 </div>
 
                 {/* Description */}

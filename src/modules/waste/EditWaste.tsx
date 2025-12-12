@@ -1,8 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
-import { redirect, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useSearchParams, useRouter } from "next/navigation";
+
+import { Unit, WasteFormData, WasteFormDataSchema } from "@/components/types/ListWaste";
+import {
+  wasteFormDataType,
+  wasteFormSchema,
+} from "@/components/types/zod.waste";
+
+// UI components you used earlier:
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
@@ -10,621 +31,431 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Leaf,
-  Upload,
-  CheckCircle2,
-  Info,
-  ImageIcon,
-  Loader2,
-} from "lucide-react";
-import ProductList from "@/../public/Products/Product.json";
 import Image from "next/image";
+import ProductList from "@/../public/Products/Product.json";
+import { Loader2, Upload, Leaf, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
-import { WasteFormData, WasteType } from "@/components/types/ListWaste";
-import { FarmerAccount } from "@/components/types/farmerAccount";
-import axios from "axios";
 
-export default function ListWaste() {
-  const { user, isLoaded } = useUser();
+export default function EditWaste() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
-  const [formData, setFormData] = useState<WasteFormData>({
-    title: "",
-    wasteType: "",
-    wasteProduct: "",
-    quantity: 0,
-    moisture: "",
-    price: 0,
-    description: "",
-    image: null,
-    seller: {
-      farmerId: "",
-      name: "",
-      email: "",
-      phone: "",
-    },
-    address: {
-      district: "",
-      houseBuildingName: "",
-      roadarealandmarkName: "",
-      state: "",
-      taluka: "",
-      village: "",
+  const formdata = useForm<wasteFormDataType>({
+    resolver: zodResolver(wasteFormSchema) as any,
+    defaultValues: {
+      address: {
+        district: "",
+        houseBuildingName: "",
+        roadarealandmarkName: "",
+        state: "",
+        taluka: "",
+        village: "",
+      },
+      description: "",
+      imageUrl: "",
+      moisture: "",
+      price: 0,
+      quantity: 0,
+      seller: {
+        email: "",
+        farmerId: "",
+        name: "",
+        phone: "",
+      },
+      title: "",
+      unit: "",
+      wasteProduct: "",
+      wasteType:"",
     },
   });
 
-  const [loading, setLoading] = useState(false);
+  const { register, handleSubmit, reset, watch, control, formState } = formdata;
+  const values = watch();
+
+  // Local state for file/image preview
+  const [newImageFile, setNewImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
-  // Calculate form completion percentage
-  const calculateProgress = () => {
-    const keysToCheck = [
-      "title",
-      "wasteType",
-      "wasteProduct",
-      "quantity",
-      "moisture",
-      "price",
-      "description",
-      "image",
-    ] as const;
-
-    const isFilled = (key: (typeof keysToCheck)[number]) => {
-      const value = formData[key];
-
-      if (key === "image") {
-        return value !== null;
-      }
-
-      if (typeof value === "string") {
-        return value.trim() !== "";
-      }
-
-      return Boolean(value);
-    };
-
-    const filled = keysToCheck.filter(isFilled).length;
-    return (filled / keysToCheck.length) * 100;
-  };
-
-  if (isLoaded && !user) {
-    redirect("/sign-in");
-  }
+  // Load waste to edit
   useEffect(() => {
-    const sellerInfo = async () => {
-      if (!user) return;
-      const res = await axios.get(
-        `/api/profile/farmer/get/${user.id.replace(/^user_/, "fam_")}`
-      );
+    if (!id) return;
+    let mounted = true;
 
-      if (!res.data) return;
+    async function fetchWaste() {
+      try {
+        const res = await axios.get(`/api/waste/singlewaste/${id}`);
+        if (!mounted) return;
+        if (res?.data?.singleWaste) {
+          const data = res.data.singleWaste;
 
-      const farmerData: FarmerAccount = res.data.accountdata;
+          console.log(data);
 
-      setFormData((prev) => ({
-        ...prev,
-        address: {
-          district: farmerData.district,
-          houseBuildingName: farmerData.houseBuildingName,
-          roadarealandmarkName: farmerData.roadarealandmarkName,
-          state: farmerData.state,
-          taluka: farmerData.taluka,
-          village: farmerData.village,
-        },
-        seller: {
-          farmerId: farmerData.farmerId,
-          email: farmerData.email,
-          name: `${farmerData.firstName} ${farmerData.lastName}`,
-          phone: farmerData.phone,
-        },
-      }));
-    };
+          reset({
+            ...data,
+            image: data.image ?? data.image ?? "",
+          });
 
-    sellerInfo();
-  }, [user, isLoaded]);
-
-  // Inline validation
-  const validateField = (name: string, value: string) => {
-    const newErrors = { ...errors };
-
-    switch (name) {
-      case "title":
-        if (value.length < 3) {
-          newErrors.title = "Title must be at least 3 characters";
+          setImagePreview(data.imageUrl ?? data.image ?? null);
         } else {
-          delete newErrors.title;
+          // not found
+          alert("Could not load waste item");
         }
-        break;
-      case "quantity":
-        if (value.length <= 0) {
-          newErrors.quantity = "Please Entre quantity";
-        } else {
-          delete newErrors.quantity;
-        }
-        break;
-      case "price":
-        if (value.length <= 0) {
-          newErrors.price = "Please Entre price";
-        } else {
-          delete newErrors.price;
-        }
-        break;
+      } catch (err) {
+        console.error("Failed to fetch waste:", err);
+        alert("Failed to load waste data");
+      }
     }
 
-    setErrors(newErrors);
-  };
+    fetchWaste();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
+    return () => {
+      mounted = false;
+    };
+  }, [id, reset]);
+
+  // Handle file selection (optional replace)
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] ?? null;
+    setNewImageFile(f);
+    if (f) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(f);
+    } else {
+      // if user cleared file input, revert to form imageUrl
+      setImagePreview(values.imageUrl || null);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.image) {
-      setErrors({ ...errors, image: "Please upload an image" });
+  // Submit: upload image if newImageFile present, then PUT update
+  const onSubmit = async (formValues: wasteFormDataType) => {
+    if (!id) {
+      alert("Missing id");
       return;
     }
 
     setLoading(true);
 
     try {
-      const imageBase64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(formData.image!);
-        reader.onload = () => resolve(reader.result as string);
-      });
+      let finalImageUrl = formValues.imageUrl || "";
 
-      toast.loading("Uploading image...");
-      const uploadRes = await axios.post("/api/waste/upload", {
-        base64: imageBase64,
-        fileName: `${user?.id.replace(/^user_/, "fam_")}_${
-          formData.wasteProduct
-        }`,
-      });
+      // If user selected a new file, upload it
+      if (newImageFile) {
+        // convert file to base64 (same approach you used)
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(newImageFile);
+        });
 
-      const uploadData = uploadRes.data;
-      toast.dismiss
+        toast.loading("Uploading Image");
 
-      if (!uploadData || !uploadData.url) {
-        toast.error("Image upload failed. Please try again.");
+        // upload
+        const uploadRes = await axios.post("/api/waste/upload", {
+          base64,
+          fileName: `waste_${id}`,
+        });
+
+        if (uploadRes?.data?.url) {
+          finalImageUrl = uploadRes.data.url;
+        } else {
+          throw new Error("Image upload failed");
+        }
+
+        toast.dismiss();
       }
 
-      const payload = {
-        farmerId: user?.id.replace(/^user_/, "fam_"),
-        title: formData.title,
-        wasteType: formData.wasteType,
-        wasteProduct: formData.wasteProduct,
-        quantity: formData.quantity,
-        moisture: formData.moisture,
-        price: formData.price,
-        description: formData.description,
-        seller: formData.seller,
-        address: formData.address,
-        imageUrl: uploadData.url,
+      // prepare payload (ensure shape matches your backend)
+      const payload: Partial<wasteFormDataType> = {
+        ...formValues,
+        imageUrl: finalImageUrl,
       };
 
-      const res = await axios.post("/api/waste/list", payload);
+      // call update endpoint (PUT)
+      const updateRes = await axios.post(`/api/waste/update/${id}`, payload);
 
-      if (res.status >= 200 && res.status < 300) {
-        toast.success("Waste listed successfully!");
+      if (updateRes.status >= 200 && updateRes.status < 300) {
+        toast.success("Waste updated successfully");
         router.push("/profile/farmer/my-listing");
       } else {
-        toast.error("Failed to list waste. Please try again.");
+        toast.error("Waste update Failed");
       }
     } catch {
-      setErrors({ submit: "Something went wrong. Please try again." });
+      toast.error("An error occurred while updating. See console for details.");
     } finally {
       setLoading(false);
     }
   };
 
-  const progress = calculateProgress();
-
   return (
-    <main className="min-h-screen bg-linear-to-br from-green-50 via-emerald-50 to-teal-50 py-8 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-green-50">
       <div className="max-w-4xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-3 bg-green-600 rounded-xl shadow-lg">
               <Leaf className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-green-900">
-                List Your Agricultural Waste
-              </h1>
-              <p className="text-green-700/70 text-sm mt-1">
-                Connect with buyers and turn your waste into value
+              <h1 className="text-2xl font-bold text-green-900">Edit Waste</h1>
+              <p className="text-sm text-green-700/80">
+                Update your listing details
               </p>
             </div>
-          </div>
-
-          {/* Progress Indicator */}
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-green-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-green-900">
-                Form Completion
-              </span>
-              <span className="text-sm font-semibold text-green-600">
-                {Math.round(progress)}%
-              </span>
-            </div>
-            <Progress value={progress} className="h-2" />
           </div>
         </div>
 
-        {/* Main Form Card */}
-        <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-bold text-green-900">
-              Waste Details
-            </CardTitle>
-            <CardDescription className="text-base">
-              Fill in the information below. Fields marked with * are required.
-            </CardDescription>
+        <Card className="bg-white/90">
+          <CardHeader>
+            <CardTitle>Waste Details</CardTitle>
+            <CardDescription>Edit fields and save</CardDescription>
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Section 1: Basic Information */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-green-100">
-                  <Info className="h-4 w-4 text-green-600" />
-                  <h3 className="font-semibold text-green-900">
-                    Basic Information
-                  </h3>
-                </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Title */}
+              <div>
+                <Label htmlFor="title">Listing Title</Label>
+                <Input id="title" {...register("title")} className="mt-2" />
+                {formState.errors.title && (
+                  <p className="text-sm text-red-500">
+                    {(formState.errors.title as any).message}
+                  </p>
+                )}
+              </div>
 
-                {/* Title */}
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="text-sm font-medium">
-                    Listing Title <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="title"
-                    required
-                    placeholder="e.g., Fresh Cotton Crop Residues Available"
-                    value={formData.title}
-                    onChange={(e) => {
-                      setFormData({ ...formData, title: e.target.value });
-                      validateField("title", e.target.value);
-                    }}
-                    className={`h-12 transition-all ${
-                      formData.title ? "border-green-300 bg-green-50/30" : ""
-                    } ${errors.title ? "border-red-500" : ""}`}
+              {/* Type & Product */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Waste Category</Label>
+                  <Controller
+                    control={control}
+                    name="wasteType"
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(v) => field.onChange(v)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Choose category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="crop">crop</SelectItem>
+                          <SelectItem value="fruit">fruit</SelectItem>
+                          <SelectItem value="vegetable">vegetable</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
-                  {errors.title && (
-                    <p className="text-sm text-red-500 flex items-center gap-1">
-                      <span className="text-xs">⚠</span> {errors.title}
+                  {formState.errors.wasteType && (
+                    <p className="text-sm text-red-500">
+                      {(formState.errors.wasteType as any).message}
                     </p>
                   )}
                 </div>
 
-                {/* Type & Product - Side by Side */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="wasteType" className="text-sm font-medium">
-                      Waste Category <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      required
-                      onValueChange={(value: WasteType) =>
-                        setFormData({
-                          ...formData,
-                          wasteType: value,
-                          wasteProduct: "",
-                        })
-                      }
-                      value={formData.wasteType}
-                    >
-                      <SelectTrigger
-                        id="wasteType"
-                        className={`h-12 transition-all ${
-                          formData.wasteType
-                            ? "border-green-300 bg-green-50/30"
-                            : ""
-                        }`}
+                <div>
+                  <Label>Specific Product</Label>
+                  <Controller
+                    control={control}
+                    name="wasteProduct"
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(v) => field.onChange(v)}
+                        value={field.value}
                       >
-                        <SelectValue placeholder="Choose category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="crop">🌾 Crop Residues</SelectItem>
-                        <SelectItem value="fruit">🍓 Fruits</SelectItem>
-                        <SelectItem value="vegetable">🥬 Vegetables</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="product" className="text-sm font-medium">
-                      Specific Product <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      disabled={!formData.wasteType}
-                      required
-                      onValueChange={(value: string) =>
-                        setFormData({ ...formData, wasteProduct: value })
-                      }
-                      value={formData.wasteProduct}
-                    >
-                      <SelectTrigger
-                        id="product"
-                        className={`h-12 transition-all ${
-                          formData.wasteProduct
-                            ? "border-green-300 bg-green-50/30"
-                            : ""
-                        } ${!formData.wasteType ? "opacity-50" : ""}`}
-                      >
-                        <SelectValue
-                          placeholder={
-                            formData.wasteType
-                              ? "Select product"
-                              : "Select category first"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {formData.wasteType &&
-                          ProductList[formData.wasteType].map(
-                            (item: string) => (
-                              <SelectItem key={item} value={item}>
-                                {item}
+                        <SelectTrigger className="mt-2">
+                          <SelectValue
+                            placeholder={
+                              values.wasteType
+                                ? "Select product"
+                                : "Select category first"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {values.wasteType &&
+                            (ProductList as Record<string, string[]>)[
+                              values.wasteType
+                            ].map((prod, _indx) => (
+                              <SelectItem key={_indx} value={prod}>
+                                {prod}
                               </SelectItem>
-                            )
-                          )}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {formState.errors.wasteProduct && (
+                    <p className="text-sm text-red-500">
+                      {(formState.errors.wasteProduct as any).message}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* Section 2: Specifications */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-green-100">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <h3 className="font-semibold text-green-900">
-                    Specifications
-                  </h3>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {/* Quantity */}
-                  <div className="space-y-2">
-                    <Label htmlFor="quantity" className="text-sm font-medium">
-                      Available Quantity <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      required
-                      placeholder="e.g., 2 tons or 500 kg"
-                      value={formData.quantity}
-                      onChange={(e) => {
-                        setFormData({
-                          ...formData,
-                          quantity: e.target.valueAsNumber,
-                        });
-                        validateField("quantity", e.target.value);
-                      }}
-                      className={`h-12 transition-all ${
-                        formData.quantity
-                          ? "border-green-300 bg-green-50/30"
-                          : ""
-                      } ${errors.quantity ? "border-red-500" : ""}`}
-                    />
-                    {errors.quantity && (
-                      <p className="text-sm text-red-500 flex items-center gap-1">
-                        <span className="text-xs">⚠</span> {errors.quantity}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Moisture */}
-                  <div className="space-y-2">
-                    <Label htmlFor="moisture" className="text-sm font-medium">
-                      Moisture Level <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      required
-                      onValueChange={(value: string) =>
-                        setFormData({ ...formData, moisture: value })
-                      }
-                      value={formData.moisture}
-                    >
-                      <SelectTrigger
-                        id="moisture"
-                        className={`h-12 transition-all ${
-                          formData.moisture
-                            ? "border-green-300 bg-green-50/30"
-                            : ""
-                        }`}
-                      >
-                        <SelectValue placeholder="Select moisture level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="dry">☀️ Dry</SelectItem>
-                        <SelectItem value="semiwet">🌤️ Semi-wet</SelectItem>
-                        <SelectItem value="wet">💧 Wet</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Price */}
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="text-sm font-medium">
-                    Expected Price <span className="text-red-500">*</span>
-                  </Label>
+              {/* Quantity & Unit */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Quantity</Label>
                   <Input
                     type="number"
-                    id="price"
-                    required
-                    placeholder="e.g., ₹2000 per ton"
-                    value={formData.price}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        price: e.target.valueAsNumber,
-                      });
-                      validateField("price", e.target.value);
-                    }}
-                    className={`h-12 transition-all ${
-                      formData.price ? "border-green-300 bg-green-50/30" : ""
-                    } ${errors.price ? "border-red-500" : ""}`}
+                    {...register("quantity", { valueAsNumber: true })}
+                    className="mt-2"
                   />
-                  {errors.price && (
-                    <p className="text-sm text-red-500 flex items-center gap-1">
-                      <span className="text-xs">⚠</span> {errors.price}
+                  {formState.errors.quantity && (
+                    <p className="text-sm text-red-500">
+                      {(formState.errors.quantity as any).message}
                     </p>
                   )}
-                  <p className="text-xs text-gray-500">
-                    Provide your expected price with unit (per ton, per kg,
-                    etc.)
-                  </p>
                 </div>
 
-                {/* Description */}
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-sm font-medium">
-                    Description <span className="text-red-500">*</span>
-                  </Label>
-                  <Textarea
-                    id="description"
-                    required
-                    placeholder="Describe the condition, storage, location, and any other relevant details about your agricultural waste..."
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    rows={5}
-                    className={`resize-none transition-all ${
-                      formData.description
-                        ? "border-green-300 bg-green-50/30"
-                        : ""
-                    }`}
+                <div>
+                  <Label>Unit</Label>
+                  <Controller
+                    control={control}
+                    name="unit"
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(v) => field.onChange(v)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select unit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="kg">Kg</SelectItem>
+                          <SelectItem value="ton">ton</SelectItem>
+                          <SelectItem value="gram">gram</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
-                  <p className="text-xs text-gray-500 text-right">
-                    {formData.description.length} characters
-                  </p>
+                  {formState.errors.unit && (
+                    <p className="text-sm text-red-500">
+                      {(formState.errors.unit as any).message}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* Section 3: Upload Image */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-green-100">
-                  <ImageIcon className="h-4 w-4 text-green-600" />
-                  <h3 className="font-semibold text-green-900">
-                    Product Image
-                  </h3>
+              {/* Moisture & Price */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Moisture</Label>
+                  <Controller
+                    name="moisture"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(v) => field.onChange(v)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select moisture" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dry">dry</SelectItem>
+                          <SelectItem value="semiwet">semiwet</SelectItem>
+                          <SelectItem value="wet">wet</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {formState.errors.moisture && (
+                    <p className="text-sm text-red-500">
+                      {(formState.errors.moisture as any).message}
+                    </p>
+                  )}
                 </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="image" className="text-sm font-medium">
-                    Upload Photo <span className="text-red-500">*</span>
-                  </Label>
+                <div>
+                  <Label>Price</Label>
+                  <Input
+                    type="number"
+                    {...register("price", { valueAsNumber: true })}
+                    className="mt-2"
+                  />
+                  {formState.errors.price && (
+                    <p className="text-sm text-red-500">
+                      {(formState.errors.price as any).message}
+                    </p>
+                  )}
+                </div>
+              </div>
 
+              {/* Description */}
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  {...register("description")}
+                  className="mt-2"
+                  rows={4}
+                />
+                {formState.errors.description && (
+                  <p className="text-sm text-red-500">
+                    {(formState.errors.description as any).message}
+                  </p>
+                )}
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <Label>Product Image</Label>
+
+                <div className="mt-2">
                   {imagePreview ? (
-                    <div className="relative group w-full h-64 object-cover rounded-lg border-2 border-green-200">
-                      <Image src={imagePreview} alt="Preview" fill />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                        <Label
-                          htmlFor="image"
-                          className="cursor-pointer bg-white text-green-700 px-4 py-2 rounded-lg font-medium hover:bg-green-50 transition-colors"
-                        >
-                          Change Image
-                        </Label>
-                      </div>
+                    <div className="relative w-full h-64 rounded-lg overflow-hidden border">
+                      {/* next/image can accept data URL for preview */}
+                      <Image
+                        src={imagePreview}
+                        alt="preview"
+                        fill
+                        style={{ objectFit: "cover" }}
+                      />
                     </div>
                   ) : (
-                    <Label
-                      htmlFor="image"
-                      className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-green-300 rounded-lg cursor-pointer hover:bg-green-50/50 transition-all group"
-                    >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="h-12 w-12 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
-                        <p className="mb-2 text-sm text-gray-600">
-                          <span className="font-semibold">Click to upload</span>{" "}
-                          or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PNG, JPG or JPEG (MAX. 5MB)
-                        </p>
+                    <div className="w-full h-64 rounded-lg border-dashed border-2 border-gray-200 flex items-center justify-center">
+                      <div className="text-center">
+                        <Upload className="mx-auto mb-2" />
+                        <p className="text-sm">No image selected</p>
                       </div>
-                    </Label>
-                  )}
-
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    required
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-
-                  {errors.image && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{errors.image}</AlertDescription>
-                    </Alert>
+                    </div>
                   )}
                 </div>
+
+                <input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={onFileChange}
+                  className="mt-2"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Choose file to replace existing image (optional)
+                </p>
               </div>
 
-              {/* Submit Error */}
-              {errors.submit && (
-                <Alert variant="destructive">
-                  <AlertDescription>{errors.submit}</AlertDescription>
-                </Alert>
-              )}
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-14 text-lg font-semibold bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Listing Your Waste...
-                  </>
-                ) : (
-                  <>
-                    <Leaf className="mr-2 h-5 w-5" />
-                    List Waste Now
-                  </>
-                )}
-              </Button>
-
-              {/* Help Text */}
-              <p className="text-center text-sm text-gray-500">
-                By submitting, you agree to our terms of service and privacy
-                policy
-              </p>
+              {/* Submit */}
+              <div className="pt-4">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Leaf className="mr-2 h-4 w-4" /> Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

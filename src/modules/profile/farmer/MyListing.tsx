@@ -16,6 +16,7 @@ import Image from "next/image";
 import { FarmerWasteFormData, WasteType } from "@/components/types/ListWaste";
 import axios from "axios";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function MyListing() {
   const { user } = useUser();
@@ -57,10 +58,6 @@ export default function MyListing() {
       selectedType === "all" || item.wasteType === selectedType;
     return matchesSearch && matchesType;
   });
-
-  const handleEdit = (id: string) => {
-    alert(`Edit listing ${id}`);
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this listing?")) return;
@@ -211,6 +208,8 @@ export default function MyListing() {
                       alt={item.title}
                       src={item.imageUrl}
                       fill
+                      sizes="300px"
+                      loading="eager"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
@@ -246,7 +245,7 @@ export default function MyListing() {
                     <div>
                       <p className="text-gray-500">Quantity</p>
                       <p className="font-medium text-gray-900">
-                        {item.quantity}
+                        {item.quantity} {item.unit}
                       </p>
                     </div>
                     <div>
@@ -262,7 +261,7 @@ export default function MyListing() {
                     <span className="text-lg font-bold text-green-600">
                       ₹{item.price}
                     </span>
-                    <span className="text-xs text-gray-500"> /unit</span>
+                    <span className="text-xs text-gray-500"> /{item.unit}</span>
                   </div>
 
                   {/* Description */}
@@ -272,15 +271,13 @@ export default function MyListing() {
                 </CardContent>
 
                 <CardFooter className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 h-8 text-xs hover:bg-green-50 hover:border-green-500 hover:text-green-700"
-                    onClick={() => handleEdit(item._id)}
+                  <Link
+                    href={`/profile/farmer/my-listing/edit-waste?id=${item._id}`}
+                    className="flex-1 flex items-center justify-center border rounded-md h-8 text-xs hover:bg-green-50 hover:border-green-500 hover:text-green-700"
                   >
                     <Edit className="h-3.5 w-3.5 mr-1" />
                     Edit
-                  </Button>
+                  </Link>
                   <Button
                     variant="outline"
                     size="sm"

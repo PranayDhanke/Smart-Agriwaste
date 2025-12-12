@@ -437,7 +437,7 @@ export default function Marketplace() {
                         <span className="text-base font-bold text-green-600">
                           ₹{p.price}
                         </span>
-                        <span className="text-[10px] text-gray-600">/unit</span>
+                        <span className="text-[10px] text-gray-600">/{p.unit}</span>
                       </div>
                     </div>
                   </div>
@@ -468,7 +468,7 @@ export default function Marketplace() {
                       </div>
                       <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
                         <Package className="h-3 w-3" />
-                        <span>{p.quantity}</span>
+                        <span>{p.quantity} {p.unit}</span>
                       </div>
                     </div>
                   </div>
@@ -484,7 +484,7 @@ export default function Marketplace() {
                       <ShoppingCart className="h-3.5 w-3.5 mr-1" />
                       Cart
                     </Button>
-                    <Link href={`/marketplace/${p._id}`} className="flex-1">
+                    <Link href={`/marketplace/view/?product=${p._id}`} className="flex-1">
                       <Button
                         size="sm"
                         className="w-full h-8 text-xs font-medium bg-green-600 hover:bg-green-700 text-white"

@@ -22,7 +22,7 @@ export async function GET(
     }
 
     // Await the query
-    const wastedata = await Waste.find({ farmerId: id });
+    const wastedata = await Waste.find({ "seller.farmerId": id });
 
     // Respond with data
     return NextResponse.json({ wastedata }, { status: 200 });

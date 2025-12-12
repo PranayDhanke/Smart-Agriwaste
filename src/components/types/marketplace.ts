@@ -1,4 +1,4 @@
-import { Address, Seller, WasteType } from "./ListWaste";
+import { Address, Seller, Unit, WasteType } from "./ListWaste";
 
 export interface FilterState {
   search: string;
@@ -15,6 +15,7 @@ export interface WasteItem {
   wasteType: WasteType;
   wasteProduct: string;
   quantity: string;
+  unit:Unit;
   address: Address;
   moisture: string;
   price: string;
@@ -27,13 +28,14 @@ export interface SingleWasteItem {
   title: string;
   wasteType: WasteType;
   wasteProduct: string;
-  quantity: string;
+  quantity: number;
   address: Address;
   moisture: string;
-  price: string;
+  price: number;
   description: string;
   imageUrl: string;
-  seller: Seller
+  seller: Seller;
+  unit:Unit;
 }
 
 

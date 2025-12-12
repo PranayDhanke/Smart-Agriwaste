@@ -10,8 +10,6 @@ export async function POST(req: NextRequest) {
     await dbConnect();
 
     console.log(data);
-    
-
     // Save document
     await Waste.create({
       ...data,
@@ -23,7 +21,11 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Failed to list waste ❌" }, { status: 500 });
+    console.log(error);
+
+    return NextResponse.json(
+      { error: "Failed to list waste ❌" },
+      { status: 500 }
+    );
   }
 }

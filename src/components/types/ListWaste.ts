@@ -7,6 +7,8 @@ export type Seller = {
   email: string;
 };
 
+export type Unit = "Kg" | "ton" | "gram";
+
 export type Address = {
   houseBuildingName: string;
   roadarealandmarkName: string;
@@ -27,10 +29,10 @@ export interface WasteFormData {
   address: Address;
   image: File | null;
   seller: Seller;
+  unit: Unit | "";
 }
 
 export interface WasteFormDataSchema {
-  farmerId: string;
   title: string;
   wasteType: WasteType | "";
   wasteProduct: string;
@@ -41,6 +43,7 @@ export interface WasteFormDataSchema {
   address: Address;
   imageUrl: File | null;
   seller: Seller;
+  unit: Unit;
 }
 
 export interface FarmerWasteFormData {
@@ -53,6 +56,7 @@ export interface FarmerWasteFormData {
   price: number;
   description: string;
   imageUrl: string;
+  unit: Unit;
 }
 
 export interface WasteForm {
@@ -64,4 +68,5 @@ export interface WasteForm {
   intendedUse: string;
   contamination: string;
   notes: string;
+ 
 }

@@ -1,9 +1,11 @@
 import Singlemarketplace from "@/modules/marketplace/Singlemarketplace";
+import { connection } from "next/server";
 
-const page = ({ params }: { params: { id: string } }) => {
+const page = async () => {
+  await connection();
   return (
     <div>
-      <Singlemarketplace id={params.id} />
+      <Singlemarketplace />
     </div>
   );
 };
