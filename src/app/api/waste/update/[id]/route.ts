@@ -3,7 +3,7 @@ import dbConnect from "@/lib/mongoDB";
 import Waste from "@/models/waste";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(
+export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {

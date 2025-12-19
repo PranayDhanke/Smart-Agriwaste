@@ -174,7 +174,7 @@ export default function Profile() {
       // Optional: validate farmerId
       if (!farmerId) throw new Error("Missing farmerId");
 
-      const res = await axios.post(
+      const res = await axios.put(
         `/api/profile/farmer/update/${farmerId}`,
         payload
       );

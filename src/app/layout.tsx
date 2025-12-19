@@ -7,6 +7,8 @@ import Footer from "@/modules/Home/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import RedirectNotAccount from "@/modules/Extra/RedirectNotAccount";
+import { CartProvider } from "@/context/CartContext";
+import FloatingCart from "@/modules/Extra/FlotingCart";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,9 +37,12 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <Toaster position="top-center" />
-          <Header />
-          {children}
-          <Footer />
+          <CartProvider>
+            <Header />
+            {children}
+            <FloatingCart />
+            <Footer />
+          </CartProvider>
           <RedirectNotAccount />
         </body>
       </html>

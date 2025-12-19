@@ -178,7 +178,7 @@ export default function EditWaste() {
       };
 
       // call update endpoint (PUT)
-      const updateRes = await axios.post(`/api/waste/update/${id}`, payload);
+      const updateRes = await axios.put(`/api/waste/update/${id}`, payload);
 
       if (updateRes.status >= 200 && updateRes.status < 300) {
         toast.success("Waste updated successfully");

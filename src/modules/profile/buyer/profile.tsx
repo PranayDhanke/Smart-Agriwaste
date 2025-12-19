@@ -147,7 +147,7 @@ export default function Profile() {
 
       console.log("Updated buyer profile:", values);
 
-      const res = await axios.post(
+      const res = await axios.put(
         `/api/profile/buyer/update/${buyerId}`,
         values
       );

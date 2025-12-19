@@ -37,11 +37,15 @@ import {
 } from "react-icons/fi";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
+import { useCart } from "@/context/CartContext";
+import CartDrawer from "../marketplace/CartDrawer";
 
 const Header = () => {
   const { isSignedIn, user } = useUser();
   const { signOut, openUserProfile } = useClerk();
   const [isOpen, setIsOpen] = useState(false);
+
+  const { cartItems } = useCart();
 
   const role = user?.unsafeMetadata?.role || "user"; // "farmer" or "buyer"
 
@@ -192,7 +196,7 @@ const Header = () => {
                   Login
                 </Button>
               </Link>
-              
+
               {/* IMPROVED SIGN UP DROPDOWN */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -206,7 +210,7 @@ const Header = () => {
                     Join as
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="my-1" />
-                  
+
                   {/* Farmer Option */}
                   <Link href="/sign-up?role=farmer">
                     <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer hover:bg-green-50 rounded-md transition-colors">
@@ -215,7 +219,9 @@ const Header = () => {
                           <FiPackage className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
-                          <div className="font-semibold text-gray-900">Farmer</div>
+                          <div className="font-semibold text-gray-900">
+                            Farmer
+                          </div>
                           <div className="text-xs text-gray-500 mt-0.5">
                             Sell your agricultural waste
                           </div>
@@ -234,7 +240,9 @@ const Header = () => {
                           <FiShoppingBag className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
-                          <div className="font-semibold text-gray-900">Buyer</div>
+                          <div className="font-semibold text-gray-900">
+                            Buyer
+                          </div>
                           <div className="text-xs text-gray-500 mt-0.5">
                             Purchase quality agricultural materials
                           </div>

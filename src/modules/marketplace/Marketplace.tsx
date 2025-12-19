@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -34,6 +34,10 @@ import { toast } from "sonner";
 import { WasteType } from "@/components/types/ListWaste";
 import { FilterState, WasteItem } from "@/components/types/marketplace";
 import axios from "axios";
+import { CartItem } from "@/components/types/orders";
+import { useCart } from "@/context/CartContext";
+import { useUser } from "@clerk/nextjs";
+import NegotiationPanel from "./NegotiationPanel";
 
 const categoryMeta: Record<
   WasteType,
@@ -73,6 +77,10 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
 
+  const { user } = useUser();
+
+  const role = user?.unsafeMetadata.role;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -91,6 +99,8 @@ export default function Marketplace() {
     };
     fetchData();
   }, []);
+
+  const { cartItems, addToCart } = useCart();
 
   useEffect(() => {
     const count = Object.entries(filters).reduce((acc, [key, value]) => {
@@ -130,24 +140,61 @@ export default function Marketplace() {
     const min = filters.minPrice ? Number(filters.minPrice) : undefined;
     const max = filters.maxPrice ? Number(filters.maxPrice) : undefined;
     list = list.filter((p) => {
-      const price = parseFloat(p.price);
+      const price = p.price;
       if (min !== undefined && price < min) return false;
       if (max !== undefined && price > max) return false;
       return true;
     });
 
-    if (filters.sortBy === "price-asc")
-      list.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-    if (filters.sortBy === "price-desc")
-      list.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    if (filters.sortBy === "price-asc") list.sort((a, b) => a.price - b.price);
+    if (filters.sortBy === "price-desc") list.sort((a, b) => b.price - a.price);
     if (filters.sortBy === "name")
       list.sort((a, b) => a.title.localeCompare(b.title));
 
     return list;
   }, [wastes, filters]);
 
+  const [openNegotiateModal, setOpenNegotiateModal] = useState(false);
+
+  const [negotiationItem, setNegotiationItem] = useState<WasteItem | null>(
+    null
+  );
+  const handleNegotiate = (item: WasteItem) => {
+    setNegotiationItem(item);
+    setOpenNegotiateModal(true);
+  };
+
   const handleAddToCart = (item: WasteItem) => {
-    toast.success(`${item.title} added to cart!`);
+    const cartItem: CartItem = {
+      prodId: item._id,
+      title: item.title,
+
+      wasteType: item.wasteType,
+      wasteProduct: item.wasteProduct,
+      moisture: item.moisture,
+
+      quantity: 1,
+      unit: item.unit,
+      price: Number(item.price),
+      maxQuantity: item.quantity,
+
+      description: item.description,
+      image: item.imageUrl,
+
+      sellerInfo: {
+        seller: {
+          farmerId: item.seller.farmerId,
+          farmerName: item.seller.farmerId,
+        },
+        address: item.address,
+      },
+    };
+
+    console.log(cartItems);
+
+    addToCart(cartItem);
+
+    toast.success(`${item.title} added to cart`);
   };
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
@@ -281,7 +328,9 @@ export default function Marketplace() {
 
           <Select
             value={filters.sortBy}
-            onValueChange={(value:string) => handleFilterChange("sortBy", value)}
+            onValueChange={(value: string) =>
+              handleFilterChange("sortBy", value)
+            }
           >
             <SelectTrigger className="w-full sm:w-[200px] h-10 border-gray-200">
               <Clock className="h-4 w-4 mr-2" />
@@ -350,7 +399,9 @@ export default function Marketplace() {
                 </Label>
                 <Select
                   value={filters.sortBy}
-                  onValueChange={(value:string) => handleFilterChange("sortBy", value)}
+                  onValueChange={(value: string) =>
+                    handleFilterChange("sortBy", value)
+                  }
                 >
                   <SelectTrigger className="h-10 border-gray-200">
                     <SelectValue />
@@ -397,97 +448,123 @@ export default function Marketplace() {
               {filtered.map((p) => (
                 <Card
                   key={p._id}
-                  className="group relative overflow-hidden border border-gray-200/60 shadow-sm hover:shadow-lg hover:border-green-300/50 transition-all duration-300 bg-white rounded-xl"
+                  className="group relative overflow-hidden rounded-xl border border-gray-200/60 bg-white shadow-sm transition-all duration-300 hover:border-green-300/50 hover:shadow-lg"
                 >
-                  {/* Compact Image Container */}
+                  {/* Image */}
                   <div className="relative h-36 w-full overflow-hidden">
                     {p.imageUrl ? (
                       <Image
                         src={p.imageUrl}
                         alt={p.title}
                         fill
-                        priority
                         sizes="auto"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        priority
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
                         <Package className="h-10 w-10 text-gray-300" />
                       </div>
                     )}
 
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                    {/* Compact Category Badge */}
+                    {/* Category */}
                     <div className="absolute top-2 right-2">
                       <div
                         className={`${categoryMeta[p.wasteType].bgColor} ${
                           categoryMeta[p.wasteType].color
-                        } backdrop-blur-sm rounded-md px-2 py-0.5 text-[10px] font-semibold flex items-center gap-1`}
+                        }
+              rounded-md px-2 py-0.5 text-[10px] font-semibold flex items-center gap-1 backdrop-blur-sm`}
                       >
                         {categoryMeta[p.wasteType].icon}
                         {categoryMeta[p.wasteType].label}
                       </div>
                     </div>
 
-                    {/* Price Badge Overlay */}
+                    {/* Price */}
                     <div className="absolute bottom-2 left-2">
-                      <div className="bg-white/95 backdrop-blur-sm rounded-lg px-2.5 py-1 shadow-sm">
+                      <div className="rounded-lg bg-white/95 px-2.5 py-1 shadow-sm backdrop-blur-sm">
                         <span className="text-base font-bold text-green-600">
                           ₹{p.price}
                         </span>
-                        <span className="text-[10px] text-gray-600">/{p.unit}</span>
+                        <span className="text-[10px] text-gray-600">
+                          /{p.unit}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Compact Content */}
+                  {/* Content */}
                   <div className="p-3 space-y-2">
-                    {/* Title & Product Type */}
-                    <div className="space-y-0.5">
-                      <h3 className="font-semibold text-sm text-gray-900 line-clamp-1 leading-tight">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
                         {p.title}
                       </h3>
                       <p className="text-xs text-gray-500">{p.wasteProduct}</p>
                     </div>
 
-                    {/* Location */}
                     <div className="flex items-center gap-1 text-xs text-gray-600">
-                      <MapPin className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                      <MapPin className="h-3 w-3 text-gray-400" />
                       <span className="line-clamp-1">
                         {p.address.district.toString()}
                       </span>
                     </div>
 
-                    {/* Info Row */}
                     <div className="flex items-center justify-between pt-1">
                       <div className="flex items-center gap-1 text-xs text-gray-600">
                         <Droplets className="h-3 w-3 text-blue-500" />
                         <span>{p.moisture}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
+
+                      <div className="flex items-center gap-1 text-xs font-medium text-green-600">
                         <Package className="h-3 w-3" />
-                        <span>{p.quantity} {p.unit}</span>
+                        <span>
+                          {p.quantity} {p.unit}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Compact Action Buttons */}
-                  <div className="px-3 pb-3 flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 h-8 text-xs font-medium border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                      onClick={() => handleAddToCart(p)}
-                    >
-                      <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-                      Cart
-                    </Button>
-                    <Link href={`/marketplace/view/?product=${p._id}`} className="flex-1">
+                  {/* Actions */}
+                  <div className="px-3 pb-3 flex flex-wrap gap-2">
+                    {/* Not logged in */}
+                    {!user?.id && (
+                      <p className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded">
+                        Login as Buyer to buy item
+                      </p>
+                    )}
+
+                    {/* Buyer actions */}
+                    {role === "buyer" && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs border-gray-200 hover:bg-gray-50"
+                          onClick={() => handleAddToCart(p)}
+                        >
+                          <ShoppingCart className="h-3.5 w-3.5 mr-1" />
+                          Cart
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          className="h-8 text-xs bg-amber-500 hover:bg-amber-600 text-white"
+                          onClick={() => handleNegotiate(p)}
+                        >
+                          🤝 Negotiate
+                        </Button>
+                      </>
+                    )}
+
+                    {/* View (always aligned at end naturally) */}
+                    <Link href={`/marketplace/view/?product=${p._id}`}>
                       <Button
                         size="sm"
-                        className="w-full h-8 text-xs font-medium bg-green-600 hover:bg-green-700 text-white"
+                        variant="ghost"
+                        className="h-8 text-xs text-green-700 hover:bg-green-50"
                       >
                         View
                         <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
@@ -530,6 +607,24 @@ export default function Marketplace() {
               </Card>
             ))}
           </div>
+        )}
+      </section>
+
+      <section>
+        {negotiationItem && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              onClick={() => setNegotiationItem(null)}
+            />
+
+            {/* Modal */}
+            <NegotiationPanel
+              item={negotiationItem}
+              onClose={() => setNegotiationItem(null)}
+            />
+          </>
         )}
       </section>
     </main>

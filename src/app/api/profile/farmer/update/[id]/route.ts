@@ -2,7 +2,7 @@ import dbConnect from "@/lib/mongoDB";
 import FarmerAccount from "@/models/farmeraccount"; // prefer PascalCase for model
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(
+export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {

@@ -9,7 +9,7 @@ const imagekit = new ImageKit({
 
 export async function POST(request: NextRequest) {
   try {
-    const { base64, fileName } = await request.json();
+    const { base64, fileName , farmerId } = await request.json();
 
     if (!base64 || !fileName) {
       return NextResponse.json({ error: "Missing data" }, { status: 400 });
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const uploadResponse = await imagekit.upload({
       file: base64,
       fileName,
-      folder: "/waste_images",
+      folder: `/waste_images/${farmerId}`,
     });
 
     return NextResponse.json({

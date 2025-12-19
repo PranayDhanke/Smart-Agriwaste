@@ -2,7 +2,7 @@ import dbConnect from "@/lib/mongoDB";
 import buyeraccount from "@/models/buyeraccount";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(
+export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {

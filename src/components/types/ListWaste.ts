@@ -7,7 +7,7 @@ export type Seller = {
   email: string;
 };
 
-export type Unit = "Kg" | "ton" | "gram";
+export type Unit = "kg" | "ton" | "gram";
 
 export type Address = {
   houseBuildingName: string;

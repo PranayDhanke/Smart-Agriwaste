@@ -1,0 +1,51 @@
+import { Order } from "@/components/types/orders";
+import mongoose, { Schema } from "mongoose";
+
+const OrderSchema = new Schema<Order>(
+  {
+    buyerId: { type: String, required: true },
+    buyerName: { type: String, required: true },
+    hasPayment: { type: Boolean, required: true, default: false },
+    transactionMode: { type: String, required: true },
+    isDelivered: { type: Boolean, required: true, default: false },
+    farmerId: { type: String, required: true },
+    isOutForDelivery: { type: Boolean, required: true, default: false },
+    deliveryMode: { type: String, required: true },
+    items: [
+      {
+        prodId: { type: String, required: true },
+        title: { type: String, required: true },
+        wasteType: { type: String, required: true },
+        wasteProduct: { type: String, required: true },
+        moisture: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        price: { type: Number, required: true },
+        unit: { type: String, required: true },
+        description: { type: String, required: true },
+        image: { type: String, required: true },
+        sellerInfo: {
+          seller: {
+            farmerId: { type: String, required: true },
+            farmerName: { type: String, required: true },
+          },
+          address: {
+            houseBuildingName: { type: String, required: true },
+            roadarealandmarkName: { type: String, required: true },
+            state: { type: String, required: true },
+            district: { type: String, required: true },
+            taluka: { type: String, required: true },
+            village: { type: String, required: true },
+          },
+        },
+      },
+    ],
+    status: {
+      type: String,
+      enum: ["pending", "processed", "shipped", "delivered", "cancelled"],
+      default: "pending",
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.Order || mongoose.model("Order", OrderSchema);

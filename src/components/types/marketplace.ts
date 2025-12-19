@@ -14,13 +14,14 @@ export interface WasteItem {
   title: string;
   wasteType: WasteType;
   wasteProduct: string;
-  quantity: string;
+  quantity: number;
   unit:Unit;
   address: Address;
   moisture: string;
-  price: string;
+  price: number;
   description: string;
   imageUrl: string;
+  seller: Seller;
 }
 
 export interface SingleWasteItem {
@@ -37,5 +38,3 @@ export interface SingleWasteItem {
   seller: Seller;
   unit:Unit;
 }
-
-

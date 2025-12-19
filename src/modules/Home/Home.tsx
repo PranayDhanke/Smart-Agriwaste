@@ -20,6 +20,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Hero Section - Changes based on role */}
+
       <section className="mx-auto flex max-w-7xl flex-col items-center justify-center px-6 py-20 text-center">
         {!isSignedIn ? (
           <>

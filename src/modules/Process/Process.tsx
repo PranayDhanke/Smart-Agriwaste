@@ -546,6 +546,7 @@ export default function Process() {
 
                 <form onSubmit={handleFormSubmit} className="space-y-6">
                   {/* Waste type & product */}
+                  
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <Label className="text-sm font-semibold">

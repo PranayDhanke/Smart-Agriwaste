@@ -1,134 +1,102 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { CartItem } from "@/components/types/orders";
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { toast } from "sonner";
 
-// 🧱 Import your WasteItem type
-type WasteType = "crop" | "fruit" | "vegetable" | "livestock" | "plastic" | "organic";
-
-interface SellerInfo {
-  name: string;
-  phone: string;
-  email: string;
-  location: string;
-  farmerId?: string; // Clerk or MongoDB reference
-}
-
-interface WasteItem {
-  _id: string;
-  title: string; // short title of listing
-  wasteType: WasteType;
-  wasteProduct: string; // e.g., "Banana Peels", "Paddy Straw"
-  quantity: string; // e.g., "100 kg"
-  moisture: string; // e.g., "20%"
-  price: string; // per unit price (₹/kg or total)
-  unit?: string; // e.g., "kg", "ton"
-  totalPrice?: string; // optional (price × quantity)
-  location: string;
-  description: string;
-  imageUrl: string;
-  availability: "available" | "sold" | "reserved";
-  qualityGrade?: "A" | "B" | "C"; // optional quality grade
-  seller: SellerInfo;
-  buyer?: {
-    name: string;
-    email: string;
-    phone: string;
-    buyerId?: string;
-  };
-  createdAt: string;
-  updatedAt?: string;
-  deliveryOptions?: {
-    pickup: boolean;
-    delivery: boolean;
-  };
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
-
-type CartItem = WasteItem & {
-  quantitySelected: number; // buyer-selected quantity
-};
+/* ------------------ Types ------------------ */
 
 interface CartContextType {
-  cart: CartItem[];
-  addToCart: (item: WasteItem, quantity?: number) => void;
-  removeFromCart: (id: string) => void;
+  cartItems: CartItem[];
+
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (prodId: string) => void;
+  updateQuantity: (
+    prodId: string,
+    quantity: number,
+    maxQuantity: number
+  ) => void;
   clearCart: () => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  totalAmount: number;
-  totalItems: number;
+
+  getTotalAmount: () => number;
+  getTotalItems: () => number;
 }
+
+/* ------------------ Context ------------------ */
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
+/* ------------------ Provider ------------------ */
 
-  // Load cart from localStorage (for persistence)
-  useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) setCart(JSON.parse(stored));
-  }, []);
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Save cart to localStorage
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+  /* ---------- Add ---------- */
+  const addToCart = (item: CartItem) => {
+    setCartItems((prev) => {
+      const exists = prev.find((i) => i.prodId === item.prodId);
 
-  // Add item to cart
-  const addToCart = (item: WasteItem, quantity: number = 1) => {
-    setCart((prev) => {
-      const existing = prev.find((p) => p._id === item._id);
-      if (existing) {
-        return prev.map((p) =>
-          p._id === item._id
-            ? { ...p, quantitySelected: p.quantitySelected + quantity }
-            : p
+      // If already exists → update quantity
+      if (exists) {
+        return prev.map((i) =>
+          i.prodId === item.prodId
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
         );
-      } else {
-        return [...prev, { ...item, quantitySelected: quantity }];
       }
+
+      return [...prev, item];
     });
   };
 
-  // Remove item from cart
-  const removeFromCart = (id: string) => {
-    setCart((prev) => prev.filter((item) => item._id !== id));
+  /* ---------- Remove ---------- */
+  const removeFromCart = (prodId: string) => {
+    setCartItems((prev) => prev.filter((i) => i.prodId !== prodId));
   };
 
-  // Clear all items
-  const clearCart = () => setCart([]);
+  /* ---------- Update Quantity ---------- */
+  const updateQuantity = (
+    prodId: string,
+    quantity: number,
+    maxQuantity: number
+  ) => {
+    if (quantity <= 0) {
+      removeFromCart(prodId);
+      return;
+    }
 
-  // Update quantity manually
-  const updateQuantity = (id: string, quantity: number) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item._id === id ? { ...item, quantitySelected: quantity } : item
-      )
+    if (quantity > maxQuantity) {
+      toast.error(`Cannot exceed available stock of ${maxQuantity}.`);
+      return;
+    }
+
+    setCartItems((prev) =>
+      prev.map((i) => (i.prodId === prodId ? { ...i, quantity } : i))
     );
   };
 
-  // Calculate total amount
-  const totalAmount = cart.reduce(
-    (acc, item) => acc + parseFloat(item.price) * item.quantitySelected,
-    0
-  );
+  /* ---------- Clear ---------- */
+  const clearCart = () => {
+    setCartItems([]);
+  };
 
-  // Total number of items
-  const totalItems = cart.reduce((acc, item) => acc + item.quantitySelected, 0);
+  /* ---------- Derived Values ---------- */
+  const getTotalAmount = () =>
+    cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const getTotalItems = () =>
+    cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <CartContext.Provider
       value={{
-        cart,
+        cartItems,
         addToCart,
         removeFromCart,
-        clearCart,
         updateQuantity,
-        totalAmount,
-        totalItems,
+        clearCart,
+        getTotalAmount,
+        getTotalItems,
       }}
     >
       {children}
@@ -136,9 +104,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Custom hook
+/* ------------------ Hook ------------------ */
+
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used within a CartProvider");
+  if (!context) {
+    throw new Error("useCart must be used inside CartProvider");
+  }
   return context;
 }

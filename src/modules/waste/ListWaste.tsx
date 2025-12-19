@@ -208,6 +208,7 @@ export default function ListWaste() {
         fileName: `${user?.id.replace(/^user_/, "fam_")}_${
           formData.wasteProduct
         }`,
+        farmerId: formData.seller.farmerId,
       });
 
       const uploadData = uploadRes.data;
