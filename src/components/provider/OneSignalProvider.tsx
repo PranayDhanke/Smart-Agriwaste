@@ -1,16 +1,17 @@
 "use client";
-import { initOneSignal } from "@/lib/onesignal";
-import { useUser } from "@clerk/nextjs";
+
 import { useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { initOneSignal } from "@/lib/onesignal";
 
 export default function OneSignalProvider() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
-    if (user?.id) {
-      initOneSignal(user.id);
-    }
-  }, [user]);
+    if (!isLoaded || !user?.id) return;
+
+    initOneSignal(user.id);
+  }, [isLoaded, user?.id]);
 
   return null;
 }
