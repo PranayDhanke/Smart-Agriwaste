@@ -35,9 +35,9 @@ import { WasteType } from "@/components/types/ListWaste";
 import { FilterState, WasteItem } from "@/components/types/marketplace";
 import axios from "axios";
 import { CartItem } from "@/components/types/orders";
-import { useCart } from "@/context/CartContext";
 import { useUser } from "@clerk/nextjs";
 import NegotiationPanel from "./NegotiationPanel";
+import { useCart } from "@/components/hooks/useCart";
 
 const categoryMeta: Record<
   WasteType,

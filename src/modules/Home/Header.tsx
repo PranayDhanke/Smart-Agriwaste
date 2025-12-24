@@ -38,8 +38,7 @@ import {
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import NotificationPanel from "../Extra/NotificationPanel";
-import { useNotifications } from "@/components/hooks/useNotification";
-
+import { useNotification } from "@/components/hooks/useNotification";
 const Header = () => {
   const { isSignedIn, user } = useUser();
   const { signOut, openUserProfile } = useClerk();
@@ -47,10 +46,9 @@ const Header = () => {
 
   const [notificationOpen, setNotificationOpen] = useState(false);
 
- 
   const role = user?.unsafeMetadata?.role || "user"; // "farmer" or "buyer"
 
-  const {unread} = useNotifications(1);
+  const { unread } = useNotification();
 
   // Farmer Navigation
   const farmerNav = [

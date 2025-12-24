@@ -3,8 +3,8 @@
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { FiShoppingCart } from "react-icons/fi";
 import { useUser } from "@clerk/nextjs";
-import { useCart } from "@/context/CartContext";
 import CartDrawer from "../marketplace/CartDrawer";
+import { useCart } from "@/components/hooks/useCart";
 
 export default function FloatingCart() {
   const { isSignedIn, user } = useUser();

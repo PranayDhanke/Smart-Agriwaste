@@ -19,18 +19,17 @@ import {
 import { Negotiation } from "@/components/types/orders";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-import { useNotifications } from "@/components/hooks/useNotification";
+import { useNotification } from "@/components/hooks/useNotification";
 
 export default function FarmerNegotiationsPage() {
   const [negotiations, setNegotiations] = useState<Negotiation[]>([]); // Replace with actual data fetching logic
 
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  useNotifications(refreshKey);
-
   const { user } = useUser();
+
+  const { refresh, sendNotification, changeNotificationStatus } =
+    useNotification();
 
   useEffect(() => {
     const farmerId = user?.id.replace(/^user_/, "fam_");
@@ -65,36 +64,30 @@ export default function FarmerNegotiationsPage() {
   ) {
     try {
       setLoadingId(id);
-      // TODO: API CALL - PATCH /api/negotiations/:id { status: action }
-      const response = await axios.put(`/api/negotiate/request`, {
-        id,
-        getstatus: action,
-      });
 
-      if (response.status === 200) {
-        toast.success(
-          action === "accepted"
-            ? "✓ Negotiation accepted successfully"
-            : "✗ Negotiation rejected"
-        );
-      }
+      changeNotificationStatus(id, action);
+
+      toast.success(
+        action === "accepted"
+          ? "✓ Negotiation accepted successfully"
+          : "✗ Negotiation rejected"
+      );
 
       setNegotiations((prev) =>
         prev.map((neg) => (neg._id === id ? { ...neg, status: action } : neg))
       );
 
-      await axios.post("/api/notification/send", {
+      sendNotification({
         userId: data.buyerId.replace("buy_", "user_"), // farmer receives notification
         title: "New Negotiation Request",
         message: `Farmer ${data.farmerName} has ${action} Negotiation Request for the Product ${data.itemTitle}.`,
         type: "negotiation",
       });
-
-      setRefreshKey(refreshKey + 1);
     } catch {
       toast.error("Action failed. Please try again.");
     } finally {
       setLoadingId(null);
+      refresh();
     }
   }
 
@@ -141,7 +134,8 @@ export default function FarmerNegotiationsPage() {
                 No negotiation requests yet
               </p>
               <p className="text-gray-500">
-                When buyers make offers on your products, {"they'll"} appear here
+                When buyers make offers on your products, {"they'll"} appear
+                here
               </p>
             </CardContent>
           </Card>

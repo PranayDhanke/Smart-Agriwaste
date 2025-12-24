@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -11,6 +10,7 @@ import {
   Plus,
   ShoppingCart,
 } from "lucide-react";
+import { useCart } from "@/components/hooks/useCart";
 
 export default function CartDrawer() {
   const { cartItems, updateQuantity, removeFromCart, getTotalAmount } =

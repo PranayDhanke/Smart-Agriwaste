@@ -16,7 +16,7 @@ import { IndianRupee, Handshake } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-import { useNotifications } from "@/components/hooks/useNotification";
+import { useNotification } from "@/components/hooks/useNotification";
 
 const NegotiationPanel = ({
   item,
@@ -27,11 +27,10 @@ const NegotiationPanel = ({
 }) => {
   const [price, setPrice] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const { user } = useUser();
 
-  useNotifications(refreshKey);
+  const { refresh, sendNotification } = useNotification();
 
   const handleSubmit = async () => {
     if (!price || price <= 0) {
@@ -78,7 +77,7 @@ const NegotiationPanel = ({
       const response = await axios.post("/api/negotiate/list", payload);
 
       if (response.status === 200) {
-        await axios.post("/api/notification/send", {
+        sendNotification({
           userId: item.seller.farmerId.replace("fam_", "user_"), // farmer receives notification
           title: "New Negotiation Request",
           message: `Buyer ${
@@ -88,7 +87,6 @@ const NegotiationPanel = ({
         });
 
         toast.success("Negotiation request sent to seller");
-        setRefreshKey(refreshKey + 1);
       }
 
       onClose();
@@ -96,6 +94,7 @@ const NegotiationPanel = ({
       toast.error("Failed to send negotiation request");
     } finally {
       setLoading(false);
+      refresh()
     }
   };
 

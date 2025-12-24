@@ -3,13 +3,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/modules/Home/Header";
 import Footer from "@/modules/Home/Footer";
-
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import RedirectNotAccount from "@/modules/Extra/RedirectNotAccount";
-import { CartProvider } from "@/context/CartContext";
 import FloatingCart from "@/modules/Extra/FlotingCart";
 import OneSignalProvider from "@/components/provider/OneSignalProvider";
+import { CartProvider } from "@/components/provider/CartProvider";
+import { NotificationProvider } from "@/components/provider/NotificationProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,11 +39,13 @@ export default function RootLayout({
         >
           <Toaster position="top-center" />
           <CartProvider>
-            <Header />
-            <OneSignalProvider />
-            {children}
-            <FloatingCart />
-            <Footer />
+            <NotificationProvider>
+              <Header />
+              <OneSignalProvider />
+              {children}
+              <FloatingCart />
+              <Footer />
+            </NotificationProvider>
           </CartProvider>
           <RedirectNotAccount />
         </body>

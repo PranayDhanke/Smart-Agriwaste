@@ -20,7 +20,7 @@ import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { WasteItem } from "@/components/types/marketplace";
 import NegotiationPanel from "@/modules/marketplace/NegotiationPanel";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/components/hooks/useCart";
 
 /* ---------------- Helper ---------------- */
 
