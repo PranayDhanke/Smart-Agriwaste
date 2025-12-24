@@ -37,17 +37,20 @@ import {
 } from "react-icons/fi";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
-import { useCart } from "@/context/CartContext";
-import CartDrawer from "../marketplace/CartDrawer";
+import NotificationPanel from "../Extra/NotificationPanel";
+import { useNotifications } from "@/components/hooks/useNotification";
 
 const Header = () => {
   const { isSignedIn, user } = useUser();
   const { signOut, openUserProfile } = useClerk();
   const [isOpen, setIsOpen] = useState(false);
 
-  const { cartItems } = useCart();
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
+ 
   const role = user?.unsafeMetadata?.role || "user"; // "farmer" or "buyer"
+
+  const {unread} = useNotifications(1);
 
   // Farmer Navigation
   const farmerNav = [
@@ -136,13 +139,18 @@ const Header = () => {
                 </Link>
               )}
 
-              <Button variant="ghost" size="icon" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                onClick={() => setNotificationOpen(true)}
+              >
                 <FiBell className="h-4 w-4" />
                 <Badge
                   variant="destructive"
                   className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
                 >
-                  2
+                  {unread}
                 </Badge>
               </Button>
 
@@ -300,6 +308,11 @@ const Header = () => {
           </Sheet>
         </div>
       </div>
+
+      <NotificationPanel
+        open={notificationOpen}
+        onOpenChange={setNotificationOpen}
+      />
     </header>
   );
 };

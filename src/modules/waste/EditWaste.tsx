@@ -5,8 +5,6 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
-
-import { Unit, WasteFormData, WasteFormDataSchema } from "@/components/types/ListWaste";
 import {
   wasteFormDataType,
   wasteFormSchema,
@@ -31,10 +29,9 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import ProductList from "@/../public/Products/Product.json";
-import { Loader2, Upload, Leaf, ImageIcon } from "lucide-react";
+import { Loader2, Upload, Leaf } from "lucide-react";
 import { toast } from "sonner";
 
 export default function EditWaste() {
@@ -42,8 +39,8 @@ export default function EditWaste() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
-  const formdata = useForm<wasteFormDataType>({
-    resolver: zodResolver(wasteFormSchema) as any,
+  const formdata = useForm({
+    resolver: zodResolver(wasteFormSchema),
     defaultValues: {
       address: {
         district: "",
@@ -224,7 +221,7 @@ export default function EditWaste() {
                 <Input id="title" {...register("title")} className="mt-2" />
                 {formState.errors.title && (
                   <p className="text-sm text-red-500">
-                    {(formState.errors.title as any).message}
+                    {(formState.errors.title).message}
                   </p>
                 )}
               </div>
@@ -254,7 +251,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.wasteType && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.wasteType as any).message}
+                      {(formState.errors.wasteType).message}
                     </p>
                   )}
                 </div>
@@ -293,7 +290,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.wasteProduct && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.wasteProduct as any).message}
+                      {(formState.errors.wasteProduct).message}
                     </p>
                   )}
                 </div>
@@ -310,7 +307,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.quantity && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.quantity as any).message}
+                      {(formState.errors.quantity).message}
                     </p>
                   )}
                 </div>
@@ -338,7 +335,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.unit && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.unit as any).message}
+                      {(formState.errors.unit).message}
                     </p>
                   )}
                 </div>
@@ -369,7 +366,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.moisture && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.moisture as any).message}
+                      {(formState.errors.moisture ).message}
                     </p>
                   )}
                 </div>
@@ -383,7 +380,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.price && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.price as any).message}
+                      {(formState.errors.price ).message}
                     </p>
                   )}
                 </div>
@@ -399,7 +396,7 @@ export default function EditWaste() {
                 />
                 {formState.errors.description && (
                   <p className="text-sm text-red-500">
-                    {(formState.errors.description as any).message}
+                    {(formState.errors.description ).message}
                   </p>
                 )}
               </div>

@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import RedirectNotAccount from "@/modules/Extra/RedirectNotAccount";
 import { CartProvider } from "@/context/CartContext";
 import FloatingCart from "@/modules/Extra/FlotingCart";
+import OneSignalProvider from "@/components/provider/OneSignalProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
           <Toaster position="top-center" />
           <CartProvider>
             <Header />
+            <OneSignalProvider />
             {children}
             <FloatingCart />
             <Footer />

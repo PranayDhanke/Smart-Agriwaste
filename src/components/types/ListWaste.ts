@@ -3,8 +3,8 @@ export type WasteType = "crop" | "fruit" | "vegetable";
 export type Seller = {
   farmerId: string;
   name: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
 };
 
 export type Unit = "kg" | "ton" | "gram";

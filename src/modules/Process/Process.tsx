@@ -20,11 +20,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 
 import {
-  Leaf,
   Recycle,
-  Target,
   AlertTriangle,
-  ChevronRight,
   Copy,
   Download,
   Clock,
@@ -36,6 +33,35 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { WasteForm, WasteType } from "@/components/types/ListWaste";
+
+interface Difficulty {
+  label: string;
+  score: number;
+  color: string;
+}
+
+interface ProcessResult {
+  key: string;
+  recommended_process: string[];
+  final_use: string;
+  notes: string;
+  needs: string[];
+  difficulty: Difficulty;
+}
+
+interface ProcessRecommendation {
+  process?: string[];
+  final_use?: string;
+  notes?: string;
+}
+
+interface WasteManagementRules {
+  [wasteType: string]: {
+    [product: string]: {
+      [moistureKey: string]: ProcessRecommendation;
+    };
+  };
+}
 
 export default function Process() {
   const [formData, setFormData] = useState<WasteForm>({
@@ -50,7 +76,7 @@ export default function Process() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [result, setResult] = useState<any | null>(null);
+  const [result, setResult] = useState<ProcessResult | null>(null);
   const [error, setError] = useState<string>("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -68,43 +94,6 @@ export default function Process() {
     if (m === "wet") return "≥ 50% (Wet)";
     return "";
   };
-
-  const presets = [
-    {
-      label: "Wheat — Dry → Compost",
-      payload: {
-        wasteType: "crop",
-        wasteProduct: "Wheat",
-        moisture: "dry",
-        intendedUse: "compost",
-      },
-    },
-    {
-      label: "Rice — Wet → Biogas",
-      payload: {
-        wasteType: "crop",
-        wasteProduct: "Rice",
-        moisture: "wet",
-        intendedUse: "biogas",
-      },
-    },
-    {
-      label: "Banana — Wet → Feed",
-      payload: {
-        wasteType: "fruit",
-        wasteProduct: "Banana",
-        moisture: "wet",
-        intendedUse: "compost",
-      },
-    },
-  ];
-
-  function applyPreset(p: any) {
-    setFormData({ ...formData, ...p.payload });
-    setResult(null);
-    setError("");
-    window.scrollTo({ top: 200, behavior: "smooth" });
-  }
 
   const inferNeeds = (procSteps: string[]) => {
     const needs: string[] = [];
@@ -189,9 +178,13 @@ export default function Process() {
         return;
       }
 
-      const typeMap: any = (ProcessMapping as any).waste_management_rules?.[
-        wasteType
-      ];
+      const rules = (
+        ProcessMapping as {
+          waste_management_rules: WasteManagementRules;
+        }
+      ).waste_management_rules;
+
+      const typeMap = rules?.[wasteType];
 
       if (!typeMap) {
         setError(
@@ -201,7 +194,8 @@ export default function Process() {
         return;
       }
 
-      const productMap: any = typeMap[wasteProduct];
+      const productMap = typeMap?.[wasteProduct];
+
       if (!productMap) {
         setError(
           `No guidance found for "${wasteProduct}". Try a similar product.`
@@ -323,7 +317,7 @@ export default function Process() {
             <div className="flex items-center gap-2 mb-2">
               <Hammer className="w-4 h-4 text-blue-600" />
               <span className="text-xs font-semibold text-gray-900">
-                What you'll need
+                What {"you'll"} need
               </span>
             </div>
             <ul className="space-y-1">
@@ -521,32 +515,15 @@ export default function Process() {
                     Tell us about your waste
                   </h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    Pick the options below — we'll suggest an easy process.
+                    Pick the options below — {"we'll"} suggest an easy process.
                   </p>
                 </div>
 
                 {/* Presets - full width, horizontal scroll on mobile */}
-                <div className="mb-6 pb-6 border-b">
-                  <p className="text-xs font-semibold text-gray-600 uppercase mb-3">
-                    Quick presets
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {presets.map((p) => (
-                      <button
-                        key={p.label}
-                        type="button"
-                        onClick={() => applyPreset(p)}
-                        className="px-3 py-2 text-xs md:text-sm rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition whitespace-nowrap flex-shrink-0 font-medium"
-                      >
-                        {p.label.split("—")[0].trim()}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
                 <form onSubmit={handleFormSubmit} className="space-y-6">
                   {/* Waste type & product */}
-                  
+
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <Label className="text-sm font-semibold">

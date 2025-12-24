@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -100,7 +100,7 @@ export default function Marketplace() {
     fetchData();
   }, []);
 
-  const { cartItems, addToCart } = useCart();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const count = Object.entries(filters).reduce((acc, [key, value]) => {
@@ -154,14 +154,11 @@ export default function Marketplace() {
     return list;
   }, [wastes, filters]);
 
-  const [openNegotiateModal, setOpenNegotiateModal] = useState(false);
-
   const [negotiationItem, setNegotiationItem] = useState<WasteItem | null>(
     null
   );
   const handleNegotiate = (item: WasteItem) => {
     setNegotiationItem(item);
-    setOpenNegotiateModal(true);
   };
 
   const handleAddToCart = (item: WasteItem) => {
@@ -189,8 +186,6 @@ export default function Marketplace() {
         address: item.address,
       },
     };
-
-    console.log(cartItems);
 
     addToCart(cartItem);
 

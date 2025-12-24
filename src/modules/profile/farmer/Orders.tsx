@@ -20,6 +20,7 @@ import {
   Truck,
   Clock,
 } from "lucide-react";
+import { Order } from "@/components/types/orders";
 
 /* ------------------ Helpers ------------------ */
 
@@ -30,100 +31,67 @@ const formatDate = (date: string) =>
     year: "numeric",
   }).format(new Date(date));
 
-const getStatusBadge = (status: string) => {
-  const map: Record<string, string> = {
-    pending: "bg-amber-100 text-amber-800",
-    confirmed: "bg-blue-100 text-blue-800",
-    shipped: "bg-purple-100 text-purple-800",
-    delivered: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800",
-  };
+const calcOrderAmount = (items: Order["items"]) =>
+  items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+const getStatusBadge = (order: Order) => {
+  if (order.status === "cancelled") {
+    return (
+      <Badge variant="destructive">
+        <XCircle className="h-3 w-3 mr-1" />
+        Cancelled
+      </Badge>
+    );
+  }
+
+  if (order.isDelivered) {
+    return (
+      <Badge className="bg-green-100 text-green-800">
+        <CheckCircle className="h-3 w-3 mr-1" />
+        Delivered
+      </Badge>
+    );
+  }
+
+  if (order.isOutForDelivery) {
+    return (
+      <Badge className="bg-blue-100 text-blue-800">
+        <Truck className="h-3 w-3 mr-1" />
+        Out for Delivery
+      </Badge>
+    );
+  }
+
+  if (order.status === "confirmed") {
+    return (
+      <Badge className="bg-purple-100 text-purple-800">
+        Confirmed
+      </Badge>
+    );
+  }
 
   return (
-    <Badge className={map[status] || "bg-gray-100 text-gray-700"}>
-      {status.toUpperCase()}
+    <Badge className="bg-amber-100 text-amber-800">
+      <Clock className="h-3 w-3 mr-1" />
+      Pending
     </Badge>
   );
 };
-
-const calcOrderAmount = (items: any[]) =>
-  items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
 /* ------------------ Page ------------------ */
 
 export default function FarmerOrdersPage() {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-
-  /* MOCK DATA — replace with API */
-  const orders = [
-    {
-      _id: "ORD123",
-      buyerName: "Amit Kumar",
-      status: "pending",
-      deliveryMode: "DELIVERYBYFARMER",
-      isDelivered: false,
-      createdAt: "2025-09-01",
-      items: [
-        {
-          title: "Cotton Crop Residues",
-          quantity: 2,
-          unit: "ton",
-          price: 2000,
-        },
-      ],
-    },
-    {
-      _id: "ORD124",
-      buyerName: "Priya Sharma",
-      status: "confirmed",
-      deliveryMode: "PICKUPBYBUYER",
-      isDelivered: false,
-      createdAt: "2025-08-28",
-      items: [
-        {
-          title: "Vegetable Waste (Tomato)",
-          quantity: 1.5,
-          unit: "ton",
-          price: 1500,
-        },
-      ],
-    },
-    {
-      _id: "ORD125",
-      buyerName: "Rahul Patil",
-      status: "shipped",
-      deliveryMode: "DELIVERYBYFARMER",
-      isDelivered: false,
-      createdAt: "2025-08-20",
-      items: [
-        {
-          title: "Fruit Waste (Mango)",
-          quantity: 800,
-          unit: "kg",
-          price: 18,
-        },
-      ],
-    },
-  ];
-
-  /* ------------------ Filters ------------------ */
+  const [orders] = useState<Order[]>([]); // replace with API
 
   const filteredOrders = orders.filter((o) => {
-    const matchStatus =
-      statusFilter === "all" ? true : o.status === statusFilter;
-
-    const matchSearch =
-      o._id.toLowerCase().includes(search.toLowerCase()) ||
-      o.buyerName.toLowerCase().includes(search.toLowerCase()) ||
-      o.items.some((i: any) =>
-        i.title.toLowerCase().includes(search.toLowerCase())
-      );
-
-    return matchStatus && matchSearch;
+    const q = search.toLowerCase();
+    return (
+      o._id.toLowerCase().includes(q) ||
+      o.buyerName.toLowerCase().includes(q) ||
+      o.items.some((i) => i.title.toLowerCase().includes(q))
+    );
   });
-
-  /* ------------------ UI ------------------ */
 
   return (
     <main className="min-h-screen bg-muted/40">
@@ -136,7 +104,7 @@ export default function FarmerOrdersPage() {
               Incoming Orders
             </h1>
             <p className="text-sm text-muted-foreground">
-              Orders placed by buyers for your waste products
+              Orders placed by buyers for your products
             </p>
           </div>
 
@@ -148,35 +116,22 @@ export default function FarmerOrdersPage() {
           </Link>
         </div>
 
-        {/* Search & Filter */}
+        {/* Search */}
         <Card>
-          <CardContent className="p-4 flex flex-col md:flex-row gap-3">
-            <div className="relative flex-1">
+          <CardContent className="p-4">
+            <div className="relative max-w-md">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by order ID, buyer, or product"
+                placeholder="Search by order, buyer, product"
                 className="w-full pl-9 pr-3 py-2 border rounded-md text-sm"
               />
             </div>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border rounded-md px-3 py-2 text-sm"
-            >
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
           </CardContent>
         </Card>
 
-        {/* Orders List */}
+        {/* Orders */}
         <div className="space-y-4">
           {filteredOrders.map((order) => (
             <Card key={order._id}>
@@ -191,18 +146,16 @@ export default function FarmerOrdersPage() {
                   </p>
                 </div>
 
-                {/* Hide approval badges for pickup-by-buyer */}
-                {!(
-                  order.deliveryMode === "PICKUPBYBUYER" &&
-                  (order.status === "pending" ||
-                    order.status === "confirmed")
-                ) && getStatusBadge(order.status)}
+                {getStatusBadge(order)}
               </CardHeader>
 
               <CardContent className="space-y-3">
                 {/* Items */}
-                {order.items.map((item: any, idx: number) => (
-                  <div key={idx} className="flex justify-between text-sm">
+                {order.items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between text-sm"
+                  >
                     <span>
                       {item.title} × {item.quantity} {item.unit}
                     </span>
@@ -240,7 +193,7 @@ export default function FarmerOrdersPage() {
                     </Button>
                   </Link>
 
-                  {/* ACCEPT / REJECT — ONLY FARMER, ONLY DELIVERYBYFARMER */}
+                  {/* ACCEPT / REJECT (Only for DELIVERYBYFARMER & pending) */}
                   {order.deliveryMode === "DELIVERYBYFARMER" &&
                     order.status === "pending" && (
                       <>
@@ -259,7 +212,7 @@ export default function FarmerOrdersPage() {
                       </>
                     )}
 
-                  {/* PICKUP BY BUYER INFO */}
+                  {/* Pickup by buyer info */}
                   {order.deliveryMode === "PICKUPBYBUYER" &&
                     !order.isDelivered && (
                       <Badge variant="secondary">
@@ -268,31 +221,25 @@ export default function FarmerOrdersPage() {
                       </Badge>
                     )}
 
-                  {/* OUT FOR DELIVERY */}
+                  {/* Out for delivery */}
                   {order.deliveryMode === "DELIVERYBYFARMER" &&
-                    order.status === "confirmed" && (
+                    order.status === "confirmed" &&
+                    !order.isOutForDelivery && (
                       <Button size="sm">
                         <Truck className="h-4 w-4 mr-1" />
                         Out for Delivery
                       </Button>
                     )}
 
-                  {/* MARK DELIVERED */}
+                  {/* Mark delivered */}
                   {order.deliveryMode === "DELIVERYBYFARMER" &&
-                    order.status === "shipped" && (
+                    order.isOutForDelivery &&
+                    !order.isDelivered && (
                       <Button size="sm">
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Mark Delivered
                       </Button>
                     )}
-
-                  {/* CANCELLED */}
-                  {order.status === "cancelled" && (
-                    <Badge variant="destructive">
-                      <XCircle className="h-3 w-3 mr-1" />
-                      Cancelled
-                    </Badge>
-                  )}
                 </div>
               </CardContent>
             </Card>
