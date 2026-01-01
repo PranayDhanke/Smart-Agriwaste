@@ -64,7 +64,7 @@ export default function EditWaste() {
       title: "",
       unit: "",
       wasteProduct: "",
-      wasteType:"",
+      wasteType: "",
     },
   });
 
@@ -94,6 +94,13 @@ export default function EditWaste() {
             ...data,
             image: data.image ?? data.image ?? "",
           });
+
+          setTimeout(() => {
+            reset({
+              ...data,
+              wasteProduct: data.wasteProduct,
+            });
+          }, 100);
 
           setImagePreview(data.imageUrl ?? data.image ?? null);
         } else {
@@ -221,7 +228,7 @@ export default function EditWaste() {
                 <Input id="title" {...register("title")} className="mt-2" />
                 {formState.errors.title && (
                   <p className="text-sm text-red-500">
-                    {(formState.errors.title).message}
+                    {formState.errors.title.message}
                   </p>
                 )}
               </div>
@@ -251,7 +258,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.wasteType && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.wasteType).message}
+                      {formState.errors.wasteType.message}
                     </p>
                   )}
                 </div>
@@ -290,7 +297,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.wasteProduct && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.wasteProduct).message}
+                      {formState.errors.wasteProduct.message}
                     </p>
                   )}
                 </div>
@@ -307,7 +314,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.quantity && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.quantity).message}
+                      {formState.errors.quantity.message}
                     </p>
                   )}
                 </div>
@@ -335,7 +342,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.unit && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.unit).message}
+                      {formState.errors.unit.message}
                     </p>
                   )}
                 </div>
@@ -366,7 +373,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.moisture && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.moisture ).message}
+                      {formState.errors.moisture.message}
                     </p>
                   )}
                 </div>
@@ -380,7 +387,7 @@ export default function EditWaste() {
                   />
                   {formState.errors.price && (
                     <p className="text-sm text-red-500">
-                      {(formState.errors.price ).message}
+                      {formState.errors.price.message}
                     </p>
                   )}
                 </div>
@@ -396,7 +403,7 @@ export default function EditWaste() {
                 />
                 {formState.errors.description && (
                   <p className="text-sm text-red-500">
-                    {(formState.errors.description ).message}
+                    {formState.errors.description.message}
                   </p>
                 )}
               </div>

@@ -9,6 +9,13 @@ interface sellerInfo {
   seller: Seller;
   address: Address;
 }
+
+interface buyerInfo {
+  buyerName: string;
+  address: Address;
+  buyerMobile: string;
+}
+
 export interface CartItem {
   prodId: string;
   title: string;
@@ -45,7 +52,8 @@ export interface Order {
   _id: string;
 
   buyerId: string;
-  buyerName: string;
+
+  buyerInfo: buyerInfo;
 
   // quick filtering for farmer dashboard
   farmerId: string;
@@ -54,16 +62,17 @@ export interface Order {
 
   transactionMode: "COD" | "ONLINE" | "WALLET";
 
-  deliveryMode : "PICKUPBYBUYER" | "DELIVERYBYFARMER";
+  deliveryMode: "PICKUPBYBUYER" | "DELIVERYBYFARMER";
 
-  status:
-    | "pending"
-    | "confirmed"
-    | "cancelled";
+  totalAmount: number;
+
+  status: "pending" | "confirmed" | "cancelled";
 
   hasPayment: boolean;
   isDelivered: boolean;
   isOutForDelivery?: boolean;
+
+  paymentId?: string;
 
   createdAt: string;
   updatedAt?: string;

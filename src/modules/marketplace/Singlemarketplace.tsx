@@ -29,6 +29,7 @@ import { WasteType } from "@/components/types/ListWaste";
 import { SingleWasteItem } from "@/components/types/marketplace";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 const categoryMeta: Record<
   WasteType,
@@ -62,7 +63,12 @@ export default function SingleMarketplace() {
 
   const searchParams = useSearchParams();
 
-  const id = searchParams.get("product")
+  const id = searchParams.get("product");
+
+  const { user } = useUser();
+
+  const role = user?.unsafeMetadata.role;
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -336,62 +342,65 @@ export default function SingleMarketplace() {
                 {product.description}
               </p>
             </div>
+            {role === "buyer" && (
+              <>
+                {/* Quantity Selector */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200">
+                  <label className="block text-sm font-semibold text-gray-900 mb-3">
+                    Select Quantity
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center border border-gray-300 rounded-lg">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="h-10 w-10"
+                      >
+                        -
+                      </Button>
+                      <span className="w-16 text-center font-semibold text-gray-900">
+                        {quantity}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="h-10 w-10"
+                      >
+                        +
+                      </Button>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Total Price</p>
+                      <p className="text-xl font-bold text-green-600">
+                        ₹{totalPrice.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Quantity Selector */}
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Select Quantity
-              </label>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border border-gray-300 rounded-lg">
+                {/* Action Buttons */}
+                <div className="flex gap-3">
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="h-10 w-10"
+                    variant="outline"
+                    size="lg"
+                    className="flex-1 h-12 bg-white hover:bg-gray-50 border-gray-300"
+                    onClick={handleAddToCart}
                   >
-                    -
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    Add to Cart
                   </Button>
-                  <span className="w-16 text-center font-semibold text-gray-900">
-                    {quantity}
-                  </span>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="h-10 w-10"
+                    size="lg"
+                    className="flex-1 h-12 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={handleBuyNow}
                   >
-                    +
+                    Buy Now
                   </Button>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total Price</p>
-                  <p className="text-xl font-bold text-green-600">
-                    ₹{totalPrice.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="lg"
-                className="flex-1 h-12 bg-white hover:bg-gray-50 border-gray-300"
-                onClick={handleAddToCart}
-              >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Add to Cart
-              </Button>
-              <Button
-                size="lg"
-                className="flex-1 h-12 bg-green-600 hover:bg-green-700 text-white"
-                onClick={handleBuyNow}
-              >
-                Buy Now
-              </Button>
-            </div>
+              </>
+            )}
 
             {/* Seller Information */}
             {product.seller.name && (

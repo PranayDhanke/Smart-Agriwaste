@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Notification,
   NotificationContext,
@@ -6,7 +7,7 @@ import {
 } from "@/context/NotificationContext";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
@@ -16,33 +17,33 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const { user } = useUser();
 
-  const getNotification = async () => {
+  // ✅ MEMOIZED FUNCTION
+  const getNotification = useCallback(async () => {
+    if (!user?.id) return;
+
     try {
       setLoading(true);
 
       const res = await axios.get<Notification[]>(
-        `/api/notification/get/${user?.id}`
+        `/api/notification/get/${user.id}`
       );
 
       setNotifications(res.data);
-
-      const unreadCount = res.data.filter((n) => !n.read).length;
-      setUnread(unreadCount);
+      setUnread(res.data.filter((n) => !n.read).length);
     } catch {
       toast.error(
-        "Unable to fetch notifications data Please Try to Refresh the page"
+        "Unable to fetch notifications data. Please refresh the page."
       );
     } finally {
       setLoading(false);
-      return;
     }
-  };
+  }, [user?.id]);
 
   const sendNotification = async (
     notificationItem: sendNotificationInterface
   ) => {
     await axios.post("/api/notification/send", {
-      userId: notificationItem.userId, // farmer receives notification
+      userId: notificationItem.userId,
       title: notificationItem.title,
       message: notificationItem.message,
       type: notificationItem.type,
@@ -51,12 +52,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const markAsReadNotification = async (id: string) => {
     await axios.put("/api/notification/read", { id });
-    await getNotification();
+    getNotification();
   };
 
   const removeNotification = async (id: string) => {
     await axios.delete("/api/notification/delete", { data: { id } });
-    await getNotification();
+    getNotification();
   };
 
   const changeNotificationStatus = async (
@@ -67,23 +68,24 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       id,
       getstatus: action,
     });
-    await getNotification();
+    getNotification();
   };
 
+  // ✅ SAFE EFFECT
   useEffect(() => {
     getNotification();
-  }, [user?.id ]);
+  }, [getNotification]);
 
   return (
     <NotificationContext.Provider
       value={{
         loading,
-        markAsReadNotification,
-        refresh: getNotification,
-        removeNotification,
-        sendNotification,
         unread,
         notifications,
+        refresh: getNotification,
+        markAsReadNotification,
+        removeNotification,
+        sendNotification,
         changeNotificationStatus,
       }}
     >

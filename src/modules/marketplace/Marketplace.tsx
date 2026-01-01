@@ -181,7 +181,7 @@ export default function Marketplace() {
       sellerInfo: {
         seller: {
           farmerId: item.seller.farmerId,
-          farmerName: item.seller.farmerId,
+          farmerName: item.seller.name,
         },
         address: item.address,
       },

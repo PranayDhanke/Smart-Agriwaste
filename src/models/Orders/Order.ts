@@ -4,13 +4,26 @@ import mongoose, { Schema } from "mongoose";
 const OrderSchema = new Schema<Order>(
   {
     buyerId: { type: String, required: true },
-    buyerName: { type: String, required: true },
     hasPayment: { type: Boolean, required: true, default: false },
     transactionMode: { type: String, required: true },
     isDelivered: { type: Boolean, required: true, default: false },
     farmerId: { type: String, required: true },
     isOutForDelivery: { type: Boolean, required: true, default: false },
+    totalAmount: { type: Number, required: true },
     deliveryMode: { type: String, required: true },
+    paymentId: { type: String, required: false },
+    buyerInfo: {
+      buyerMobile: { type: String, required: true },
+      buyerName: { type: String, required: true },
+      address: {
+        houseBuildingName: { type: String, required: true },
+        roadarealandmarkName: { type: String, required: true },
+        state: { type: String, required: true },
+        district: { type: String, required: true },
+        taluka: { type: String, required: true },
+        village: { type: String, required: true },
+      },
+    },
     items: [
       {
         prodId: { type: String, required: true },

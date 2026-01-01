@@ -14,6 +14,7 @@ import {
   IndianRupee,
   Package,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { CartItem, Negotiation } from "@/components/types/orders";
 import { useUser } from "@clerk/nextjs";
@@ -56,6 +57,7 @@ function StatBox({
 
 export default function BuyerNegotiationsPage() {
   const [negotiations, setNegotiations] = useState<Negotiation[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
   const [negotiationItem, setNegotiationItem] = useState<WasteItem | null>(
@@ -97,6 +99,8 @@ export default function BuyerNegotiationsPage() {
         setNegotiations(res.data || []);
       } catch {
         toast.error("Failed to load negotiations");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -123,7 +127,12 @@ export default function BuyerNegotiationsPage() {
         </div>
 
         {/* Empty State */}
-        {negotiations.length === 0 && (
+
+        {loading ? (
+          <div className="flex justify-center mx-auto">
+            <Loader2 className="  animate-spin" />
+          </div>
+        ) : negotiations.length === 0 ? (
           <Card className="border-dashed border-2">
             <div className="p-12 text-center">
               <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -133,143 +142,148 @@ export default function BuyerNegotiationsPage() {
               </p>
             </div>
           </Card>
-        )}
+        ) : (
+          <>
+            {/* List */}
+            <div className="space-y-6">
+              {negotiations.map((neg) => {
+                const { diff, percent } = priceChange(neg);
+                const isDiscount = diff < 0;
 
-        {/* List */}
-        <div className="space-y-6">
-          {negotiations.map((neg) => {
-            const { diff, percent } = priceChange(neg);
-            const isDiscount = diff < 0;
-
-            return (
-              <Card
-                key={neg._id}
-                className="overflow-hidden border hover:shadow-md transition"
-              >
-                <div className="grid md:grid-cols-[260px_1fr]">
-                  {/* Image */}
-                  <div className="relative h-56 md:h-full bg-muted">
-                    <Image
-                      src={neg.item.image}
-                      alt={neg.item.title}
-                      fill
-                      className="object-cover"
-                    />
-                    <Badge
-                      className="absolute top-3 right-3 shadow"
-                      variant={
-                        neg.status === "pending"
-                          ? "secondary"
-                          : neg.status === "accepted"
-                          ? "default"
-                          : "destructive"
-                      }
-                    >
-                      {neg.status.toUpperCase()}
-                    </Badge>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6 space-y-5">
-                    <div>
-                      <h2 className="text-xl font-bold">{neg.item.title}</h2>
-                      <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <User className="h-4 w-4" />
-                        Farmer:{" "}
-                        <span className="font-medium text-foreground">
-                          {neg.item.sellerInfo.seller.farmerName}
-                        </span>
-                      </p>
-                    </div>
-
-                    <Separator />
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <StatBox
-                        icon={<IndianRupee className="h-4 w-4" />}
-                        label="Listed Price"
-                        value={`₹${neg.item.price}`}
-                      />
-                      <StatBox
-                        icon={<TrendingDown className="h-4 w-4" />}
-                        label="Your Offer"
-                        value={`₹${neg.negotiatedPrice}`}
-                        variant={isDiscount ? "danger" : "success"}
-                      />
-                      <StatBox
-                        icon={<Droplets className="h-4 w-4" />}
-                        label="Moisture"
-                        value={neg.item.moisture}
-                      />
-                    </div>
-
-                    {/* Info */}
-                    {isDiscount && (
-                      <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm">
-                        You requested{" "}
-                        <span className="font-bold text-amber-800">
-                          {percent}%
-                        </span>{" "}
-                        lower price
-                        <span className="ml-1 text-muted-foreground">
-                          (₹{Math.abs(diff)} difference)
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Buyer Actions */}
-                    <div className="pt-4 border-t">
-                      {neg.status === "pending" && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          Waiting for farmer response
-                        </div>
-                      )}
-
-                      {neg.status === "accepted" && (
-                        <Button
-                          onClick={() => handleCart(neg)}
-                          className="w-full bg-green-600 hover:bg-green-700"
-                        >
-                          Place Order
-                        </Button>
-                      )}
-
-                      {neg.status === "rejected" && (
-                        <Button
-                          onClick={() =>
-                            handleNegotiate({
-                              _id: neg.item.prodId,
-                              title: neg.item.title,
-                              wasteType: neg.item.wasteType || "crop",
-                              wasteProduct: neg.item.wasteProduct,
-                              quantity: neg.item.quantity,
-                              unit: neg.item.unit || "kg",
-                              address: neg.item.sellerInfo.address,
-                              moisture: neg.item.moisture,
-                              price: neg.item.price,
-                              description: neg.item.description,
-                              imageUrl: neg.item.image,
-                              seller: {
-                                farmerId: neg.item.sellerInfo.seller.farmerId,
-                                name: neg.item.sellerInfo.seller.farmerName,
-                              },
-                            })
+                return (
+                  <Card
+                    key={neg._id}
+                    className="overflow-hidden border hover:shadow-md transition"
+                  >
+                    <div className="grid md:grid-cols-[260px_1fr]">
+                      {/* Image */}
+                      <div className="relative h-56 md:h-full bg-muted">
+                        <Image
+                          src={neg.item.image}
+                          alt={neg.item.title}
+                          fill
+                          className="object-cover"
+                        />
+                        <Badge
+                          className="absolute top-3 right-3 shadow"
+                          variant={
+                            neg.status === "pending"
+                              ? "secondary"
+                              : neg.status === "accepted"
+                              ? "default"
+                              : "destructive"
                           }
-                          variant="outline"
-                          className="w-full"
                         >
-                          Send New Negotiation
-                        </Button>
-                      )}
+                          {neg.status.toUpperCase()}
+                        </Badge>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-6 space-y-5">
+                        <div>
+                          <h2 className="text-xl font-bold">
+                            {neg.item.title}
+                          </h2>
+                          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <User className="h-4 w-4" />
+                            Farmer:{" "}
+                            <span className="font-medium text-foreground">
+                              {neg.item.sellerInfo.seller.farmerName}
+                            </span>
+                          </p>
+                        </div>
+
+                        <Separator />
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          <StatBox
+                            icon={<IndianRupee className="h-4 w-4" />}
+                            label="Listed Price"
+                            value={`₹${neg.item.price}`}
+                          />
+                          <StatBox
+                            icon={<TrendingDown className="h-4 w-4" />}
+                            label="Your Offer"
+                            value={`₹${neg.negotiatedPrice}`}
+                            variant={isDiscount ? "danger" : "success"}
+                          />
+                          <StatBox
+                            icon={<Droplets className="h-4 w-4" />}
+                            label="Moisture"
+                            value={neg.item.moisture}
+                          />
+                        </div>
+
+                        {/* Info */}
+                        {isDiscount && (
+                          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm">
+                            You requested{" "}
+                            <span className="font-bold text-amber-800">
+                              {percent}%
+                            </span>{" "}
+                            lower price
+                            <span className="ml-1 text-muted-foreground">
+                              (₹{Math.abs(diff)} difference)
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Buyer Actions */}
+                        <div className="pt-4 border-t">
+                          {neg.status === "pending" && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Clock className="h-4 w-4" />
+                              Waiting for farmer response
+                            </div>
+                          )}
+
+                          {neg.status === "accepted" && (
+                            <Button
+                              onClick={() => handleCart(neg)}
+                              className="w-full bg-green-600 hover:bg-green-700"
+                            >
+                              Place Order
+                            </Button>
+                          )}
+
+                          {neg.status === "rejected" && (
+                            <Button
+                              onClick={() =>
+                                handleNegotiate({
+                                  _id: neg.item.prodId,
+                                  title: neg.item.title,
+                                  wasteType: neg.item.wasteType || "crop",
+                                  wasteProduct: neg.item.wasteProduct,
+                                  quantity: neg.item.quantity,
+                                  unit: neg.item.unit || "kg",
+                                  address: neg.item.sellerInfo.address,
+                                  moisture: neg.item.moisture,
+                                  price: neg.item.price,
+                                  description: neg.item.description,
+                                  imageUrl: neg.item.image,
+                                  seller: {
+                                    farmerId:
+                                      neg.item.sellerInfo.seller.farmerId,
+                                    name: neg.item.sellerInfo.seller.farmerName,
+                                  },
+                                })
+                              }
+                              variant="outline"
+                              className="w-full"
+                            >
+                              Send New Negotiation
+                            </Button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
       <section>
         {negotiationItem && (
