@@ -19,7 +19,6 @@ export interface sendNotificationInterface {
 interface NotificationContextType {
   notifications: Notification[];
   unread: number;
-  loading: boolean;
   refresh: () => void;
   sendNotification: (notificationItem: sendNotificationInterface) => void;
   markAsReadNotification: (id: string) => Promise<void>;

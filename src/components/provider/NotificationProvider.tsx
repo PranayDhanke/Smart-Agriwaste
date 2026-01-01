@@ -7,23 +7,20 @@ import {
 } from "@/context/NotificationContext";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [unread, setUnread] = useState(0);
-
   const { user } = useUser();
 
-  // ✅ MEMOIZED FUNCTION
-  const getNotification = useCallback(async () => {
-    if (!user?.id) return;
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unread, setUnread] = useState(0);
+
+  // 🔹 Fetch notifications (no useCallback needed)
+  const getNotification = async () => {
+    if (!user) return;
 
     try {
-      setLoading(true);
-
       const res = await axios.get<Notification[]>(
         `/api/notification/get/${user.id}`
       );
@@ -31,61 +28,101 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setNotifications(res.data);
       setUnread(res.data.filter((n) => !n.read).length);
     } catch {
-      toast.error(
-        "Unable to fetch notifications data. Please refresh the page."
-      );
-    } finally {
-      setLoading(false);
+      toast.error("Unable to fetch notifications. Please refresh.");
     }
-  }, [user?.id]);
+  };
+
+  // 🔹 Load when user changes
+  useEffect(() => {
+    if (!user) return;
+    getNotification();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // ================= OPTIMISTIC ACTIONS =================
 
   const sendNotification = async (
     notificationItem: sendNotificationInterface
   ) => {
-    await axios.post("/api/notification/send", {
-      userId: notificationItem.userId,
-      title: notificationItem.title,
-      message: notificationItem.message,
-      type: notificationItem.type,
-    });
+    await axios.post("/api/notification/send", notificationItem);
   };
 
   const markAsReadNotification = async (id: string) => {
-    await axios.put("/api/notification/read", { id });
-    getNotification();
+    let wasUnread = false;
+
+    setNotifications((prev) =>
+      prev.map((n) => {
+        if (n._id === id && !n.read) {
+          wasUnread = true;
+          return { ...n, read: true };
+        }
+        return n;
+      })
+    );
+
+    if (wasUnread) {
+      setUnread((u) => Math.max(0, u - 1));
+    }
+
+    try {
+      await axios.put("/api/notification/read", { id });
+    } catch {
+      getNotification();
+    }
   };
 
   const removeNotification = async (id: string) => {
-    await axios.delete("/api/notification/delete", { data: { id } });
-    getNotification();
+    let wasUnread = false;
+
+    setNotifications((prev) => {
+      const target = prev.find((n) => n._id === id);
+      wasUnread = target ? !target.read : false;
+
+      return prev.filter((n) => n._id !== id);
+    });
+
+    // 🔹 Decrease unread ONLY if it was unread
+    if (wasUnread) {
+      setUnread((u) => Math.max(0, u - 1));
+    }
+
+    try {
+      await axios.delete("/api/notification/delete", {
+        data: { id },
+      });
+    } catch {
+      getNotification(); // rollback
+    }
   };
 
   const changeNotificationStatus = async (
     id: string,
     action: "accepted" | "rejected"
   ) => {
-    await axios.put(`/api/negotiate/request`, {
-      id,
-      getstatus: action,
-    });
-    getNotification();
-  };
+    // optimistic update
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === id ? { ...n, status: action, read: true } : n))
+    );
 
-  // ✅ SAFE EFFECT
-  useEffect(() => {
-    getNotification();
-  }, [getNotification]);
+    try {
+      await axios.put("/api/negotiate/request", {
+        id,
+        getstatus: action,
+      });
+    } catch {
+      getNotification();
+    }
+  };
 
   return (
     <NotificationContext.Provider
       value={{
-        loading,
-        unread,
         notifications,
+        unread,
         refresh: getNotification,
+        sendNotification,
         markAsReadNotification,
         removeNotification,
-        sendNotification,
         changeNotificationStatus,
       }}
     >
