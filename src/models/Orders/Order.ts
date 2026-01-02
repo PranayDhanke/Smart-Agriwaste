@@ -5,7 +5,6 @@ const OrderSchema = new Schema<Order>(
   {
     buyerId: { type: String, required: true },
     hasPayment: { type: Boolean, required: true, default: false },
-    transactionMode: { type: String, required: true },
     isDelivered: { type: Boolean, required: true, default: false },
     farmerId: { type: String, required: true },
     isOutForDelivery: { type: Boolean, required: true, default: false },

@@ -713,9 +713,6 @@ const BuyerOrderView = () => {
                     </p>
                     <div className="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700">
                       <CheckCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                      <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                        {order.transactionMode}
-                      </span>
                     </div>
                   </div>
 

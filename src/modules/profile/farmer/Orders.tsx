@@ -21,7 +21,6 @@ import {
   MapPin,
   ChevronRight,
   Filter,
-  Download,
   MoreVertical,
 } from "lucide-react";
 import { Order } from "@/components/types/orders";
@@ -147,7 +146,9 @@ export default function FarmerOrdersPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+ 
   const { user } = useUser();
+ 
   const { sendNotification } = useNotification();
 
   useEffect(() => {
@@ -384,15 +385,6 @@ export default function FarmerOrdersPage() {
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
             </div>
           </div>
 

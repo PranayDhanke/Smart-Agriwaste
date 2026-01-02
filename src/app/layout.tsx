@@ -6,10 +6,10 @@ import Footer from "@/modules/Home/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import RedirectNotAccount from "@/modules/Extra/RedirectNotAccount";
-import FloatingCart from "@/modules/Extra/FlotingCart";
 import OneSignalProvider from "@/components/provider/OneSignalProvider";
 import { CartProvider } from "@/components/provider/CartProvider";
 import { NotificationProvider } from "@/components/provider/NotificationProvider";
+import FloatingCart from "@/modules/marketplace/FlotingCart";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

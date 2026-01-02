@@ -8,11 +8,10 @@ import {
   Minus,
   Plus,
   ShoppingCart,
-  CreditCard,
-  Wallet,
   Truck,
   Store,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -60,14 +59,15 @@ export default function CartDrawer() {
 
   const { sendNotification } = useNotification();
 
-  const [paymentMethod, setPaymentMethod] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("");
   const [summaryOpen, setSummaryOpen] = useState(true);
 
   const [buyerAddress, setBuyerAddress] = useState<Address>();
-  const [buyerMobile , setBuyerMobile] = useState("");
+  const [buyerMobile, setBuyerMobile] = useState("");
 
   const { user } = useUser();
+
+  const [loading, setloading] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -89,22 +89,19 @@ export default function CartDrawer() {
           village: data.village,
         });
 
-        setBuyerMobile(data.phone)
+        setBuyerMobile(data.phone);
       }
     };
     fetchUserData();
   }, [user?.id]);
 
-  const proceedPayment = async () => {
-    if (!paymentMethod || !deliveryMethod) {
-      toast.error("Please select payment and delivery method");
+  const proceedOrder = async () => {
+    if (!deliveryMethod) {
+      toast.error("Please select  delivery method");
       return;
     }
-    let paymentId = "";
-    if (paymentMethod == "ONLINE") {
-      paymentId = `TXN_${Date.now()}`;
-    }
 
+    setloading(true);
     // 1️⃣ Group cart items by farmer
     const groupedByFarmer = groupItemsByFarmer(cartItems);
 
@@ -114,16 +111,15 @@ export default function CartDrawer() {
       farmerId,
       items: items.items,
       status: "pending",
-      hasPayment: paymentMethod === "ONLINE",
+      hasPayment: false,
       isDelivered: false,
       isOutForDelivery: false,
       totalAmount: items.totalAmount,
+      paymentId: "",
       deliveryMode: deliveryMethod,
-      transactionMode: paymentMethod,
-      paymentId,
       buyerInfo: {
         buyerName: user?.fullName,
-        buyerMobile: buyerMobile ,
+        buyerMobile: buyerMobile,
         address: buyerAddress,
       },
     }));
@@ -131,11 +127,6 @@ export default function CartDrawer() {
     const res = await axios.post("/api/order/list", orders);
 
     if (res.status === 200) {
-      toast.success(
-        // 5️⃣ UX feedback
-        `Order placed successfully`
-      );
-
       Object.entries(groupedByFarmer).map(([farmerId]) =>
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
@@ -144,6 +135,12 @@ export default function CartDrawer() {
           type: "Order",
         })
       );
+      toast.success(
+        // 5️⃣ UX feedback
+        `Order placed successfully`
+      );
+
+      setloading(false);
     }
 
     // 6️⃣ Clear cart after successful checkout
@@ -301,39 +298,6 @@ export default function CartDrawer() {
                 Clear Cart
               </Button>
 
-              {/* Payment Method */}
-              <div>
-                <h4 className="text-sm font-semibold mb-2">Payment Method</h4>
-                <RadioGroup
-                  value={paymentMethod}
-                  onValueChange={setPaymentMethod}
-                  className="grid grid-cols-2 gap-2"
-                >
-                  {[
-                    { value: "COD", label: "Cash on Delivery", icon: Wallet },
-                    {
-                      value: "ONLINE",
-                      label: "Online Payment",
-                      icon: CreditCard,
-                    },
-                  ].map(({ value, label, icon: Icon }) => (
-                    <Label
-                      key={value}
-                      className={cn(
-                        "flex items-center gap-2 border rounded-md p-3 cursor-pointer transition",
-                        paymentMethod === value
-                          ? "border-green-600 bg-green-50 text-green-700"
-                          : "hover:bg-muted"
-                      )}
-                    >
-                      <RadioGroupItem value={value} />
-                      <Icon className="h-4 w-4" />
-                      {label}
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-
               {/* Delivery Method */}
               <div>
                 <h4 className="text-sm font-semibold mb-2">Delivery Method</h4>
@@ -393,12 +357,18 @@ export default function CartDrawer() {
               <Button
                 size="lg"
                 className="w-full"
-                disabled={!paymentMethod || !deliveryMethod}
-                onClick={() => proceedPayment()}
+                disabled={!deliveryMethod}
+                onClick={() => proceedOrder()}
               >
-                {!paymentMethod || !deliveryMethod
-                  ? "Select payment & delivery method"
-                  : "Proceed to Checkout"}
+                {loading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <>
+                    {!deliveryMethod
+                      ? "Select payment & delivery method"
+                      : "Proceed to Checkout"}
+                  </>
+                )}
               </Button>
             </div>
           </div>

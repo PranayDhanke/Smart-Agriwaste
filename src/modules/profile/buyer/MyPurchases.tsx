@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,12 +19,12 @@ import {
   Home,
   Calendar,
   User,
-  TrendingUp,
   ArrowRight,
   CheckCircle,
   ChevronDown,
   Zap,
   ShoppingBag,
+  Filter,
 } from "lucide-react";
 import { Order } from "@/components/types/orders";
 import { useUser } from "@clerk/nextjs";
@@ -123,15 +123,44 @@ const getDeliveryModeBadge = (mode: string) => {
   );
 };
 
+const StatCard = ({
+  label,
+  value,
+  icon: Icon,
+  color,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  color: string;
+}) => (
+  <Card
+    className={`border-0 shadow-sm hover:shadow-md transition-all duration-300 ${color}`}
+  >
+    <CardContent className="pt-6">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+            {label}
+          </span>
+          {Icon}
+        </div>
+        <div className="text-3xl font-bold text-gray-900 dark:text-white">
+          {value}
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 /* ============ Main Component ============ */
 
 export default function BuyerPurchasesPage() {
   const [search, setSearch] = useState("");
   const [purchases, setPurchases] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterTab, setFilterTab] = useState<
-    "all" | "pending" | "delivered" | "cancelled"
-  >("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+
   const { user } = useUser();
 
   const { sendNotification } = useNotification();
@@ -157,42 +186,31 @@ export default function BuyerPurchasesPage() {
     fetchOrderData();
   }, [user?.id]);
 
+  const filteredOrders = purchases.filter((o) => {
+    const q = search.toLowerCase();
+    const matchesSearch =
+      o._id.toLowerCase().includes(q) ||
+      o.buyerInfo.buyerName.toLowerCase().includes(q) ||
+      o.items.some((i) => i.title.toLowerCase().includes(q));
 
-  const filteredOrders = useMemo(() => {
-    let filtered = purchases.filter((order) => {
-      const q = search.toLowerCase();
-      return (
-        order._id.toLowerCase().includes(q) ||
-        order.items.some((i) => i.title.toLowerCase().includes(q)) ||
-        order.items[0]?.sellerInfo.seller.farmerName.toLowerCase().includes(q)
-      );
-    });
+    if (filterStatus === "all") return matchesSearch;
+    if (filterStatus === "pending")
+      return matchesSearch && o.status === "pending";
+    if (filterStatus === "confirmed")
+      return matchesSearch && o.status === "confirmed";
+    if (filterStatus === "delivered") return matchesSearch && o.isDelivered;
+    if (filterStatus === "cancelled")
+      return matchesSearch && o.status === "cancelled";
 
-    if (filterTab === "pending") {
-      filtered = filtered.filter(
-        (o) => !o.isDelivered && o.status !== "cancelled"
-      );
-    } else if (filterTab === "delivered") {
-      filtered = filtered.filter((o) => o.isDelivered);
-    } else if (filterTab === "cancelled") {
-      filtered = filtered.filter((o) => o.status === "cancelled");
-    }
+    return matchesSearch;
+  });
 
-    return filtered;
-  }, [search, purchases, filterTab]);
-
-  // Calculate statistics
   const stats = {
-    total: purchases.length,
-    pending: purchases.filter((o) => !o.isDelivered && o.status !== "cancelled")
-      .length,
+    pending: purchases.filter((o) => o.status === "pending").length,
+    confirmed: purchases.filter((o) => o.status === "confirmed").length,
     delivered: purchases.filter((o) => o.isDelivered).length,
-    cancelled: purchases.filter((o) => o.status === "cancelled").length,
+    total: purchases.length,
   };
-
-  const totalSpent = purchases.reduce((sum, order) => {
-    return sum + calcOrderAmount(order.items);
-  }, 0);
 
   const changeOrderStatus = async (
     id: string,
@@ -301,230 +319,99 @@ export default function BuyerPurchasesPage() {
               </Link>
             </div>
           </div>
-
-          {/* ============ Statistics Cards ============ */}
-          {!loading && purchases.length > 0 && (
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 animate-fade-in"
-              style={{ animationDelay: "50ms" }}
-            >
-              {/* Total Orders */}
-              <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
-                <div className="h-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:via-blue-500 transition-all"></div>
-                <CardContent className="pt-5">
-                  <div className="space-y-2">
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold uppercase tracking-wide">
-                      Total Orders
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {stats.total}
-                    </p>
-                    <div className="pt-2 flex items-center gap-2">
-                      <div className="h-1.5 flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-blue-400 to-blue-500"
-                          style={{ width: "100%" }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* In Transit */}
-              <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
-                <div className="h-1.5 bg-gradient-to-r from-amber-500 to-orange-500 group-hover:via-amber-500 transition-all"></div>
-                <CardContent className="pt-5">
-                  <div className="space-y-2">
-                    <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wide">
-                      In Transit
-                    </p>
-                    <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
-                      {stats.pending}
-                    </p>
-                    <div className="pt-2">
-                      <div className="h-1.5 w-full bg-amber-200 dark:bg-amber-900/40 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-amber-400 to-orange-500"
-                          style={{
-                            width: `${
-                              (stats.pending / stats.total) * 100 || 0
-                            }%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Delivered */}
-              <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
-                <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:via-emerald-500 transition-all"></div>
-                <CardContent className="pt-5">
-                  <div className="space-y-2">
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wide">
-                      Delivered
-                    </p>
-                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                      {stats.delivered}
-                    </p>
-                    <div className="pt-2">
-                      <div className="h-1.5 w-full bg-emerald-200 dark:bg-emerald-900/40 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-emerald-400 to-teal-500"
-                          style={{
-                            width: `${
-                              (stats.delivered / stats.total) * 100 || 0
-                            }%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Cancelled */}
-              <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
-                <div className="h-1.5 bg-gradient-to-r from-red-500 to-rose-500"></div>
-                <CardContent className="pt-5">
-                  <div className="space-y-2">
-                    <p className="text-xs text-red-600 dark:text-red-400 font-semibold uppercase tracking-wide">
-                      Cancelled
-                    </p>
-                    <p className="text-3xl font-bold text-red-600 dark:text-red-400">
-                      {stats.cancelled}
-                    </p>
-                    <div className="pt-2">
-                      <div className="h-1.5 w-full bg-red-200 dark:bg-red-900/40 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-red-400 to-rose-500"
-                          style={{
-                            width: `${
-                              (stats.cancelled / stats.total) * 100 || 0
-                            }%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Total Spent - Highlighted */}
-              <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 hover:shadow-lg transition-all duration-300 overflow-hidden group">
-                <div className="h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:via-purple-500 transition-all"></div>
-                <CardContent className="pt-5">
-                  <div className="space-y-2">
-                    <p className="text-xs text-purple-700 dark:text-purple-400 font-semibold uppercase tracking-wide">
-                      Total Spent
-                    </p>
-                    <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                      ₹{totalSpent.toLocaleString("en-IN")}
-                    </p>
-                    <div className="pt-2 flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
-                      <TrendingUp className="h-3.5 w-3.5" />
-                      <span>Across all purchases</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
         </div>
 
-        {/* ============ Search & Filters ============ */}
+        {/* Statistics Section */}
+        {!loading && purchases.length > 0 && (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in"
+            style={{ animationDelay: "50ms" }}
+          >
+            <StatCard
+              label="Total Orders"
+              value={stats.total}
+              icon={
+                <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+              }
+              color="bg-white/50 dark:bg-slate-800/50"
+            />
+            <StatCard
+              label="Pending"
+              value={stats.pending}
+              icon={
+                <div className="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                  <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </div>
+              }
+              color="bg-white/50 dark:bg-slate-800/50"
+            />
+            <StatCard
+              label="Confirmed"
+              value={stats.confirmed}
+              icon={
+                <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+              }
+              color="bg-white/50 dark:bg-slate-800/50"
+            />
+            <StatCard
+              label="Delivered"
+              value={stats.delivered}
+              icon={
+                <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                  <Truck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+              }
+              color="bg-white/50 dark:bg-slate-800/50"
+            />
+          </div>
+        )}
+
+        {/* Search & Filter Section */}
         <div
-          className="space-y-4 animate-fade-in"
+          className="space-y-3 animate-fade-in"
           style={{ animationDelay: "100ms" }}
         >
-          {/* Search Bar */}
-          <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:shadow-lg transition-all">
-            <CardContent className="p-4">
-              <div className="relative">
-                <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400 dark:text-gray-600 pointer-events-none" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search by order ID, product name, or farmer..."
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all shadow-sm"
-                />
-              </div>
-              {filteredOrders.length > 0 && search && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Found {filteredOrders.length} order
-                  {filteredOrders.length !== 1 ? "s" : ""}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Filter Tabs */}
-          {!loading && purchases.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {(
-                [
-                  {
-                    key: "all",
-                    label: "All Orders",
-                    icon: Package,
-                    count: stats.total,
-                  },
-                  {
-                    key: "pending",
-                    label: "In Transit",
-                    icon: Truck,
-                    count: stats.pending,
-                  },
-                  {
-                    key: "delivered",
-                    label: "Delivered",
-                    icon: CheckCircle2,
-                    count: stats.delivered,
-                  },
-                  {
-                    key: "cancelled",
-                    label: "Cancelled",
-                    icon: XCircle,
-                    count: stats.cancelled,
-                  },
-                ] as const
-              ).map((tab) => {
-                const Icon = tab.icon;
-                const isActive = filterTab === tab.key;
-                return (
-                  <button
-                    key={tab.key}
-                    onClick={() => setFilterTab(tab.key)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-300 ${
-                      isActive
-                        ? tab.key === "all"
-                          ? "bg-blue-600 dark:bg-blue-700 text-white shadow-lg scale-105"
-                          : tab.key === "pending"
-                          ? "bg-amber-600 dark:bg-amber-700 text-white shadow-lg scale-105"
-                          : tab.key === "delivered"
-                          ? "bg-emerald-600 dark:bg-emerald-700 text-white shadow-lg scale-105"
-                          : "bg-red-600 dark:bg-red-700 text-white shadow-lg scale-105"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{tab.label}</span>
-                    <Badge
-                      variant="secondary"
-                      className={`ml-1 ${
-                        isActive
-                          ? "bg-white/30 text-white"
-                          : "bg-gray-200 dark:bg-gray-600"
-                      }`}
-                    >
-                      {tab.count}
-                    </Badge>
-                  </button>
-                );
-              })}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600 pointer-events-none" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search orders, buyers, or products..."
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all shadow-sm"
+              />
             </div>
+
+            <div className="flex gap-2">
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="pl-9 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm appearance-none cursor-pointer"
+                >
+                  <option value="all">All Orders</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {search && filteredOrders.length > 0 && (
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Found{" "}
+              <span className="font-semibold text-gray-700 dark:text-gray-300">
+                {filteredOrders.length}
+              </span>{" "}
+              result{filteredOrders.length !== 1 ? "s" : ""}
+            </p>
           )}
         </div>
 
@@ -739,9 +626,9 @@ export default function BuyerPurchasesPage() {
 
                       {/* Pickup Actions */}
                       {order.deliveryMode === "PICKUPBYBUYER" &&
+                        order.status === "confirmed" &&
                         !order.isOutForDelivery &&
-                        !order.isDelivered &&
-                        order.status !== "cancelled" && (
+                        !order.isDelivered && (
                           <Button
                             size="sm"
                             className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white shadow-sm hover:shadow-md transition-all"
@@ -761,9 +648,9 @@ export default function BuyerPurchasesPage() {
                         )}
 
                       {order.deliveryMode === "PICKUPBYBUYER" &&
+                        order.status !== "confirmed" &&
                         order.isOutForDelivery &&
-                        !order.isDelivered &&
-                        order.status !== "cancelled" && (
+                        !order.isDelivered && (
                           <Button
                             size="sm"
                             className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white shadow-sm hover:shadow-md transition-all"
@@ -800,7 +687,9 @@ export default function BuyerPurchasesPage() {
                 </Card>
               );
             })}
+            
           </div>
+          
         )}
       </div>
 

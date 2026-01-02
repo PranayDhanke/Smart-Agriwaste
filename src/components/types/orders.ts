@@ -60,8 +60,6 @@ export interface Order {
 
   items: CartItem[];
 
-  transactionMode: "COD" | "ONLINE" | "WALLET";
-
   deliveryMode: "PICKUPBYBUYER" | "DELIVERYBYFARMER";
 
   totalAmount: number;
