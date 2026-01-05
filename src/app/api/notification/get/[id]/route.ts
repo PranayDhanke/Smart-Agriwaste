@@ -7,9 +7,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const param =await params; // Clerk userId
+    const param = await params; // Clerk userId
 
-    await dbConnect()
+    await dbConnect();
     const id = await param.id;
 
     const notifications = await Notification.find({ userId: id }).sort({

@@ -24,20 +24,27 @@ export async function POST(req: NextRequest) {
       read: false,
     });
 
-    // 2️⃣ Send OneSignal push
-    await fetch("https://onesignal.com/api/v1/notifications", {
+    const options = {
       method: "POST",
       headers: {
+        Authorization: `${process.env.ONESIGNAL_REST_API_KEY}`,
         "Content-Type": "application/json",
-        Authorization: `Basic ${process.env.ONESIGNAL_REST_API_KEY}`,
       },
       body: JSON.stringify({
         app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-        include_external_user_ids: [userId],
+
         headings: { en: title },
         contents: { en: message },
+
+        include_aliases: { external_id: [userId] },
+        target_channel: "push",
       }),
-    });
+    };
+
+    await fetch("https://api.onesignal.com/notifications?c=push", options)
+      .then((res) => res.json())
+      .then((res) => console.log(res))
+      .catch((err) => console.error(err));
 
     return NextResponse.json(
       {

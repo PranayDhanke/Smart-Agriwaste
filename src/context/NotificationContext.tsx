@@ -21,7 +21,7 @@ interface NotificationContextType {
   unread: number;
   refresh: () => void;
   sendNotification: (notificationItem: sendNotificationInterface) => void;
-  markAsReadNotification: (id: string) => Promise<void>;
+  markAsReadNotification: (notificationItem: Notification) => Promise<void>;
   removeNotification: (id: string) => Promise<void>;
   changeNotificationStatus: (
     id: string,

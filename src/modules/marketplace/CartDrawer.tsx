@@ -132,7 +132,7 @@ export default function CartDrawer() {
           userId: farmerId.replace("fam_", "user_"),
           message: `New Order Placed by Buyer ${user?.fullName}`,
           title: "New Order Placed",
-          type: "Order",
+          type: "order",
         })
       );
       toast.success(

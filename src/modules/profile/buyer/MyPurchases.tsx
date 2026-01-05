@@ -254,7 +254,7 @@ export default function BuyerPurchasesPage() {
           userId: farmerId.replace("fam_", "user_"),
           title: "Order is out for Pickup",
           message: `Buyer ${buyerName} is out for Pickup`,
-          type: "Order",
+          type: "order",
         });
       }
     } catch {
@@ -278,7 +278,7 @@ export default function BuyerPurchasesPage() {
           userId: farmerId.replace("fam_", "user_"),
           title: "Order is Picked Up",
           message: `Buyer ${buyerName} picked up order`,
-          type: "Order",
+          type: "order",
         });
       }
     } catch {

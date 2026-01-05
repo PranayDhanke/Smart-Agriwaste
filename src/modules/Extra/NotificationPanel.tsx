@@ -47,7 +47,7 @@ export default function NotificationPanel({
               notifications.map((n) => (
                 <div
                   key={n._id}
-                  onClick={() => markAsReadNotification(n._id)}
+                  onClick={() => markAsReadNotification(n)}
                   className={`border p-3 rounded-lg cursor-pointer transition ${
                     n.read
                       ? "bg-muted"

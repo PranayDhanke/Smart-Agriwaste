@@ -6,10 +6,10 @@ import Footer from "@/modules/Home/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import RedirectNotAccount from "@/modules/Extra/RedirectNotAccount";
-import OneSignalProvider from "@/components/provider/OneSignalProvider";
 import { CartProvider } from "@/components/provider/CartProvider";
 import { NotificationProvider } from "@/components/provider/NotificationProvider";
 import FloatingCart from "@/modules/marketplace/FlotingCart";
+import OneSignalInit from "@/lib/onesignal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,24 +32,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <Toaster position="top-center" />
-          <CartProvider>
-            <NotificationProvider>
-              <Header />
-              <OneSignalProvider />
-              {children}
-              <FloatingCart />
-              <Footer />
-            </NotificationProvider>
-          </CartProvider>
-          <RedirectNotAccount />
-        </body>
-      </html>
-    </ClerkProvider>
+    <>
+      <ClerkProvider>
+        <OneSignalInit />
+        <html lang="en" suppressHydrationWarning>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            <Toaster position="top-center" />
+            <CartProvider>
+              <NotificationProvider>
+                <Header />
+                {children}
+                <FloatingCart />
+                <Footer />
+              </NotificationProvider>
+            </CartProvider>
+            <RedirectNotAccount />
+          </body>
+        </html>
+      </ClerkProvider>
+    </>
   );
 }

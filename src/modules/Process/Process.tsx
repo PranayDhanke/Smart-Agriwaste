@@ -122,12 +122,7 @@ export default function Process() {
       joined.includes("pellet")
     )
       needs.push("Mechanical baling equipment");
-    if (
-      joined.includes("anaerobic") ||
-      joined.includes("digestion") ||
-      joined.includes("biogas")
-    )
-      needs.push("Anaerobic digester");
+
     if (
       joined.includes("ferment") ||
       joined.includes("pulping") ||
@@ -400,9 +395,6 @@ export default function Process() {
               <li className="text-xs text-gray-700">
                 ✓ Keep compost piles moist, turn weekly
               </li>
-              <li className="text-xs text-gray-700">
-                ✓ For biogas, contact local installers
-              </li>
             </ul>
           </div>
         </div>
@@ -425,10 +417,6 @@ export default function Process() {
             <div className="flex items-center gap-2 p-2 bg-sky-50 rounded">
               <Droplet className="w-4 h-4 text-sky-500 flex-shrink-0" />
               <span>Semi-wet = pre-dry or mix</span>
-            </div>
-            <div className="flex items-center gap-2 p-2 bg-blue-50 rounded">
-              <Droplet className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              <span>Wet = biogas/fermentation</span>
             </div>
           </CardContent>
         </Card>
@@ -683,7 +671,6 @@ export default function Process() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="compost">🌱 Compost</SelectItem>
-                          <SelectItem value="biogas">⚡ Biogas</SelectItem>
                           <SelectItem value="feed">🐄 Feed</SelectItem>
                           <SelectItem value="sell">💰 Sell</SelectItem>
                         </SelectContent>

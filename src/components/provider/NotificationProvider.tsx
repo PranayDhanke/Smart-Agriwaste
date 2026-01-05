@@ -7,36 +7,47 @@ import {
 } from "@/context/NotificationContext";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
 
+  const role = user?.unsafeMetadata.role;
+
+  const router = useRouter();
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(0);
 
   // 🔹 Fetch notifications (no useCallback needed)
-  const getNotification = async () => {
-    if (!user) return;
-
-    try {
-      const res = await axios.get<Notification[]>(
-        `/api/notification/get/${user.id}`
-      );
-
-      setNotifications(res.data);
-      setUnread(res.data.filter((n) => !n.read).length);
-    } catch {
-      toast.error("Unable to fetch notifications. Please refresh.");
-    }
-  };
-
-  // 🔹 Load when user changes
+  // 🔹 Load notifications when user changes
   useEffect(() => {
     if (!user) return;
-    getNotification();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    let cancelled = false;
+
+    const fetchNotifications = async () => {
+      try {
+        const res = await axios.get<Notification[]>(
+          `/api/notification/get/${user.id}`
+        );
+
+        if (!cancelled) {
+          setNotifications(res.data);
+          setUnread(res.data.filter((n) => !n.read).length);
+        }
+      } catch {
+        toast.error("Unable to fetch notifications. Please refresh.");
+      }
+    };
+
+    fetchNotifications();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   // ================= OPTIMISTIC ACTIONS =================
@@ -47,12 +58,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     await axios.post("/api/notification/send", notificationItem);
   };
 
-  const markAsReadNotification = async (id: string) => {
+  const markAsReadNotification = async (notification: Notification) => {
     let wasUnread = false;
 
+    const nid = notification._id;
     setNotifications((prev) =>
       prev.map((n) => {
-        if (n._id === id && !n.read) {
+        if (n._id === nid && !n.read) {
           wasUnread = true;
           return { ...n, read: true };
         }
@@ -64,11 +76,33 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setUnread((u) => Math.max(0, u - 1));
     }
 
-    try {
-      await axios.put("/api/notification/read", { id });
-    } catch {
-      getNotification();
+    if (role === "farmer") {
+      if (
+        notification.type === "negotiation" ||
+        notification.type === "Negotiation"
+      ) {
+        router.push("/profile/farmer/negotiations");
+      }
+      if (notification.type === "order" || notification.type === "Order") {
+        router.push("/profile/farmer/my-orders");
+      }
     }
+
+    if (role === "buyer") {
+      if (
+        notification.type === "negotiation" ||
+        notification.type === "Negotiation"
+      ) {
+        router.push("/profile/buyer/negotiations");
+      }
+      if (notification.type === "order" || notification.type === "Order") {
+        router.push("/profile/buyer/my-purchases");
+      }
+    }
+
+    try {
+      await axios.put("/api/notification/read", { nid });
+    } catch {}
   };
 
   const removeNotification = async (id: string) => {
@@ -91,7 +125,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         data: { id },
       });
     } catch {
-      getNotification(); // rollback
+      refresh(); // rollback
     }
   };
 
@@ -110,7 +144,22 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         getstatus: action,
       });
     } catch {
-      getNotification();
+      refresh();
+    }
+  };
+
+  const refresh = async () => {
+    if (!user) return;
+
+    try {
+      const res = await axios.get<Notification[]>(
+        `/api/notification/get/${user.id}`
+      );
+
+      setNotifications(res.data);
+      setUnread(res.data.filter((n) => !n.read).length);
+    } catch {
+      toast.error("Unable to fetch notifications. Please refresh.");
     }
   };
 
@@ -119,7 +168,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       value={{
         notifications,
         unread,
-        refresh: getNotification,
+        refresh,
         sendNotification,
         markAsReadNotification,
         removeNotification,
