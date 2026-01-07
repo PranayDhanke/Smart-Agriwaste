@@ -1,4 +1,7 @@
-/** @type {import('next').NextConfig} */
+import type { NextConfig } from "next";
+
+import createNextIntlPlugin from "next-intl/plugin";
+
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -8,7 +11,8 @@ const nextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ["local-origin.dev", "*.local-origin.dev" ],
-};
+} satisfies NextConfig;
 
-module.exports = nextConfig;
+const withNextIntl = createNextIntlPlugin();
+
+module.exports = withNextIntl(nextConfig);

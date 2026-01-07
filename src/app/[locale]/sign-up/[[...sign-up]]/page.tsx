@@ -15,8 +15,6 @@ export default function Page() {
     <div className="flex my-5 justify-center items-center">
       <SignUp
         unsafeMetadata={{ role }}
-        path="/sign-up"
-        routing="path"
         // pass role explicitly as query param so create-account can always read it
         afterSignUpUrl={`/create-accoucnt`}
         signInUrl="/sign-in"
