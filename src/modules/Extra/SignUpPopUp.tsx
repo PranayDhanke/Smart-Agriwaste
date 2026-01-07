@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import { FiPackage, FiShoppingBag, FiX } from "react-icons/fi";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 
 const RoleCard: React.FC<{
   href: string;
@@ -120,21 +120,21 @@ const SignUpPopUp: React.FC = () => {
         <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
           <p className="text-xs text-gray-500">
             By continuing you agree to our{" "}
-            <a
+            <Link
               className="font-medium text-indigo-600 underline"
               href="/terms"
               onClick={(e) => e.stopPropagation()}
             >
               Terms
-            </a>{" "}
+            </Link>{" "}
             and{" "}
-            <a
+            <Link
               className="font-medium text-indigo-600 underline"
               href="/privacy"
               onClick={(e) => e.stopPropagation()}
             >
               Privacy Policy
-            </a>
+            </Link>
             .
           </p>
 

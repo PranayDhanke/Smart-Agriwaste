@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useUser} from "@clerk/nextjs";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,11 +11,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { FiMenu, FiBell, FiPlus } from "react-icons/fi";
+import { FiMenu } from "react-icons/fi";
 import { NAVIGATION, Role } from "./nav.config";
 import DesktopNav from "./DesktopNav";
 import { Link } from "@/i18n/navigation";
-import NotificationPanel from "@/modules/Extra/NotificationPanel";
 import MobileNav from "./MobileNav";
 import AuthActions from "./AuthAction";
 

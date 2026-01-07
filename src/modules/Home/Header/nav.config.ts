@@ -6,13 +6,14 @@ import {
   FiDollarSign,
   FiTrendingUp,
 } from "react-icons/fi";
+import { IconType } from "react-icons/lib";
 
 export type Role = "farmer" | "buyer" | "guest";
 
 export interface NavItem {
   key: string;
   href: string;
-  icon: any;
+  icon: IconType;
 }
 
 export const NAVIGATION: Record<Role, NavItem[]> = {

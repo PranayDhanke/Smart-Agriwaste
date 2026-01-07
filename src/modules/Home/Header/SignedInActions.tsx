@@ -13,6 +13,7 @@ import { useState } from "react";
 
 export default function SignedInActions() {
   const { user } = useUser();
+
   const { signOut, openUserProfile } = useClerk();
   const { unread } = useNotification();
 
@@ -38,7 +39,12 @@ export default function SignedInActions() {
       )}
 
       {/* Notifications */}
-      <Button onClick={()=>setNotificationOpen(true)} variant="ghost" size="icon" className="relative">
+      <Button
+        onClick={() => setNotificationOpen(true)}
+        variant="ghost"
+        size="icon"
+        className="relative"
+      >
         <FiBell />
         {unread > 0 && (
           <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs">
@@ -49,7 +55,11 @@ export default function SignedInActions() {
 
       {/* Profile */}
       <ProfileMenu
-        user={user}
+        user={{
+          id: user?.id || "",
+          firstName: user?.firstName || "",
+          imageUrl: user?.imageUrl || "",
+        }}
         role={role}
         signOut={signOut}
         openUserProfile={openUserProfile}

@@ -11,7 +11,7 @@ import { Globe } from "lucide-react";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-const locales = ["en", "hi", "mr"] as const;
+type Locale = "en" | "hi" | "mr";
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
@@ -19,19 +19,20 @@ export default function LanguageSwitcher() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const switchLocale = (nextLocale: typeof locales[number]) => {
+  const switchLocale = (nextLocale: Locale) => {
     if (nextLocale === locale) return;
 
     const cleanPath = pathname.replace(/^\/(en|hi|mr)/, "");
     const query = searchParams.toString();
+
     router.push(`/${nextLocale}${cleanPath}${query ? `?${query}` : ""}`);
   };
 
   return (
     <Select value={locale} onValueChange={switchLocale}>
-      <SelectTrigger className="h-9 w-[] gap-2">
+      <SelectTrigger className="h-9 w-[90px] gap-2">
         <Globe className="h-4 w-4" />
-        <SelectValue/>
+        <SelectValue />
       </SelectTrigger>
 
       <SelectContent align="end">
