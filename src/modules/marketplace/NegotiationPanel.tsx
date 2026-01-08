@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { useNotification } from "@/components/hooks/useNotification";
+import { useTranslations } from "next-intl";
 
 const NegotiationPanel = ({
   item,
@@ -25,6 +26,7 @@ const NegotiationPanel = ({
   item: WasteItem;
   onClose: () => void;
 }) => {
+  const t = useTranslations("faq");
   const [price, setPrice] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
 
@@ -34,12 +36,12 @@ const NegotiationPanel = ({
 
   const handleSubmit = async () => {
     if (!price || price <= 0) {
-      toast.error("Please enter a valid price");
+      toast.error(t("negotiation.errors.invalidPrice"));
       return;
     }
 
     if (price >= item.price) {
-      toast.error("Negotiated price must be lower than listed price");
+      toast.error(t("negotiation.errors.mustBeLower"));
       return;
     }
 
@@ -79,19 +81,20 @@ const NegotiationPanel = ({
       if (response.status === 200) {
         sendNotification({
           userId: item.seller.farmerId.replace("fam_", "user_"), // farmer receives notification
-          title: "New Negotiation Request",
-          message: `Buyer ${
-            user?.fullName || "buyer"
-          } sent a negotiation request for the Product ${item.title}.`,
+          title: t("negotiation.notificationTitle"),
+          message: t("negotiation.notificationMessage", {
+            buyer: user?.fullName || "buyer",
+            title: item.title,
+          }),
           type: "negotiation",
         });
 
-        toast.success("Negotiation request sent to seller");
+        toast.success(t("negotiation.success"));
       }
 
       onClose();
     } catch {
-      toast.error("Failed to send negotiation request");
+      toast.error(t("negotiation.failure"));
     } finally {
       setLoading(false);
       refresh()
@@ -107,7 +110,7 @@ const NegotiationPanel = ({
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2">
           <Handshake className="h-5 w-5 text-amber-600" />
-          Price Negotiation
+          {t("negotiation.title")}
         </CardTitle>
 
         {/* Close */}
@@ -117,12 +120,10 @@ const NegotiationPanel = ({
           className="absolute right-2 top-2"
           onClick={onClose}
         >
-          ✕
+          {t("negotiation.close")}
         </Button>
 
-        <CardDescription>
-          Negotiate directly with the farmer for this product
-        </CardDescription>
+        <CardDescription>{t("negotiation.description")}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -130,13 +131,13 @@ const NegotiationPanel = ({
         <div className="rounded-md bg-gray-50 p-3 text-sm">
           <p className="font-medium">{item.title}</p>
           <p className="text-xs text-gray-500">
-            Listed Price: ₹{item.price} / {item.unit}
+            {t("negotiation.listedPrice", { price: item.price, unit: item.unit })}
           </p>
         </div>
 
         {/* Input */}
         <div className="space-y-1.5">
-          <Label>Your Offer</Label>
+          <Label>{t("negotiation.yourOffer")}</Label>
           <div className="relative">
             <IndianRupee className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
             <Input
@@ -155,7 +156,7 @@ const NegotiationPanel = ({
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? "Sending..." : "Submit Negotiation"}
+          {loading ? t("negotiation.sending") : t("negotiation.submit")}
         </Button>
       </CardContent>
     </Card>

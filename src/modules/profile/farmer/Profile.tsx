@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,24 +39,18 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Field labels mapping
-const fieldLabels: Record<string, string> = {
-  phone: "Phone Number",
-  aadharnumber: "Aadhar Number",
-  state: "State",
-  district: "District",
-  taluka: "Taluka",
-  village: "Village",
-  houseBuildingName: "House/Building Name",
-  roadarealandmarkName: "Road, Area, Landmark Name",
-  farmNumber: "Farm Number",
-  farmArea: "Farm Area",
-  farmUnit: "Farm Unit",
-};
+// Field labels will be resolved via translations inside the component
 
 export default function Profile() {
   const { user } = useUser();
   const router = useRouter();
+  const t = useTranslations("faq");
+
+  const labelFor = (key: string) =>
+    t(`profile.farmer.profile.labels.${key}`);
+
+  const placeholderFor = (key: string) =>
+    t(`profile.farmer.profile.placeholders.${key}`);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -190,19 +185,18 @@ export default function Profile() {
     }
   };
 
-  if (!user) return <p className="text-center py-10">Loading user...</p>;
-  if (isLoading)
-    return <p className="text-center py-10">Loading farmer data...</p>;
+  if (!user) return <p className="text-center py-10">{t("profile.loading")}</p>;
+  if (isLoading) return <p className="text-center py-10">{t("profile.farmer.profile.loading") || t("profile.loading")}</p>;
 
   return (
     <div className="container py-10">
       <Card className="max-w-4xl mx-auto border-gray-200 shadow-lg">
         <CardHeader className="bg-green-50">
           <CardTitle className="text-2xl font-bold text-green-700">
-            Farmer Profile
+            {t("profile.farmer.profile.title")}
           </CardTitle>
           <p className="text-sm text-gray-600 mt-1">
-            Manage your personal and farm information
+            {t("profile.farmer.profile.subtitle")}
           </p>
         </CardHeader>
 
@@ -213,7 +207,7 @@ export default function Profile() {
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <p className="text-sm">
                   <span className="font-semibold text-green-700">
-                    Farmer ID:
+                    {t("profile.farmer.profile.labels.farmerId")}
                   </span>{" "}
                   <span className="text-gray-700">{farmerId}</span>
                 </p>
@@ -222,11 +216,11 @@ export default function Profile() {
               {/* Account Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Account Information
+                  {t("profile.farmer.profile.headings.accountInformation")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <FormLabel className="text-gray-700">First Name</FormLabel>
+                    <FormLabel className="text-gray-700">{t("profile.farmer.profile.labels.firstName")}</FormLabel>
                     <Input
                       value={user?.firstName || ""}
                       disabled
@@ -234,7 +228,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Last Name</FormLabel>
+                    <FormLabel className="text-gray-700">{t("profile.farmer.profile.labels.lastName")}</FormLabel>
                     <Input
                       value={user?.lastName || ""}
                       disabled
@@ -242,7 +236,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Username</FormLabel>
+                    <FormLabel className="text-gray-700">{t("profile.farmer.profile.labels.username")}</FormLabel>
                     <Input
                       value={user?.username || ""}
                       disabled
@@ -251,7 +245,7 @@ export default function Profile() {
                   </div>
                   <div>
                     <FormLabel className="text-gray-700">
-                      Email Address
+                      {t("profile.farmer.profile.labels.emailAddress")}
                     </FormLabel>
                     <Input
                       value={user?.primaryEmailAddress?.emailAddress || ""}
@@ -267,7 +261,7 @@ export default function Profile() {
               {/* Contact Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Contact & Personal Details
+                  {t("profile.farmer.profile.headings.contactPersonalDetails")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <FormField
@@ -275,11 +269,9 @@ export default function Profile() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          {fieldLabels.phone}
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{labelFor("phone")}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter phone number" {...field} />
+                          <Input placeholder={placeholderFor("phone") || ""} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -289,11 +281,9 @@ export default function Profile() {
                     name="aadharnumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          {fieldLabels.aadharnumber}
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{labelFor("aadharnumber")}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter Aadhar number" {...field} />
+                          <Input placeholder={placeholderFor("aadharnumber") || ""} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -306,7 +296,7 @@ export default function Profile() {
               {/* Address Details */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Address Details
+                  {t("profile.farmer.profile.headings.addressDetails")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   {[
@@ -323,16 +313,9 @@ export default function Profile() {
                       name={key as keyof FormValues}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">
-                            {fieldLabels[key]}
-                          </FormLabel>
+                          <FormLabel className="text-gray-700">{labelFor(key)}</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder={`Enter ${fieldLabels[
-                                key
-                              ].toLowerCase()}`}
-                              {...field}
-                            />
+                            <Input placeholder={placeholderFor(key) || ""} {...field} />
                           </FormControl>
                         </FormItem>
                       )}
@@ -346,7 +329,7 @@ export default function Profile() {
               {/* Farm Details */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Farm Information
+                  {t("profile.farmer.profile.headings.farmInfo")}
                 </h3>
                 <div className="grid md:grid-cols-3 gap-6">
                   {["farmNumber", "farmArea", "farmUnit"].map((key) => (
@@ -356,16 +339,9 @@ export default function Profile() {
                       name={key as keyof FormValues}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">
-                            {fieldLabels[key]}
-                          </FormLabel>
+                          <FormLabel className="text-gray-700">{labelFor(key)}</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder={`Enter ${fieldLabels[
-                                key
-                              ].toLowerCase()}`}
-                              {...field}
-                            />
+                            <Input placeholder={placeholderFor(key) || ""} {...field} />
                           </FormControl>
                         </FormItem>
                       )}
@@ -379,7 +355,7 @@ export default function Profile() {
               {/* Documents */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Documents
+                  {t("profile.farmer.profile.headings.documents")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-8">
                   <FormField
@@ -387,9 +363,7 @@ export default function Profile() {
                     name="aadharUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Aadhar Document
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{t("profile.farmer.profile.labels.aadharUrl")}</FormLabel>
                         <FormControl>
                           <Input
                             type="file"
@@ -420,9 +394,7 @@ export default function Profile() {
                     name="farmDocUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Farm Document
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{t("profile.farmer.profile.labels.farmDocUrl")}</FormLabel>
                         <FormControl>
                           <Input
                             type="file"
@@ -456,7 +428,7 @@ export default function Profile() {
                   type="submit"
                   className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-base font-semibold"
                 >
-                  Save Changes
+                  {t("profile.farmer.profile.actions.saveChanges")}
                 </Button>
               </div>
             </form>

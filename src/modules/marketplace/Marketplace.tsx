@@ -2,6 +2,7 @@
 
 import { JSX, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +65,7 @@ const categoryMeta: Record<
 };
 
 export default function Marketplace() {
+  const t = useTranslations("faq");
   const [wastes, setWastes] = useState<WasteItem[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -189,7 +191,7 @@ export default function Marketplace() {
 
     addToCart(cartItem);
 
-    toast.success(`${item.title} added to cart`);
+    toast.success(t("marketplace.actions.addedToCart", { title: item.title }));
   };
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
@@ -216,16 +218,15 @@ export default function Marketplace() {
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-                Marketplace
+                {t("marketplace.hero.title")}
               </h1>
-              <p className="text-lg text-gray-600 max-w-2xl">
-                Connect with sustainable solutions. Buy and sell agricultural
-                waste products responsibly.
-              </p>
+              <p className="text-lg text-gray-600 max-w-2xl">{t(
+                "marketplace.hero.subtitle"
+              )}</p>
             </div>
-            <div className="hidden lg:flex items-center gap-2 text-green-600 text-sm font-medium">
+              <div className="hidden lg:flex items-center gap-2 text-green-600 text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              {filtered.length} listings active
+              {filtered.length} {t("marketplace.results.activeListings")}
             </div>
           </div>
         </div>
@@ -235,7 +236,7 @@ export default function Marketplace() {
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors" />
             <Input
-              placeholder="Search waste products, categories, or sellers..."
+              placeholder={t("marketplace.searchPlaceholder")}
               value={filters.search}
               onChange={(e) => handleFilterChange("search", e.target.value)}
               className="pl-12 h-14 bg-white border-2 border-gray-200 focus:border-green-500 rounded-lg text-base shadow-sm focus:shadow-md transition-all"
@@ -263,7 +264,7 @@ export default function Marketplace() {
                 : "border-gray-200 hover:border-green-300"
             }`}
           >
-            All Products
+            {t("marketplace.pills.allProducts")}
           </Button>
           {Object.entries(categoryMeta).map(([key, meta]) => (
             <Button
@@ -282,7 +283,7 @@ export default function Marketplace() {
               }`}
             >
               {meta.icon}
-              {meta.label}
+              {t(`marketplace.categories.${key}`)}
             </Button>
           ))}
         </div>
@@ -301,7 +302,13 @@ export default function Marketplace() {
               }`}
             >
               <Filter className="h-4 w-4 mr-2" />
-              {showFilters ? "Hide" : "Show"} Filters
+              {showFilters
+                ? `${t("marketplace.filters.hide")} ${t(
+                    "marketplace.filters.label"
+                  )}`
+                : `${t("marketplace.filters.show")} ${t(
+                    "marketplace.filters.label"
+                  )}`}
               {activeFiltersCount > 0 && (
                 <Badge className="ml-2 bg-amber-500 hover:bg-amber-600">
                   {activeFiltersCount}
@@ -332,10 +339,10 @@ export default function Marketplace() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="recent">Most Recent</SelectItem>
-              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc">Price: High to Low</SelectItem>
-              <SelectItem value="name">Name (A–Z)</SelectItem>
+              <SelectItem value="recent">{t("marketplace.sortOptions.recent")}</SelectItem>
+              <SelectItem value="price-asc">{t("marketplace.sortOptions.price-asc")}</SelectItem>
+              <SelectItem value="price-desc">{t("marketplace.sortOptions.price-desc")}</SelectItem>
+              <SelectItem value="name">{t("marketplace.sortOptions.name")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -346,10 +353,10 @@ export default function Marketplace() {
             <div className="grid gap-4 md:grid-cols-4">
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Location
+                  {t("marketplace.filters.location")}
                 </Label>
                 <Input
-                  placeholder="City / District"
+                  placeholder={t("marketplace.filters.locationPlaceholder")}
                   value={filters.address}
                   onChange={(e) =>
                     handleFilterChange("address", e.target.value)
@@ -360,11 +367,11 @@ export default function Marketplace() {
 
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Min Price (₹)
+                  {t("marketplace.filters.minPrice")}
                 </Label>
                 <Input
                   type="number"
-                  placeholder="0"
+                  placeholder={t("marketplace.filters.minPricePlaceholder")}
                   value={filters.minPrice}
                   onChange={(e) =>
                     handleFilterChange("minPrice", e.target.value)
@@ -375,11 +382,11 @@ export default function Marketplace() {
 
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Max Price (₹)
+                  {t("marketplace.filters.maxPrice")}
                 </Label>
                 <Input
                   type="number"
-                  placeholder="10000"
+                  placeholder={t("marketplace.filters.maxPricePlaceholder")}
                   value={filters.maxPrice}
                   onChange={(e) =>
                     handleFilterChange("maxPrice", e.target.value)
@@ -390,7 +397,7 @@ export default function Marketplace() {
 
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Sort By
+                  {t("marketplace.filters.sortBy")}
                 </Label>
                 <Select
                   value={filters.sortBy}
@@ -402,14 +409,14 @@ export default function Marketplace() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                    <SelectItem value="price-asc">
-                      Price: Low to High
-                    </SelectItem>
-                    <SelectItem value="price-desc">
-                      Price: High to Low
-                    </SelectItem>
-                    <SelectItem value="name">Name (A–Z)</SelectItem>
+                    <SelectItem value="recent">{t("marketplace.sortOptions.recent")}</SelectItem>
+                    <SelectItem value="price-asc">{t(
+                      "marketplace.sortOptions.price-asc"
+                    )}</SelectItem>
+                    <SelectItem value="price-desc">{t(
+                      "marketplace.sortOptions.price-desc"
+                    )}</SelectItem>
+                    <SelectItem value="name">{t("marketplace.sortOptions.name")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -420,18 +427,14 @@ export default function Marketplace() {
         {/* Results Info */}
         <div className="mb-5 flex items-center justify-between flex-wrap gap-3">
           <p className="text-sm text-gray-600">
-            Showing{" "}
-            <span className="font-bold text-gray-900 text-base">
-              {filtered.length}
-            </span>{" "}
-            {filtered.length === 1 ? "product" : "products"}
+            {t("marketplace.results.showing")} {" "}
+            <span className="font-bold text-gray-900 text-base">{filtered.length}</span>{" "}
+            {filtered.length === 1 ? t("marketplace.results.product") : t("marketplace.results.products")}
           </p>
           {activeFiltersCount > 0 && (
             <div className="text-sm text-gray-600">
-              Filters applied:{" "}
-              <span className="font-semibold text-green-600">
-                {activeFiltersCount}
-              </span>
+              {t("marketplace.results.filtersApplied")} {" "}
+              <span className="font-semibold text-green-600">{activeFiltersCount}</span>
             </div>
           )}
         </div>
@@ -527,7 +530,7 @@ export default function Marketplace() {
                     {/* Not logged in */}
                     {!user?.id && (
                       <p className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded">
-                        Login as Buyer to buy item
+                        {t("marketplace.actions.loginToBuy")}
                       </p>
                     )}
 
@@ -541,7 +544,7 @@ export default function Marketplace() {
                           onClick={() => handleAddToCart(p)}
                         >
                           <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-                          Cart
+                          {t("marketplace.actions.cart")}
                         </Button>
 
                         <Button
@@ -549,7 +552,7 @@ export default function Marketplace() {
                           className="h-8 text-xs bg-amber-500 hover:bg-amber-600 text-white"
                           onClick={() => handleNegotiate(p)}
                         >
-                          🤝 Negotiate
+                          {t("marketplace.actions.negotiate")}
                         </Button>
                       </>
                     )}
@@ -561,7 +564,7 @@ export default function Marketplace() {
                         variant="ghost"
                         className="h-8 text-xs text-green-700 hover:bg-green-50"
                       >
-                        View
+                        {t("marketplace.actions.view")}
                         <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
                       </Button>
                     </Link>
@@ -575,17 +578,17 @@ export default function Marketplace() {
                 <Leaf className="h-10 w-10 text-gray-400" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                No products found
+                {t("marketplace.noResults.title")}
               </h3>
-              <p className="text-gray-600 mb-6">
-                Try adjusting your search filters or explore other categories
-              </p>
+              <p className="text-gray-600 mb-6">{t(
+                "marketplace.noResults.description"
+              )}</p>
               <Button
                 variant="outline"
                 onClick={resetFilters}
                 className="border-gray-300 hover:border-green-300"
               >
-                Clear Filters
+                {t("marketplace.noResults.button")}
               </Button>
             </div>
           )

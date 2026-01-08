@@ -27,6 +27,7 @@ import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { useNotification } from "@/components/hooks/useNotification";
 import { Address } from "@/components/types/ListWaste";
+import { useTranslations } from "next-intl";
 
 type FarmerOrderGroup = {
   items: CartItem[];
@@ -54,6 +55,7 @@ function groupItemsByFarmer(cartItems: CartItem[]) {
 }
 
 export default function CartDrawer() {
+  const t = useTranslations("faq");
   const { cartItems, updateQuantity, removeFromCart, getTotalAmount } =
     useCart();
 
@@ -97,7 +99,7 @@ export default function CartDrawer() {
 
   const proceedOrder = async () => {
     if (!deliveryMethod) {
-      toast.error("Please select  delivery method");
+      toast.error(t("cart.selectDelivery"));
       return;
     }
 
@@ -130,15 +132,12 @@ export default function CartDrawer() {
       Object.entries(groupedByFarmer).map(([farmerId]) =>
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          message: `New Order Placed by Buyer ${user?.fullName}`,
-          title: "New Order Placed",
+          message: t("cart.notificationMessage", { buyer: user?.fullName ?? "buyer" }),
+          title: t("cart.notificationTitle"),
           type: "order",
         })
       );
-      toast.success(
-        // 5️⃣ UX feedback
-        `Order placed successfully`
-      );
+      toast.success(t("cart.orderPlaced"));
 
       setloading(false);
     }
@@ -155,13 +154,13 @@ export default function CartDrawer() {
           <ShoppingCart className="h-10 w-10 text-muted-foreground" />
         </div>
 
-        <h3 className="text-lg font-semibold">Your cart is empty</h3>
+        <h3 className="text-lg font-semibold">{t("cart.emptyTitle")}</h3>
         <p className="text-sm text-muted-foreground mt-1 mb-6">
-          Add products to place an order
+          {t("cart.emptyDescription")}
         </p>
 
         <Link href="/marketplace">
-          <Button className="px-6">Browse Products</Button>
+          <Button className="px-6">{t("cart.browseButton")}</Button>
         </Link>
       </div>
     );
@@ -268,7 +267,7 @@ export default function CartDrawer() {
             onClick={() => setSummaryOpen((prev) => !prev)}
             className="w-full flex items-center justify-between px-4 py-3 border-b bg-background"
           >
-            <span className="text-sm font-semibold">Order Summary</span>
+            <span className="text-sm font-semibold">{t("cart.orderSummary")}</span>
 
             <ChevronDown
               className={cn(
@@ -295,12 +294,12 @@ export default function CartDrawer() {
                   cartItems.forEach((item) => removeFromCart(item.prodId))
                 }
               >
-                Clear Cart
+                {t("cart.clearCart")}
               </Button>
 
               {/* Delivery Method */}
               <div>
-                <h4 className="text-sm font-semibold mb-2">Delivery Method</h4>
+                <h4 className="text-sm font-semibold mb-2">{t("cart.deliveryMethod")}</h4>
                 <RadioGroup
                   value={deliveryMethod}
                   onValueChange={setDeliveryMethod}
@@ -309,12 +308,12 @@ export default function CartDrawer() {
                   {[
                     {
                       value: "PICKUPBYBUYER",
-                      label: "Pickup by you",
+                      label: t("cart.deliveryOptions.pickup"),
                       icon: Store,
                     },
                     {
                       value: "DELIVERYBYFARMER",
-                      label: "Farmer Delivery",
+                      label: t("cart.deliveryOptions.farmerDelivery"),
                       icon: Truck,
                     },
                   ].map(({ value, label, icon: Icon }) => (
@@ -336,7 +335,7 @@ export default function CartDrawer() {
 
                 {deliveryMethod === "DELIVERYBYFARMER" && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Delivery charges may apply for farmer delivery
+                    {t("cart.deliveryChargesNotice")}
                   </p>
                 )}
               </div>
@@ -346,7 +345,7 @@ export default function CartDrawer() {
               {/* Totals */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium">Total</span>
+                  <span className="font-medium">{t("cart.total")}</span>
                   <span className="text-lg font-semibold text-green-700">
                     ₹{getTotalAmount()}
                   </span>
@@ -365,8 +364,8 @@ export default function CartDrawer() {
                 ) : (
                   <>
                     {!deliveryMethod
-                      ? "Select payment & delivery method"
-                      : "Proceed to Checkout"}
+                      ? t("cart.selectPaymentAndDelivery")
+                      : t("cart.proceedCheckout")}
                   </>
                 )}
               </Button>

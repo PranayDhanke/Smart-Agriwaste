@@ -4,6 +4,7 @@ import { Order } from "@/components/types/orders";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +42,7 @@ const FarmerOrderView = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("faq");
 
   useEffect(() => {
     const fetchOrderData = async () => {
@@ -208,6 +210,14 @@ const FarmerOrderView = () => {
   const totalEarning =
     order?.items.reduce((sum, i) => sum + i.price * i.quantity, 0) || 0;
 
+  const formattedDate = order
+    ? new Intl.DateTimeFormat("en-IN", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(new Date(order.createdAt))
+    : "";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-6 px-4">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -219,7 +229,7 @@ const FarmerOrderView = () => {
           onClick={() => window.history.back()}
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Orders
+          {t("profile.farmer.singleOrder.back")}
         </Button>
 
         {/* Loading State */}
@@ -230,7 +240,7 @@ const FarmerOrderView = () => {
               <Loader2 className="h-14 w-14 animate-spin text-amber-600 dark:text-amber-400 relative" />
             </div>
             <p className="text-gray-600 dark:text-gray-400 font-medium">
-              Loading order details...
+              {t("profile.farmer.singleOrder.loading")}
             </p>
           </div>
         )}
@@ -256,17 +266,10 @@ const FarmerOrderView = () => {
                         </div>
                         <div>
                           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                            Order Details
+                            {t("profile.farmer.singleOrder.orderDetailsTitle")}
                           </h1>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Order placed on{" "}
-                            <span className="font-semibold">
-                              {new Intl.DateTimeFormat("en-IN", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }).format(new Date(order.createdAt))}
-                            </span>
+                            {t("profile.farmer.singleOrder.orderPlacedOn", { date: formattedDate })}
                           </p>
                         </div>
                       </div>
@@ -274,7 +277,7 @@ const FarmerOrderView = () => {
                       {/* Order ID */}
                       <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 w-fit px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
                         <span className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
-                          Order ID:
+                          {t("profile.farmer.singleOrder.orderIdLabel")}
                         </span>
                         <code className="font-mono font-bold text-gray-900 dark:text-white">
                           {order._id.slice(-12).toUpperCase()}
@@ -282,13 +285,13 @@ const FarmerOrderView = () => {
                         <button
                           onClick={copyToClipboard}
                           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                          title="Copy Order ID"
+                          title={t("profile.farmer.singleOrder.copyOrderId")}
                         >
                           <Copy className="h-3.5 w-3.5 text-gray-500" />
                         </button>
                         {copied && (
                           <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-                            ✓ Copied!
+                            {t("profile.farmer.singleOrder.copied")}
                           </span>
                         )}
                       </div>
@@ -306,7 +309,7 @@ const FarmerOrderView = () => {
                         ></div>
                         <div className="flex flex-col">
                           <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
-                            Order Status
+                            {t("profile.farmer.singleOrder.orderStatusLabel")}
                           </span>
                           <span
                             className={`font-bold text-lg ${statusConfig.text}`}
@@ -323,21 +326,18 @@ const FarmerOrderView = () => {
             </div>
 
             {/* Key Metrics Grid (2x2) */}
-            <div
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in"
-              style={{ animationDelay: "50ms" }}
-            >
-              {/* Total Earning - Highlighted */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: "50ms" }}>
+              {/* Total Earning */}
               <Card className="border-0 shadow-md bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 hover:shadow-lg transition-all">
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase">
-                      Total Earning
+                      {t("profile.farmer.singleOrder.totalEarning")}
                     </span>
                     <IndianRupee className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   </div>
                   <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
-                    ₹{totalEarning.toLocaleString("en-IN")}
+                    {t("profile.farmer.singleOrder.currency")}{totalEarning.toLocaleString("en-IN")}
                   </p>
                 </CardContent>
               </Card>
@@ -347,13 +347,11 @@ const FarmerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Items
+                      {t("profile.farmer.singleOrder.items")}
                     </span>
                     <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {order.items.length}
-                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{order!.items.length}</p>
                 </CardContent>
               </Card>
 
@@ -362,18 +360,12 @@ const FarmerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Payment
+                      {t("profile.farmer.singleOrder.payment")}
                     </span>
                     <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <p
-                    className={`font-bold ${
-                      order.hasPayment
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-amber-600 dark:text-amber-400"
-                    }`}
-                  >
-                    {order.hasPayment ? "Verified" : "Pending"}
+                  <p className={`font-bold ${order!.hasPayment ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+                    {order!.hasPayment ? t("profile.farmer.singleOrder.paid") : t("profile.farmer.singleOrder.pending")}
                   </p>
                 </CardContent>
               </Card>
@@ -383,12 +375,12 @@ const FarmerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Delivery
+                      {t("profile.farmer.singleOrder.delivery")}
                     </span>
                     <Truck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   <p className="text-sm font-bold text-gray-900 dark:text-white">
-                    {isDeliveryByFarmer ? "By You" : "Buyer Pickup"}
+                    {isDeliveryByFarmer ? t("profile.farmer.singleOrder.byYou") : t("profile.farmer.singleOrder.pickupByBuyer")}
                   </p>
                 </CardContent>
               </Card>
@@ -420,13 +412,13 @@ const FarmerOrderView = () => {
                           }`}
                         />
                         <p className="text-sm font-bold text-gray-900 dark:text-white">
-                          Farmer Fulfillment Progress
+                          {t("profile.farmer.singleOrder.farmerFulfillmentProgress")}
                         </p>
                       </div>
                       {isCancelled && (
                         <Badge className="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800">
                           <XCircle className="h-3 w-3 mr-1" />
-                          Cancelled
+                          {t("profile.farmer.singleOrder.cancelled")}
                         </Badge>
                       )}
                     </div>
@@ -444,28 +436,20 @@ const FarmerOrderView = () => {
 
                       {/* Timeline Steps */}
                       {[
-                        { status: "pending", label: "Received", icon: Package },
-                        {
-                          status: "confirmed",
-                          label: "Confirmed",
-                          icon: CheckCircle2,
-                        },
-                        { status: "confirmed", label: "Shipped", icon: Truck },
-                        {
-                          status: "confirmed",
-                          label: "Complete",
-                          icon: CheckCircle2,
-                        },
+                        { status: "pending", key: "received", icon: Package },
+                        { status: "confirmed", key: "confirmed", icon: CheckCircle2 },
+                        { status: "confirmed", key: "shipped", icon: Truck },
+                        { status: "confirmed", key: "complete", icon: CheckCircle2 },
                       ].map((step, idx) => {
                         const isCompleted =
                           !isCancelled &&
                           ((isConfirmed && idx <= 1) ||
                             (isConfirmed &&
-                              order.isOutForDelivery &&
+                              order!.isOutForDelivery &&
                               idx <= 2) ||
-                            (isConfirmed && order.isDelivered && idx <= 3) ||
+                            (isConfirmed && order!.isDelivered && idx <= 3) ||
                             (isPending && idx === 0));
-                        const StepIcon = step.icon;
+                        const StepIcon = step.icon as any;
 
                         return (
                           <div
@@ -492,7 +476,7 @@ const FarmerOrderView = () => {
                                   : "text-gray-500 dark:text-gray-500"
                               }`}
                             >
-                              {step.label}
+                              {t(`profile.farmer.singleOrder.timeline.${step.key}`)}
                             </p>
                           </div>
                         );
@@ -503,8 +487,7 @@ const FarmerOrderView = () => {
                     {isCancelled && (
                       <div className="mt-4 p-3.5 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                         <p className="text-sm font-semibold text-red-700 dark:text-red-300">
-                          ⚠️ This order has been cancelled. No further
-                          fulfillment required.
+                          {t("profile.farmer.singleOrder.cancelledNotice")}
                         </p>
                       </div>
                     )}
@@ -525,9 +508,9 @@ const FarmerOrderView = () => {
                     {/* Header */}
                     <div className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                      <p className="text-sm font-bold text-gray-900 dark:text-white">
-                        Buyer Fulfillment Progress
-                      </p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                          {t("profile.farmer.singleOrder.buyerFulfillmentProgress")}
+                        </p>
                     </div>
 
                     {/* Simple Status for Pickup */}
@@ -539,10 +522,10 @@ const FarmerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                  Current Status
+                                  {t("profile.farmer.singleOrder.currentStatus")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                  Order Cancelled
+                                  {t("profile.farmer.singleOrder.orderCancelled")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -550,7 +533,7 @@ const FarmerOrderView = () => {
                               </div>
                             </div>
                             <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                              Order has been cancelled
+                              {t("profile.farmer.singleOrder.orderCancelledBody")}
                             </p>
                           </div>
                         )}
@@ -563,10 +546,10 @@ const FarmerOrderView = () => {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                    Current Status
+                                    {t("profile.farmer.singleOrder.currentStatus")}
                                   </p>
                                   <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                    ⏳ Awaiting Your Confirmation
+                                    {t("profile.farmer.singleOrder.awaitingConfirmation")}
                                   </p>
                                 </div>
                                 <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -574,8 +557,7 @@ const FarmerOrderView = () => {
                                 </div>
                               </div>
                               <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                                Comfirm the order when the preparation has been
-                                done
+                                {t("profile.farmer.singleOrder.confirmPreparation")}
                               </p>
                             </div>
                           )}
@@ -587,10 +569,10 @@ const FarmerOrderView = () => {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                    Current Status
+                                    {t("profile.farmer.singleOrder.currentStatus")}
                                   </p>
                                   <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                    ⏳ Order has been confirmed
+                                    {t("profile.farmer.singleOrder.orderConfirmedShort")}
                                   </p>
                                 </div>
                                 <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -598,7 +580,7 @@ const FarmerOrderView = () => {
                                 </div>
                               </div>
                               <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                                You have Confirmed the order.
+                                {t("profile.farmer.singleOrder.orderConfirmedBody")}
                               </p>
                             </div>
                           )}
@@ -609,7 +591,7 @@ const FarmerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-blue-700 dark:text-blue-400">
-                                  Current Status
+                                  {t("profile.farmer.singleOrder.currentStatus")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-blue-700 dark:text-blue-300">
                                   🎯 Buyer is Out for Pickup
@@ -620,7 +602,7 @@ const FarmerOrderView = () => {
                               </div>
                             </div>
                             <p className="text-xs text-blue-700 dark:text-blue-300 mt-3">
-                              Heading to the your location to collect the order.
+                              {t("profile.farmer.singleOrder.headingToCollect")}
                             </p>
                           </div>
                         )}
@@ -631,10 +613,10 @@ const FarmerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-emerald-700 dark:text-emerald-400">
-                                  Current Status
+                                  {t("profile.farmer.singleOrder.currentStatus")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-emerald-700 dark:text-emerald-300">
-                                  ✅ Pickup Complete
+                                  {t("profile.farmer.singleOrder.pickupComplete")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
@@ -663,12 +645,10 @@ const FarmerOrderView = () => {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-blue-900 dark:text-blue-100">
-                      👤 Buyer Will Collect Items
+                      {t("profile.farmer.singleOrder.buyerWillCollect")}
                     </p>
                     <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                      Please ensure all items are packaged and ready for buyer
-                      collection. Items will be marked as delivered once buyer
-                      collects them.
+                      {t("profile.farmer.singleOrder.buyerInstructions")}
                     </p>
                   </div>
                 </CardContent>
@@ -693,10 +673,10 @@ const FarmerOrderView = () => {
                   {/* Buyer Name */}
                   <div className="p-3.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                     <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">
-                      Name
+                      {t("profile.farmer.singleOrder.nameLabel")}
                     </p>
                     <p className="font-semibold text-gray-900 dark:text-white">
-                      {buyerInfo || "N/A"}
+                      {buyerInfo || t("profile.farmer.singleOrder.na")}
                     </p>
                   </div>
 
@@ -704,7 +684,7 @@ const FarmerOrderView = () => {
                   {buyerAddress && (
                     <div className="p-3.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                       <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-2">
-                        Delivery Location
+                        {t("profile.farmer.singleOrder.deliveryLocation")}
                       </p>
                       <div className="space-y-1">
                         <p className="font-semibold text-gray-900 dark:text-white text-sm">
@@ -743,17 +723,17 @@ const FarmerOrderView = () => {
               {/* Order Summary */}
               <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 overflow-hidden hover:shadow-xl transition-all">
                 <div className="h-1.5 bg-gradient-to-r from-amber-400 to-orange-400"></div>
-                <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
+                  <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    Order Information
+                    {t("profile.farmer.singleOrder.orderInformation")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-6">
                   {/* Payment Method */}
                   <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Payment Method
+                      <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
+                      {t("profile.farmer.singleOrder.paymentMethod")}
                     </p>
                     <div className="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700">
                       <CheckCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -762,8 +742,8 @@ const FarmerOrderView = () => {
 
                   {/* Delivery Method */}
                   <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Delivery Method
+                      <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
+                      {t("profile.farmer.singleOrder.deliveryMethod")}
                     </p>
                     <div className="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700">
                       <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -779,8 +759,8 @@ const FarmerOrderView = () => {
 
                   {/* Total Earning Highlight */}
                   <div className="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                    <p className="text-xs text-amber-700 dark:text-amber-400 font-bold uppercase mb-1">
-                      Your Earning
+                      <p className="text-xs text-amber-700 dark:text-amber-400 font-bold uppercase mb-1">
+                      {t("profile.farmer.singleOrder.yourEarning")}
                     </p>
                     <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
                       ₹{totalEarning.toLocaleString("en-IN")}
@@ -798,10 +778,10 @@ const FarmerOrderView = () => {
               <div className="h-1.5 bg-gradient-to-r from-purple-400 to-pink-400"></div>
               <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 text-lg">
-                    <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    Order Items ({order.items.length})
-                  </CardTitle>
+                    <CardTitle className="flex items-center gap-3 text-lg">
+                          <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                          {t("profile.farmer.singleOrder.orderItems", { count: order.items.length })}
+                        </CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-6">
@@ -865,10 +845,10 @@ const FarmerOrderView = () => {
                   <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">
-                      ✓ Payment Verified
+                      {t("profile.farmer.singleOrder.paymentVerified")}
                     </p>
                     <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
-                      Payment confirmed. You can proceed with fulfillment.
+                      {t("profile.farmer.singleOrder.paymentVerifiedBody")}
                     </p>
                   </div>
                 </CardContent>
@@ -885,7 +865,7 @@ const FarmerOrderView = () => {
                   <CardContent className="py-3 px-4 flex items-center gap-3">
                     <XCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
                     <p className="font-semibold text-red-700 dark:text-red-300 text-sm">
-                      This order has been cancelled
+                      {t("profile.farmer.singleOrder.orderCancelledShort")}
                     </p>
                   </CardContent>
                 </Card>
@@ -896,7 +876,7 @@ const FarmerOrderView = () => {
                   <CardContent className="py-3 px-4 flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                     <p className="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">
-                      Order completed successfully ✅
+                      {t("profile.farmer.singleOrder.orderCompleted")}
                     </p>
                   </CardContent>
                 </Card>
@@ -918,7 +898,7 @@ const FarmerOrderView = () => {
                       className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 h-11"
                     >
                       <CheckCircle className="h-5 w-5" />
-                      Accept Order
+                      {t("profile.farmer.singleOrder.acceptOrder")}
                     </Button>
                   )}
 
@@ -937,7 +917,7 @@ const FarmerOrderView = () => {
                       className="flex items-center gap-2 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all h-11"
                     >
                       <XCircle className="h-5 w-5" />
-                      Reject Order
+                      {t("profile.farmer.singleOrder.rejectOrder")}
                     </Button>
                   )}
                 </>
@@ -956,7 +936,7 @@ const FarmerOrderView = () => {
                   className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all h-11"
                 >
                   <Truck className="h-5 w-5" />
-                  Mark Out for Delivery
+                  {t("profile.farmer.singleOrder.markOutForDelivery")}
                 </Button>
               )}
 
@@ -975,7 +955,7 @@ const FarmerOrderView = () => {
                     className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all h-11"
                   >
                     <CheckCircle className="h-5 w-5" />
-                    Confirm Delivery
+                    {t("profile.farmer.singleOrder.confirmDelivery")}
                   </Button>
                 )}
             </div>
@@ -990,11 +970,10 @@ const FarmerOrderView = () => {
                 <AlertCircle className="h-14 w-14 text-gray-400 dark:text-gray-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Order Not Found
+                {t("profile.farmer.singleOrder.notFoundTitle")}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-sm text-sm">
-                We {"couldn't"} find the order {"you're "}looking for. Please check the
-                order ID and try again.
+                {t("profile.farmer.singleOrder.notFoundBody")}
               </p>
             </div>
           </div>

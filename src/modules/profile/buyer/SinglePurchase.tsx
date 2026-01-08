@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotification } from "@/components/hooks/useNotification";
+import { useTranslations } from "next-intl";
 
 const BuyerOrderView = () => {
   const searchParams = useSearchParams();
@@ -42,6 +43,8 @@ const BuyerOrderView = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+
+  const t = useTranslations("faq");
 
   useEffect(() => {
     const fetchOrderData = async () => {
@@ -163,23 +166,23 @@ const BuyerOrderView = () => {
     farmerId: string,
     buyerName: string
   ) => {
-    try {
+        try {
       const res = await axios.put("/api/order/outForDelivery", { id });
       if (res.status === 200) {
         setOrder((prev) => {
           if (!prev) return prev;
           return { ...prev, isOutForDelivery: true };
         });
-        toast.success("Order marked as out for pickup");
+        toast.success(t("profile.singlePurchase.outForPickup"));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          title: "Order is out for Pickup",
-          message: `Buyer ${buyerName} is out for pickup`,
+          title: t("profile.singlePurchase.outForPickup"),
+          message: t("profile.singlePurchase.outForYourPickupMessage", { buyer: buyerName }),
           type: "Order",
         });
       }
     } catch {
-      toast.error("Failed to mark order out for pickup");
+      toast.error(t("profile.singlePurchase.failedSetOutForPickup"));
     }
   };
 
@@ -215,14 +218,14 @@ const BuyerOrderView = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-6 px-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Back Button */}
-        <Button
+          <Button
           variant="outline"
           size="sm"
           className="flex items-center gap-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 h-9"
           onClick={() => window.history.back()}
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to My Orders
+          {t("profile.singlePurchase.back")}
         </Button>
 
         {/* Loading State */}
@@ -233,7 +236,7 @@ const BuyerOrderView = () => {
               <Loader2 className="h-14 w-14 animate-spin text-emerald-600 dark:text-emerald-400 relative" />
             </div>
             <p className="text-gray-600 dark:text-gray-400 font-medium">
-              Loading order details...
+              {t("profile.singlePurchase.loading")}
             </p>
           </div>
         )}
@@ -259,17 +262,16 @@ const BuyerOrderView = () => {
                         </div>
                         <div>
                           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                            My Order Details
+                            {t("profile.singlePurchase.orderDetailsTitle")}
                           </h1>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Order placed on{" "}
-                            <span className="font-semibold">
-                              {new Intl.DateTimeFormat("en-IN", {
+                            {t("profile.singlePurchase.orderPlacedOn", {
+                              date: new Intl.DateTimeFormat("en-IN", {
                                 month: "short",
                                 day: "numeric",
                                 year: "numeric",
-                              }).format(new Date(order.createdAt))}
-                            </span>
+                              }).format(new Date(order.createdAt)),
+                            })}
                           </p>
                         </div>
                       </div>
@@ -277,7 +279,7 @@ const BuyerOrderView = () => {
                       {/* Order ID */}
                       <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 w-fit px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
                         <span className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
-                          Order ID:
+                          {t("profile.singlePurchase.orderId")}
                         </span>
                         <code className="font-mono font-bold text-gray-900 dark:text-white">
                           {order._id.slice(-12).toUpperCase()}
@@ -291,7 +293,7 @@ const BuyerOrderView = () => {
                         </button>
                         {copied && (
                           <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-                            ✓ Copied!
+                            {t("profile.singlePurchase.copied")}
                           </span>
                         )}
                       </div>
@@ -309,7 +311,7 @@ const BuyerOrderView = () => {
                         ></div>
                         <div className="flex flex-col">
                           <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
-                            Order Status
+                            {t("profile.singlePurchase.orderStatus")}
                           </span>
                           <span
                             className={`font-bold text-lg ${statusConfig.text}`}
@@ -335,7 +337,7 @@ const BuyerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Order Date
+                      {t("profile.singlePurchase.orderDate")}
                     </span>
                     <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
@@ -353,7 +355,7 @@ const BuyerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Items
+                      {t("profile.singlePurchase.items")}
                     </span>
                     <Package className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                   </div>
@@ -368,7 +370,7 @@ const BuyerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Payment
+                      {t("profile.singlePurchase.payment")}
                     </span>
                     <CreditCard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
@@ -379,7 +381,7 @@ const BuyerOrderView = () => {
                         : "text-amber-600 dark:text-amber-400"
                     }`}
                   >
-                    {order.hasPayment ? "Paid" : "Pending"}
+                    {order.hasPayment ? t("profile.singlePurchase.paid") : t("profile.singlePurchase.pending")}
                   </p>
                 </CardContent>
               </Card>
@@ -389,7 +391,7 @@ const BuyerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase">
-                      Total Amount
+                      {t("profile.singlePurchase.totalAmount")}
                     </span>
                     <IndianRupee className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
@@ -412,8 +414,8 @@ const BuyerOrderView = () => {
                     {/* Header */}
                     <div className="flex items-center gap-2">
                       <Truck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      <p className="text-sm font-bold text-gray-900 dark:text-white">
-                        Delivery Progress
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
+                        {t("profile.singlePurchase.deliveryProgress")}
                       </p>
                     </div>
 
@@ -487,7 +489,7 @@ const BuyerOrderView = () => {
                     <div className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                       <p className="text-sm font-bold text-gray-900 dark:text-white">
-                        Pickup Progress
+                        {t("profile.singlePurchase.pickupProgress")}
                       </p>
                     </div>
 
@@ -501,19 +503,19 @@ const BuyerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                  Current Status
+                                      {t("profile.singlePurchase.currentStatus")}
+                                    </p>
+                                    <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+                                      {t("profile.singlePurchase.orderCancelled")}
+                                    </p>
+                                  </div>
+                                  <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
+                                    <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                                  </div>
+                                </div>
+                                <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
+                                  {t("profile.singlePurchase.orderHasBeenCancelled")}
                                 </p>
-                                <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                  Order Cancelled
-                                </p>
-                              </div>
-                              <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
-                                <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-                              </div>
-                            </div>
-                            <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                              Order has been cancelled
-                            </p>
                           </div>
                         )}
 
@@ -525,10 +527,10 @@ const BuyerOrderView = () => {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                    Current Status
+                                    {t("profile.singlePurchase.currentStatus")}
                                   </p>
-                                  <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                    ⏳ Awaiting Farmer Confirmation
+                                    <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+                                    {t("profile.singlePurchase.awaitingFarmerConfirmation")}
                                   </p>
                                 </div>
                                 <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -536,7 +538,7 @@ const BuyerOrderView = () => {
                                 </div>
                               </div>
                               <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                                Farmer is preparing your items for pickup.
+                              {t("profile.singlePurchase.farmerPreparingPickup")}
                               </p>
                             </div>
                           )}
@@ -546,10 +548,10 @@ const BuyerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                  Current Status
+                                  {t("profile.singlePurchase.currentStatus")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                  ⏳ Order has been confirmed
+                                  {t("profile.singlePurchase.orderHasBeenConfirmed")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -557,7 +559,7 @@ const BuyerOrderView = () => {
                               </div>
                             </div>
                             <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                              Farmer has prepared your items for pickup.
+                              {t("profile.singlePurchase.farmerPreparedForPickup")}
                             </p>
                           </div>
                         )}
@@ -568,18 +570,18 @@ const BuyerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-blue-700 dark:text-blue-400">
-                                  Current Status
+                                  {t("profile.singlePurchase.currentStatus")}
                                 </p>
-                                <p className="font-bold mt-1 text-sm text-blue-700 dark:text-blue-300">
-                                  🎯 Out for Your Pickup
-                                </p>
+                            <p className="font-bold mt-1 text-sm text-blue-700 dark:text-blue-300">
+                              {t("profile.singlePurchase.outForYourPickup")}
+                            </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/40">
                                 <Navigation className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                               </div>
                             </div>
                             <p className="text-xs text-blue-700 dark:text-blue-300 mt-3">
-                              Heading to the {"farmer's"} location to collect them.
+                              {t("profile.singlePurchase.headingToFarmerLocation")}
                             </p>
                           </div>
                         )}
@@ -590,10 +592,10 @@ const BuyerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-emerald-700 dark:text-emerald-400">
-                                  Current Status
+                                  {t("profile.singlePurchase.currentStatus")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-emerald-700 dark:text-emerald-300">
-                                  ✅ Pickup Complete
+                                  {t("profile.singlePurchase.pickupComplete")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
@@ -622,11 +624,10 @@ const BuyerOrderView = () => {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-blue-900 dark:text-blue-100">
-                      📍 Pickup Location Details
+                      {t("profile.singlePurchase.pickupLocationTitle")}
                     </p>
                     <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                      Please coordinate with the farmer for pickup timing. Items
-                      will be ready once the farmer confirms.
+                      {t("profile.singlePurchase.pickupLocationBody")}
                     </p>
                   </div>
                 </CardContent>
@@ -641,17 +642,17 @@ const BuyerOrderView = () => {
               {/* Farmer Details */}
               <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 overflow-hidden hover:shadow-xl transition-all">
                 <div className="h-1.5 bg-gradient-to-r from-blue-400 to-cyan-400"></div>
-                <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
+                  <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    Farmer Information
+                    {t("profile.singlePurchase.farmerInformation")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4">
                   {/* Farmer Name */}
                   <div className="p-3.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                     <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">
-                      Farmer Name
+                      {t("profile.singlePurchase.farmerName")}
                     </p>
                     <p className="font-semibold text-gray-900 dark:text-white">
                       {farmerName || "N/A"}
@@ -662,7 +663,7 @@ const BuyerOrderView = () => {
                   {farmerAddress && (
                     <div className="p-3.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                       <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-2">
-                        Farmer Location
+                        {t("profile.singlePurchase.farmerLocation")}
                       </p>
                       <div className="space-y-1">
                         <p className="font-semibold text-gray-900 dark:text-white text-sm">
@@ -683,14 +684,14 @@ const BuyerOrderView = () => {
                   <div className="grid grid-cols-2 gap-2 pt-2">
                     <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white h-10 flex items-center justify-center gap-2">
                       <Phone className="h-4 w-4" />
-                      <span className="hidden sm:inline text-sm">Contact</span>
+                      <span className="hidden sm:inline text-sm">{t("profile.singlePurchase.contact")}</span>
                     </Button>
                     <Button
                       variant="outline"
                       className="border-blue-200 dark:border-blue-800 h-10 flex items-center justify-center gap-2"
                     >
                       <Share2 className="h-4 w-4" />
-                      <span className="hidden sm:inline text-sm">Share</span>
+                      <span className="hidden sm:inline text-sm">{t("profile.singlePurchase.share")}</span>
                     </Button>
                   </div>
                 </CardContent>
@@ -702,14 +703,14 @@ const BuyerOrderView = () => {
                 <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    Order Information
+                    {t("profile.singlePurchase.orderInformation")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-6">
                   {/* Payment Method */}
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Payment Method
+                      {t("profile.singlePurchase.paymentMethod")}
                     </p>
                     <div className="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700">
                       <CheckCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -725,8 +726,8 @@ const BuyerOrderView = () => {
                       <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       <span className="font-semibold text-gray-900 dark:text-white text-sm">
                         {order.deliveryMode === "PICKUPBYBUYER"
-                          ? "Pickup by You"
-                          : "Delivered by Farmer"}
+                          ? t("profile.singlePurchase.pickupByYou")
+                          : t("profile.singlePurchase.deliveredByFarmer")}
                       </span>
                     </div>
                   </div>
@@ -736,7 +737,7 @@ const BuyerOrderView = () => {
                   {/* Total Amount Highlight */}
                   <div className="p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                     <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold uppercase mb-1">
-                      Order Total
+                      {t("profile.singlePurchase.totalAmount")}
                     </p>
                     <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       ₹{totalAmount.toLocaleString("en-IN")}
@@ -756,7 +757,7 @@ const BuyerOrderView = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-3 text-lg">
                     <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    Order Items ({order.items.length})
+                    {t("profile.singlePurchase.items")} ({order.items.length})
                   </CardTitle>
                 </div>
               </CardHeader>
@@ -788,7 +789,7 @@ const BuyerOrderView = () => {
                               {item.wasteType}
                             </span>
                             <span className="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded">
-                              {item.moisture}% moisture
+                              {t("profile.singlePurchase.moisture", { val: item.moisture })}
                             </span>
                           </div>
                         </div>
@@ -821,10 +822,10 @@ const BuyerOrderView = () => {
                   <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">
-                      ✓ Payment Verified
+                      {t("profile.singlePurchase.paymentVerified")}
                     </p>
                     <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
-                      Payment confirmed. Your order is being processed.
+                      {t("profile.singlePurchase.paymentConfirmedBody")}
                     </p>
                   </div>
                 </CardContent>
@@ -841,7 +842,7 @@ const BuyerOrderView = () => {
                   <CardContent className="py-3 px-4 flex items-center gap-3">
                     <XCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
                     <p className="font-semibold text-red-700 dark:text-red-300 text-sm">
-                      This order has been cancelled
+                      {t("profile.singlePurchase.orderCancelledNotice")}
                     </p>
                   </CardContent>
                 </Card>
@@ -852,7 +853,7 @@ const BuyerOrderView = () => {
                   <CardContent className="py-3 px-4 flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                     <p className="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">
-                      Order completed successfully ✅
+                      {t("profile.singlePurchase.orderCompleted")}
                     </p>
                   </CardContent>
                 </Card>
@@ -873,7 +874,7 @@ const BuyerOrderView = () => {
                   }
                 >
                   <XCircle className="h-5 w-5" />
-                  Cancel Order
+                  {t("profile.singlePurchase.cancelOrder")}
                 </Button>
               )}
 
@@ -893,7 +894,7 @@ const BuyerOrderView = () => {
                     }
                   >
                     <Truck className="h-5 w-5" />
-                    Out for Pickup
+                    {t("profile.singlePurchase.outForPickup")}
                   </Button>
                 )}
 
@@ -913,7 +914,7 @@ const BuyerOrderView = () => {
                     }
                   >
                     <CheckCircle className="h-5 w-5" />
-                    Confirm Pickup
+                    {t("profile.singlePurchase.confirmPickup")}
                   </Button>
                 )}
 
@@ -923,8 +924,8 @@ const BuyerOrderView = () => {
                   className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all h-11"
                   onClick={() => toast.success("soooonnn")}
                 >
-                  <CheckCircle className="h-5 w-5" />
-                  Proceed Payment
+                    <CheckCircle className="h-5 w-5" />
+                    {t("profile.singlePurchase.proceedPayment")}
                 </Button>
               )}
             </div>
@@ -939,11 +940,10 @@ const BuyerOrderView = () => {
                 <AlertCircle className="h-14 w-14 text-gray-400 dark:text-gray-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Order Not Found
+                {t("profile.singlePurchase.notFoundTitle")}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-sm text-sm">
-                We {"couldn't"} find the order {"you're"} looking for. Please check the
-                order ID and try again.
+                {t("profile.singlePurchase.notFoundDescription")}
               </p>
             </div>
           </div>

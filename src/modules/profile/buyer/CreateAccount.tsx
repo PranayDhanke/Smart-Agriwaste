@@ -2,6 +2,7 @@
 
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -49,6 +50,8 @@ interface FormErrors {
 }
 
 export default function CreateAccount() {
+
+  const t = useTranslations("faq");
 
   const { user, isLoaded, isSignedIn } = useUser();
   const router = useRouter();
@@ -140,7 +143,9 @@ export default function CreateAccount() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-green-600" />
-          <span className="text-green-600 text-lg font-medium">Loading...</span>
+          <span className="text-green-600 text-lg font-medium">{t(
+            "profile.loading"
+          )}</span>
         </div>
       </div>
     );
@@ -155,16 +160,14 @@ export default function CreateAccount() {
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Authentication Required
+              {t("profile.authRequired.title")}
             </h2>
-            <p className="text-gray-600">
-              You must be signed in to access this page
-            </p>
+            <p className="text-gray-600">{t("profile.authRequired.description")}</p>
             <Button
               onClick={() => router.push("/sign-up?role=buyer")}
               className="w-full bg-green-600 hover:bg-green-700"
             >
-              Go to Sign In
+              {t("profile.authRequired.signIn")}
             </Button>
           </div>
         </Card>
@@ -269,11 +272,12 @@ export default function CreateAccount() {
             </div>
             <div className="text-center">
               <CardTitle className="text-3xl font-bold">
-                Buyer Registration
+                {t("profile.buyer.createAccount.title")}
               </CardTitle>
               <CardDescription className="text-green-50 text-sm mt-1">
-                Welcome, {user.firstName}
-                {"! Let's set up your profile"}
+                {t("profile.buyer.createAccount.welcome", {
+                  name: (user?.firstName as string) ?? "",
+                })}
               </CardDescription>
             </div>
           </div>
@@ -308,21 +312,25 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <CreditCard className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Identity Verification
+                        {t("profile.buyer.createAccount.section.identity")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <CreditCard className="h-3.5 w-3.5" />
-                        Aadhaar Number <span className="text-red-500">*</span>
+                        {t(
+                          "profile.buyer.createAccount.labels.aadharnumber"
+                        )} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="aadharnumber"
                         value={form.aadharnumber}
                         onChange={handleChange}
                         onBlur={() => handleBlur("aadharnumber")}
-                        placeholder="XXXX XXXX XXXX"
+                        placeholder={t(
+                          "profile.buyer.createAccount.placeholders.aadharnumber"
+                        )}
                         maxLength={14}
                         className={`h-12 transition-all ${
                           form.aadharnumber
@@ -346,7 +354,9 @@ export default function CreateAccount() {
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Upload className="h-3.5 w-3.5" />
-                        Aadhaar Card Photo{" "}
+                        {t(
+                          "profile.buyer.createAccount.labels.aadharPhoto"
+                        )}{" "}
                         <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
@@ -375,7 +385,7 @@ export default function CreateAccount() {
                         </p>
                       )}
                       <p className="text-xs text-gray-500">
-                        Max size: 5MB | Formats: JPG, PNG
+                        {t("profile.buyer.createAccount.hints.aadharHint")}
                       </p>
                     </div>
                   </div>
@@ -385,21 +395,23 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Phone className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Contact Information
+                        {t("profile.buyer.createAccount.section.contact")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                        <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Phone className="h-3.5 w-3.5" />
-                        Phone Number <span className="text-red-500">*</span>
+                        {t("profile.buyer.createAccount.labels.phone")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="phone"
                         value={form.phone}
                         onChange={handleChange}
                         onBlur={() => handleBlur("phone")}
-                        placeholder="+91 XXXXX XXXXX"
+                        placeholder={t(
+                          "profile.buyer.createAccount.placeholders.phone"
+                        )}
                         maxLength={15}
                         className={`h-12 transition-all ${
                           form.phone ? "border-green-300 bg-green-50/30" : ""
@@ -421,14 +433,14 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <MapPin className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Location Details
+                        {t("profile.buyer.createAccount.section.location")}
                       </h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          State <span className="text-red-500">*</span>
+                          {t("profile.buyer.createAccount.labels.state")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -449,7 +461,7 @@ export default function CreateAccount() {
                                 : ""
                             }`}
                           >
-                            <SelectValue placeholder="Select State" />
+                            <SelectValue placeholder={t("profile.buyer.createAccount.placeholders.selectState")} />
                           </SelectTrigger>
                           <SelectContent>
                             {Address.states.map((s) => (
@@ -463,7 +475,7 @@ export default function CreateAccount() {
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          District <span className="text-red-500">*</span>
+                          {t("profile.buyer.createAccount.labels.district")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -487,8 +499,8 @@ export default function CreateAccount() {
                             <SelectValue
                               placeholder={
                                 form.state
-                                  ? "Select District"
-                                  : "Select State First"
+                                  ? t("profile.buyer.createAccount.placeholders.selectDistrict")
+                                  : t("profile.buyer.createAccount.placeholders.selectStateFirst")
                               }
                             />
                           </SelectTrigger>
@@ -506,7 +518,7 @@ export default function CreateAccount() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Taluka <span className="text-red-500">*</span>
+                          {t("profile.buyer.createAccount.labels.taluka")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -525,8 +537,8 @@ export default function CreateAccount() {
                             <SelectValue
                               placeholder={
                                 form.district
-                                  ? "Select Taluka"
-                                  : "Select District First"
+                                  ? t("profile.buyer.createAccount.placeholders.selectTaluka")
+                                  : t("profile.buyer.createAccount.placeholders.selectDistrictFirst")
                               }
                             />
                           </SelectTrigger>
@@ -542,7 +554,7 @@ export default function CreateAccount() {
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Village / City <span className="text-red-500">*</span>
+                          {t("profile.buyer.createAccount.labels.village")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -561,8 +573,8 @@ export default function CreateAccount() {
                             <SelectValue
                               placeholder={
                                 form.taluka
-                                  ? "Select Village/City"
-                                  : "Select Taluka First"
+                                  ? t("profile.buyer.createAccount.placeholders.selectVillage")
+                                  : t("profile.buyer.createAccount.placeholders.selectTalukaFirst")
                               }
                             />
                           </SelectTrigger>
@@ -583,22 +595,21 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Home className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Address Details{" "}
-                        <span className="text-xs text-gray-500 font-normal">
-                          (Optional)
-                        </span>
+                        {t("profile.buyer.createAccount.section.address")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">
-                        House Number / Building Name
+                        <Label className="text-sm font-medium text-gray-700">
+                        {t("profile.buyer.createAccount.labels.house")}
                       </Label>
                       <Input
                         name="houseBuildingName"
                         value={form.houseBuildingName}
                         onChange={handleChange}
-                        placeholder="e.g., House No. 123, Residential Complex"
+                        placeholder={t(
+                          "profile.buyer.createAccount.placeholders.houseExample"
+                        )}
                         className={`h-12 transition-all ${
                           form.houseBuildingName
                             ? "border-green-300 bg-green-50/30"
@@ -608,14 +619,16 @@ export default function CreateAccount() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">
-                        Road, Area, Landmark
+                        <Label className="text-sm font-medium text-gray-700">
+                        {t("profile.buyer.createAccount.labels.road")}
                       </Label>
                       <Input
                         name="roadarealandmarkName"
                         value={form.roadarealandmarkName}
                         onChange={handleChange}
-                        placeholder="e.g., Near Town Hall, MG Road"
+                        placeholder={t(
+                          "profile.buyer.createAccount.placeholders.roadExample"
+                        )}
                         className={`h-12 transition-all ${
                           form.roadarealandmarkName
                             ? "border-green-300 bg-green-50/30"
@@ -642,26 +655,22 @@ export default function CreateAccount() {
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Creating Profile...
+                        {t("profile.buyer.createAccount.buttons.creating")}
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="mr-2 h-5 w-5" />
-                        Complete Registration
+                        {t("profile.buyer.createAccount.buttons.complete")}
                       </>
                     )}
                   </Button>
                 </div>
 
                 <p className="text-center text-xs text-gray-500">
-                  By completing registration, you agree to our{" "}
-                  <span className="text-green-600 underline cursor-pointer">
-                    Terms of Service
-                  </span>{" "}
-                  and{" "}
-                  <span className="text-green-600 underline cursor-pointer">
-                    Privacy Policy
-                  </span>
+                  {t("profile.legal.agreement", {
+                    terms: t("profile.legal.terms"),
+                    privacy: t("profile.legal.privacy"),
+                  })}
                 </p>
               </div>
             </div>

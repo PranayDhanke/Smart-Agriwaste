@@ -3,6 +3,7 @@ import React from "react";
 import { FiPackage, FiShoppingBag, FiX } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const RoleCard: React.FC<{
   href: string;
@@ -53,6 +54,7 @@ const RoleCard: React.FC<{
 
 const SignUpPopUp: React.FC = () => {
   const router = useRouter();
+  const t = useTranslations("faq");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -77,11 +79,10 @@ const SignUpPopUp: React.FC = () => {
               id="signup-modal-title"
               className="text-lg font-bold text-gray-900"
             >
-              Create an account
+              {t("extra.signup.title")}
             </h2>
             <p className="mt-1 text-sm text-gray-500">
-              Choose the role that best describes you — we’ll tailor the signup
-              experience.
+              {t("extra.signup.subtitle")}
             </p>
           </div>
 
@@ -100,17 +101,17 @@ const SignUpPopUp: React.FC = () => {
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <RoleCard
             href="/sign-up?role=farmer"
-            title="Farmer"
-            subtitle="Sell your agricultural waste and get best offers."
+            title={t("extra.signup.roles.farmer")}
+            subtitle={t("extra.signup.roles.farmer") + " — " + t("extra.signup.subtitle")}
             Icon={FiPackage}
             accent="green"
-            badge="Recommended"
+            badge={t("extra.signup.roles.farmer") === "Farmer" ? "Recommended" : undefined}
           />
 
           <RoleCard
             href="/sign-up?role=buyer"
-            title="Buyer"
-            subtitle="Purchase quality agricultural materials and bulk lots."
+            title={t("extra.signup.roles.buyer")}
+            subtitle={t("extra.signup.roles.buyer") + " — " + t("extra.signup.subtitle")}
             Icon={FiShoppingBag}
             accent="blue"
           />
@@ -118,39 +119,21 @@ const SignUpPopUp: React.FC = () => {
 
         {/* footer */}
         <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
-          <p className="text-xs text-gray-500">
-            By continuing you agree to our{" "}
-            <Link
-              className="font-medium text-indigo-600 underline"
-              href="/terms"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Terms
-            </Link>{" "}
-            and{" "}
-            <Link
-              className="font-medium text-indigo-600 underline"
-              href="/privacy"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Privacy Policy
-            </Link>
-            .
-          </p>
+          <p className="text-xs text-gray-500">{t("extra.signup.footer")}</p>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push("/sign-in")}
-              className="rounded-md bg-transparent px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            >
-              Already have an account?
-            </button>
-            <button
-              onClick={() => router.back()}
-              className="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            >
-              Cancel
-            </button>
+              <button
+                onClick={() => router.push("/sign-in")}
+                className="rounded-md bg-transparent px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              >
+                {t("extra.signup.buttons.signin")}
+              </button>
+              <button
+                onClick={() => router.back()}
+                className="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              >
+                {t("extra.signup.buttons.cancel")}
+              </button>
           </div>
         </div>
       </div>

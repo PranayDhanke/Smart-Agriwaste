@@ -1,106 +1,84 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Leaf, Recycle, Users, Globe } from "lucide-react"
-import Link from "next/link"
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Recycle, Users, Leaf, Globe } from "lucide-react";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function About() {
+  const t = useTranslations("home");
+
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
         {/* Hero / Intro */}
         <section className="text-center space-y-4">
-          <h1 className="text-3xl font-bold text-green-700">About Us</h1>
-          <p className="mx-auto max-w-2xl text-gray-600">
-            Our Agriculture Waste Management platform helps farmers and communities 
-            turn agricultural residues into valuable resources. 
-            From composting to biomass energy, we bridge the gap between 
-            sustainable practices and practical solutions.
-          </p>
+          <h1 className="text-3xl font-bold text-green-700">{t("about.hero.title")}</h1>
+          <p className="mx-auto max-w-2xl text-gray-600">{t("about.hero.subtitle")}</p>
         </section>
 
         {/* Mission & Vision */}
         <section className="grid gap-6 md:grid-cols-2">
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="text-green-700">Our Mission</CardTitle>
+              <CardTitle className="text-green-700">{t("about.mission.title")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
-                To empower farmers and rural communities by providing them with 
-                easy access to sustainable waste management solutions, reducing 
-                environmental pollution, and improving income opportunities.
-              </p>
+              <p className="text-gray-600">{t("about.mission.content")}</p>
             </CardContent>
           </Card>
 
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="text-green-700">Our Vision</CardTitle>
+              <CardTitle className="text-green-700">{t("about.vision.title")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
-                A future where no agricultural waste is left unmanaged— 
-                every residue is transformed into compost, energy, or raw material, 
-                creating a cleaner, greener, and more profitable ecosystem.
-              </p>
+              <p className="text-gray-600">{t("about.vision.content")}</p>
             </CardContent>
           </Card>
         </section>
 
         {/* Core Features */}
         <section>
-          <h2 className="mb-6 text-center text-2xl font-bold text-green-700">
-            What We Offer
-          </h2>
+          <h2 className="mb-6 text-center text-2xl font-bold text-green-700">{t("process.title")}</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Card className="border-green-100 bg-white shadow-sm">
               <CardHeader className="flex items-center gap-2">
                 <Recycle className="h-6 w-6 text-green-600" />
-                <CardTitle className="text-base">Smart Processes</CardTitle>
+                <CardTitle className="text-base">{t("features.eco.title")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">
-                  Find the best waste management process tailored to your waste type, 
-                  quantity, and available resources.
-                </p>
+                <p className="text-sm text-gray-600">{t("features.eco.description")}</p>
               </CardContent>
             </Card>
 
             <Card className="border-green-100 bg-white shadow-sm">
               <CardHeader className="flex items-center gap-2">
                 <Users className="h-6 w-6 text-green-600" />
-                <CardTitle className="text-base">Farmer Marketplace</CardTitle>
+                <CardTitle className="text-base">{t("features.fair.title")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">
-                  Connect with buyers and sellers to trade compost, biomass, 
-                  manure, and other agri by-products directly.
-                </p>
+                <p className="text-sm text-gray-600">{t("features.fair.description")}</p>
               </CardContent>
             </Card>
 
             <Card className="border-green-100 bg-white shadow-sm">
               <CardHeader className="flex items-center gap-2">
                 <Leaf className="h-6 w-6 text-green-600" />
-                <CardTitle className="text-base">Eco-Friendly Solutions</CardTitle>
+                <CardTitle className="text-base">{t("features.eco.title")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">
-                  Reduce burning and dumping by adopting eco-friendly 
-                  alternatives like composting, mulching, and biogas.
-                </p>
+                <p className="text-sm text-gray-600">{t("features.eco.description")}</p>
               </CardContent>
             </Card>
 
             <Card className="border-green-100 bg-white shadow-sm">
               <CardHeader className="flex items-center gap-2">
                 <Globe className="h-6 w-6 text-green-600" />
-                <CardTitle className="text-base">Sustainability Impact</CardTitle>
+                <CardTitle className="text-base">{t("process.title")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">
-                  Together, we’re reducing pollution, improving soil fertility, 
-                  and contributing to a sustainable future for agriculture.
-                </p>
+                <p className="text-sm text-gray-600">{t("process.subtitle")}</p>
               </CardContent>
             </Card>
           </div>
@@ -108,21 +86,13 @@ export default function About() {
 
         {/* Call to Action */}
         <section className="rounded-2xl bg-green-100 p-8 text-center shadow-sm">
-          <h2 className="text-2xl font-bold text-green-700 mb-3">
-            Join Our Mission
-          </h2>
-          <p className="mx-auto max-w-2xl text-gray-700 mb-6">
-            Whether you’re a farmer, entrepreneur, or eco-conscious citizen, 
-            be a part of the change. Explore processes, trade resources, 
-            and help build a greener tomorrow.
-          </p>
+          <h2 className="text-2xl font-bold text-green-700 mb-3">{t("about.cta.title")}</h2>
+          <p className="mx-auto max-w-2xl text-gray-700 mb-6">{t("about.cta.description")}</p>
           <Link href="/marketplace">
-            <button className="rounded-xl bg-green-600 px-6 py-3 text-white hover:bg-green-700">
-              Explore Marketplace
-            </button>
+            <button className="rounded-xl bg-green-600 px-6 py-3 text-white hover:bg-green-700">{t("about.cta.button")}</button>
           </Link>
         </section>
       </div>
     </main>
-  )
+  );
 }

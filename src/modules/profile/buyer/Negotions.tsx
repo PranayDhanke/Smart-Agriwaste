@@ -19,6 +19,7 @@ import {
 import { CartItem, Negotiation } from "@/components/types/orders";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 import { WasteItem } from "@/components/types/marketplace";
 import NegotiationPanel from "@/modules/marketplace/NegotiationPanel";
 import { useCart } from "@/components/hooks/useCart";
@@ -60,6 +61,8 @@ export default function BuyerNegotiationsPage() {
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
+  const t = useTranslations("faq");
+
   const [negotiationItem, setNegotiationItem] = useState<WasteItem | null>(
     null
   );
@@ -87,7 +90,7 @@ export default function BuyerNegotiationsPage() {
     };
 
     addToCart(cartItem);
-    toast.success("Item added to cart");
+    toast.success(t("profile.negotiations.toasts.addedToCart"));
   };
 
   useEffect(() => {
@@ -98,7 +101,7 @@ export default function BuyerNegotiationsPage() {
         const res = await axios.get(`/api/negotiate/getBuyer/${buyerId}`);
         setNegotiations(res.data || []);
       } catch {
-        toast.error("Failed to load negotiations");
+        toast.error(t("profile.negotiations.toasts.loadFailed"));
       } finally {
         setLoading(false);
       }
@@ -119,10 +122,10 @@ export default function BuyerNegotiationsPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Your Negotiations
+            {t("profile.negotiations.title")}
           </h1>
           <p className="text-muted-foreground">
-            Track farmer responses and take action when available
+            {t("profile.negotiations.subtitle")}
           </p>
         </div>
 
@@ -136,10 +139,8 @@ export default function BuyerNegotiationsPage() {
           <Card className="border-dashed border-2">
             <div className="p-12 text-center">
               <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-lg font-semibold">No negotiations yet</p>
-              <p className="text-sm text-muted-foreground">
-                Your negotiation requests will appear here
-              </p>
+              <p className="text-lg font-semibold">{t("profile.negotiations.emptyTitle")}</p>
+              <p className="text-sm text-muted-foreground">{t("profile.negotiations.emptyBody")}</p>
             </div>
           </Card>
         ) : (
@@ -199,18 +200,18 @@ export default function BuyerNegotiationsPage() {
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           <StatBox
                             icon={<IndianRupee className="h-4 w-4" />}
-                            label="Listed Price"
+                            label={t("profile.negotiations.listedPrice")}
                             value={`₹${neg.item.price}`}
                           />
                           <StatBox
                             icon={<TrendingDown className="h-4 w-4" />}
-                            label="Your Offer"
+                            label={t("profile.negotiations.yourOffer")}
                             value={`₹${neg.negotiatedPrice}`}
                             variant={isDiscount ? "danger" : "success"}
                           />
                           <StatBox
                             icon={<Droplets className="h-4 w-4" />}
-                            label="Moisture"
+                            label={t("profile.negotiations.moisture")}
                             value={neg.item.moisture}
                           />
                         </div>
@@ -218,14 +219,10 @@ export default function BuyerNegotiationsPage() {
                         {/* Info */}
                         {isDiscount && (
                           <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm">
-                            You requested{" "}
-                            <span className="font-bold text-amber-800">
-                              {percent}%
-                            </span>{" "}
-                            lower price
-                            <span className="ml-1 text-muted-foreground">
-                              (₹{Math.abs(diff)} difference)
-                            </span>
+                            {t("profile.negotiations.youRequested")}{" "}
+                            <span className="font-bold text-amber-800">{percent}%</span>{" "}
+                            {t("profile.negotiations.lowerPrice")}
+                            <span className="ml-1 text-muted-foreground">({t("profile.negotiations.difference", { diff: Math.abs(diff) })})</span>
                           </div>
                         )}
 
@@ -234,7 +231,7 @@ export default function BuyerNegotiationsPage() {
                           {neg.status === "pending" && (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Clock className="h-4 w-4" />
-                              Waiting for farmer response
+                              {t("profile.negotiations.emptyBody")}
                             </div>
                           )}
 
@@ -243,7 +240,7 @@ export default function BuyerNegotiationsPage() {
                               onClick={() => handleCart(neg)}
                               className="w-full bg-green-600 hover:bg-green-700"
                             >
-                              Place Order
+                              {t("profile.negotiations.placeOrder")}
                             </Button>
                           )}
 
@@ -268,12 +265,12 @@ export default function BuyerNegotiationsPage() {
                                     name: neg.item.sellerInfo.seller.farmerName,
                                   },
                                 })
-                              }
-                              variant="outline"
-                              className="w-full"
-                            >
-                              Send New Negotiation
-                            </Button>
+                                  }
+                                  variant="outline"
+                                  className="w-full"
+                                >
+                                  {t("profile.negotiations.sendNew")}
+                                </Button>
                           )}
                         </div>
                       </div>

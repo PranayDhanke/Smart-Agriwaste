@@ -30,6 +30,7 @@ import { SingleWasteItem } from "@/components/types/marketplace";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 
 const categoryMeta: Record<
   WasteType,
@@ -56,6 +57,7 @@ const categoryMeta: Record<
 };
 
 export default function SingleMarketplace() {
+  const t = useTranslations("faq");
   const [product, setProduct] = useState<SingleWasteItem>();
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -98,13 +100,13 @@ export default function SingleMarketplace() {
 
   const handleAddToCart = () => {
     if (product) {
-      alert(`Added ${quantity} unit(s) of "${product.title}" to cart`);
+      alert(t("marketplace.actions.addedToCart", { title: product.title }));
     }
   };
 
   const handleBuyNow = () => {
     if (product) {
-      alert(`Proceeding to checkout with ${quantity} unit(s)`);
+      alert(t("marketplace.actions.proceedToCheckout", { count: quantity }));
       // Navigate to checkout page
     }
   };
@@ -119,7 +121,7 @@ export default function SingleMarketplace() {
         })
         .catch((err) => console.log("Error sharing:", err));
     } else {
-      alert("Share functionality not supported on this browser");
+      alert(t("marketplace.actions.shareUnsupported"));
     }
   };
 
@@ -150,16 +152,15 @@ export default function SingleMarketplace() {
           <div className="text-center py-16">
             <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Product Not Found
+              {t("marketplace.noResults.title")}
             </h2>
-            <p className="text-gray-600 mb-6">
-              The product you are looking for does not exist or has been
-              removed.
-            </p>
+            <p className="text-gray-600 mb-6">{t(
+              "marketplace.noResults.description"
+            )}</p>
             <Link href="/marketplace">
               <Button className="bg-green-600 hover:bg-green-700">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Marketplace
+                {t("marketplace.actions.backToMarketplace")}
               </Button>
             </Link>
           </div>
@@ -174,10 +175,10 @@ export default function SingleMarketplace() {
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50/20 to-emerald-50">
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-8">
         {/* Back Button */}
-        <Link href="/marketplace">
+          <Link href="/marketplace">
           <Button variant="ghost" className="mb-6 hover:bg-white/60 -ml-2">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Marketplace
+            {t("marketplace.actions.backToMarketplace")}
           </Button>
         </Link>
 
@@ -208,7 +209,7 @@ export default function SingleMarketplace() {
                   } backdrop-blur-sm rounded-lg px-3 py-2 text-sm font-semibold flex items-center gap-2 shadow-md`}
                 >
                   {categoryMeta[product.wasteType].icon}
-                  {categoryMeta[product.wasteType].label}
+                  {t(`marketplace.categories.${product.wasteType}`)}
                 </div>
               </div>
 
@@ -216,7 +217,7 @@ export default function SingleMarketplace() {
               <div className="absolute top-4 right-4">
                 <div className="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 text-sm font-semibold text-green-600 flex items-center gap-2 shadow-md">
                   <CheckCircle className="h-4 w-4" />
-                  In Stock
+                  {t("marketplace.actions.inStock")}
                 </div>
               </div>
             </div>
@@ -233,7 +234,7 @@ export default function SingleMarketplace() {
                     isFavorite ? "fill-red-500 text-red-500" : ""
                   }`}
                 />
-                {isFavorite ? "Saved" : "Save"}
+                {isFavorite ? t("marketplace.productDetails.saved") : t("marketplace.productDetails.save")}
               </Button>
               <Button
                 variant="outline"
@@ -241,7 +242,7 @@ export default function SingleMarketplace() {
                 onClick={handleShare}
               >
                 <Share2 className="h-4 w-4 mr-2" />
-                Share
+                {t("marketplace.productDetails.share")}
               </Button>
             </div>
           </div>
@@ -266,9 +267,9 @@ export default function SingleMarketplace() {
                 </span>
                 <span className="text-lg text-gray-600">/{product.unit}</span>
               </div>
-              <p className="text-sm text-gray-600 mt-2">
-                Inclusive of all taxes
-              </p>
+              <p className="text-sm text-gray-600 mt-2">{t(
+                "marketplace.productDetails.inclusiveTaxes"
+              )}</p>
             </div>
 
             {/* Key Information Grid */}
@@ -279,7 +280,7 @@ export default function SingleMarketplace() {
                     <Droplets className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600">Moisture</p>
+                    <p className="text-xs text-gray-600">{t("marketplace.productDetails.moisture")}</p>
                     <p className="text-sm font-semibold text-gray-900">
                       {product.moisture}
                     </p>
@@ -293,7 +294,7 @@ export default function SingleMarketplace() {
                     <Package className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600">Quantity</p>
+                    <p className="text-xs text-gray-600">{t("marketplace.productDetails.quantity")}</p>
                     <p className="text-sm font-semibold text-gray-900">
                       {product.quantity}
                     </p>
@@ -307,7 +308,7 @@ export default function SingleMarketplace() {
                     <MapPin className="h-5 w-5 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600">Location</p>
+                    <p className="text-xs text-gray-600">{t("marketplace.productDetails.location")}</p>
                     <p className="text-sm font-semibold text-gray-900 line-clamp-1">
                       {product.address.district}
                     </p>
@@ -321,7 +322,7 @@ export default function SingleMarketplace() {
                     <Scale className="h-5 w-5 text-amber-600" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-600">Type</p>
+                    <p className="text-xs text-gray-600">{t("marketplace.productDetails.type")}</p>
                     <p className="text-sm font-semibold text-gray-900">
                       {categoryMeta[product.wasteType].label.replace(
                         " Waste",
@@ -335,9 +336,9 @@ export default function SingleMarketplace() {
 
             {/* Description */}
             <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Product Description
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(
+                "marketplace.productDetails.productDescriptionHeading"
+              )}</h3>
               <p className="text-gray-700 leading-relaxed">
                 {product.description}
               </p>
@@ -346,9 +347,9 @@ export default function SingleMarketplace() {
               <>
                 {/* Quantity Selector */}
                 <div className="bg-white rounded-xl p-6 border border-gray-200">
-                  <label className="block text-sm font-semibold text-gray-900 mb-3">
-                    Select Quantity
-                  </label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-3">{t(
+                    "marketplace.productDetails.selectQuantity"
+                  )}</label>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center border border-gray-300 rounded-lg">
                       <Button
@@ -372,7 +373,9 @@ export default function SingleMarketplace() {
                       </Button>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Total Price</p>
+                      <p className="text-sm text-gray-600">{t(
+                        "marketplace.productDetails.totalPrice"
+                      )}</p>
                       <p className="text-xl font-bold text-green-600">
                         ₹{totalPrice.toFixed(2)}
                       </p>
@@ -389,14 +392,14 @@ export default function SingleMarketplace() {
                     onClick={handleAddToCart}
                   >
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Add to Cart
+                    {t("marketplace.actions.addToCart")}
                   </Button>
                   <Button
                     size="lg"
                     className="flex-1 h-12 bg-green-600 hover:bg-green-700 text-white"
                     onClick={handleBuyNow}
                   >
-                    Buy Now
+                    {t("marketplace.productPage.buyNow")}
                   </Button>
                 </div>
               </>
@@ -408,7 +411,7 @@ export default function SingleMarketplace() {
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <User className="h-5 w-5 text-green-600" />
-                    Seller Information
+                    {t("marketplace.productPage.sellerHeading")}
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
@@ -419,7 +422,7 @@ export default function SingleMarketplace() {
                         <p className="text-sm font-semibold text-gray-900">
                           {product.seller.name}
                         </p>
-                        <p className="text-xs text-gray-600">Verified Seller</p>
+                        <p className="text-xs text-gray-600">{t("marketplace.productPage.verifiedSeller")}</p>
                       </div>
                     </div>
 
@@ -450,7 +453,7 @@ export default function SingleMarketplace() {
                       variant="outline"
                       className="w-full mt-2 border-green-300 hover:bg-green-50"
                     >
-                      Contact Seller
+                      {t("marketplace.productPage.contactSeller")}
                     </Button>
                   </div>
                 </CardContent>
@@ -463,13 +466,11 @@ export default function SingleMarketplace() {
                 <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="text-sm font-semibold text-blue-900 mb-1">
-                    Important Information
+                    {t("marketplace.productPage.importantTitle")}
                   </h4>
-                  <p className="text-sm text-blue-800">
-                    Please verify product quality and quantity upon delivery.
-                    Contact the seller for any specific requirements or bulk
-                    orders.
-                  </p>
+                  <p className="text-sm text-blue-800">{t(
+                    "marketplace.productPage.importantBody"
+                  )}</p>
                 </div>
               </div>
             </div>
@@ -481,15 +482,15 @@ export default function SingleMarketplace() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Similar Products
+                {t("marketplace.productPage.relatedTitle")}
               </h2>
-              <p className="text-gray-600 text-sm mt-1">
-                You might also be interested in these
-              </p>
+              <p className="text-gray-600 text-sm mt-1">{t(
+                "marketplace.productPage.relatedSubtitle"
+              )}</p>
             </div>
             <Link href="/marketplace">
               <Button variant="outline" className="bg-white">
-                View All
+                {t("marketplace.actions.viewAll")}
                 <TrendingUp className="h-4 w-4 ml-2" />
               </Button>
             </Link>
@@ -497,7 +498,7 @@ export default function SingleMarketplace() {
 
           <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
             <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-600">Related products will appear here</p>
+            <p className="text-gray-600">{t("marketplace.productPage.relatedEmpty")}</p>
           </div>
         </div>
       </div>

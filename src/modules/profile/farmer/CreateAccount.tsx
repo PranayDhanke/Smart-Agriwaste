@@ -2,6 +2,7 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -53,6 +54,7 @@ interface FormErrors {
 export default function CreateAccount() {
   const { user, isLoaded, isSignedIn } = useUser();
   const router = useRouter();
+  const t = useTranslations("faq");
   const Address: AddressType = addressJson;
 
   const [step, setStep] = useState(1);
@@ -92,9 +94,9 @@ export default function CreateAccount() {
       case "aadharnumber": {
         const aadharClean = (value as string).replace(/\s/g, "");
         if (!aadharClean) {
-          newErrors.aadharnumber = "Aadhaar is required";
+          newErrors.aadharnumber = t("profile.farmer.createAccount.errors.aadharnumber.required");
         } else if (!/^\d{12}$/.test(aadharClean)) {
-          newErrors.aadharnumber = "Aadhaar must be 12 digits";
+          newErrors.aadharnumber = t("profile.farmer.createAccount.errors.aadharnumber.invalid");
         } else {
           delete newErrors.aadharnumber;
         }
@@ -104,12 +106,12 @@ export default function CreateAccount() {
       case "phone": {
         const phoneClean = (value as string).replace(/[\s\-\+]/g, "");
         if (!phoneClean) {
-          newErrors.phone = "Phone number is required";
+          newErrors.phone = t("profile.farmer.createAccount.errors.phone.required");
         } else if (
           !/^\d{10}$/.test(phoneClean) &&
           !/^91\d{10}$/.test(phoneClean)
         ) {
-          newErrors.phone = "Enter valid 10-digit phone number";
+          newErrors.phone = t("profile.farmer.createAccount.errors.phone.invalid");
         } else {
           delete newErrors.phone;
         }
@@ -118,11 +120,11 @@ export default function CreateAccount() {
 
       case "farmArea": {
         if (!value || String(value).trim() === "") {
-          newErrors.farmArea = "Farm area is required";
+          newErrors.farmArea = t("profile.farmer.createAccount.errors.farmArea.required");
         } else if (isNaN(Number(value))) {
-          newErrors.farmArea = "Enter a valid number";
+          newErrors.farmArea = t("profile.farmer.createAccount.errors.farmArea.invalidNumber");
         } else if (parseFloat(value as string) <= 0) {
-          newErrors.farmArea = "Area must be greater than 0";
+          newErrors.farmArea = t("profile.farmer.createAccount.errors.farmArea.greaterThanZero");
         } else {
           delete newErrors.farmArea;
         }
@@ -131,7 +133,7 @@ export default function CreateAccount() {
 
       case "state":
         if (!value || (value as string).trim() === "") {
-          newErrors.state = "State is required";
+          newErrors.state = t("profile.farmer.createAccount.errors.state.required");
         } else {
           delete newErrors.state;
         }
@@ -139,7 +141,7 @@ export default function CreateAccount() {
 
       case "district":
         if (!value || (value as string).trim() === "") {
-          newErrors.district = "District is required";
+          newErrors.district = t("profile.farmer.createAccount.errors.district.required");
         } else {
           delete newErrors.district;
         }
@@ -147,7 +149,7 @@ export default function CreateAccount() {
 
       case "taluka":
         if (!value || (value as string).trim() === "") {
-          newErrors.taluka = "Taluka is required";
+          newErrors.taluka = t("profile.farmer.createAccount.errors.taluka.required");
         } else {
           delete newErrors.taluka;
         }
@@ -155,7 +157,7 @@ export default function CreateAccount() {
 
       case "village":
         if (!value || (value as string).trim() === "") {
-          newErrors.village = "Village/City is required";
+          newErrors.village = t("profile.farmer.createAccount.errors.village.required");
         } else {
           delete newErrors.village;
         }
@@ -163,7 +165,7 @@ export default function CreateAccount() {
 
       case "farmNumber":
         if (!value || (value as string).trim() === "") {
-          newErrors.farmNumber = "Document number is required";
+          newErrors.farmNumber = t("profile.farmer.createAccount.errors.farmNumber.required");
         } else {
           delete newErrors.farmNumber;
         }
@@ -172,9 +174,9 @@ export default function CreateAccount() {
       case "aadhar":
         // UI says max 5MB for Aadhaar
         if (!value) {
-          newErrors.aadhar = "Aadhaar file is required";
+          newErrors.aadhar = t("profile.farmer.createAccount.errors.aadhar.required");
         } else if ((value as File).size > 1 * 1024 * 1024) {
-          newErrors.aadhar = "Aadhaar file must be less than 1MB";
+          newErrors.aadhar = t("profile.farmer.createAccount.errors.aadhar.maxSize");
         } else {
           delete newErrors.aadhar;
         }
@@ -183,9 +185,9 @@ export default function CreateAccount() {
       case "farmdoc":
         // UI says max 10MB for farm doc
         if (!value) {
-          newErrors.farmdoc = "Farm document is required";
+          newErrors.farmdoc = t("profile.farmer.createAccount.errors.farmdoc.required");
         } else if ((value as File).size > 1 * 1024 * 1024) {
-          newErrors.farmdoc = "Farm document must be less than 1MB";
+          newErrors.farmdoc = t("profile.farmer.createAccount.errors.farmdoc.maxSize");
         } else {
           delete newErrors.farmdoc;
         }
@@ -222,7 +224,7 @@ export default function CreateAccount() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-green-600" />
-          <span className="text-green-600 text-lg font-medium">Loading...</span>
+          <span className="text-green-600 text-lg font-medium">{t("profile.loading")}</span>
         </div>
       </div>
     );
@@ -237,16 +239,14 @@ export default function CreateAccount() {
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Authentication Required
+              {t("profile.authRequired.title")}
             </h2>
-            <p className="text-gray-600">
-              You must be signed Up to access this page
-            </p>
+            <p className="text-gray-600">{t("profile.authRequired.description")}</p>
             <Button
               onClick={() => router.push("/sign-up?role=farmer")}
               className="w-full bg-green-600 hover:bg-green-700"
             >
-              Go to Sign up
+              {t("profile.farmer.createAccount.authSignUp")}
             </Button>
           </div>
         </Card>
@@ -456,12 +456,12 @@ export default function CreateAccount() {
       let farmDocUrl = "";
 
       if (form.aadhar) {
-        toast.loading("Uploading Aadhaar...");
+        toast.loading(t("profile.farmer.createAccount.uploading.aadhar"));
         aadharUrl = await uploadToImageKit(form.aadhar, "aadhar");
       }
 
       if (form.farmdoc) {
-        toast.loading("Uploading Farm Document...");
+        toast.loading(t("profile.farmer.createAccount.uploading.farmdoc"));
         farmDocUrl = await uploadToImageKit(form.farmdoc, "farmdoc");
       }
 
@@ -490,10 +490,10 @@ export default function CreateAccount() {
       if (res.status >= 200 && res.status < 300) {
         router.push("/?success=profile-created");
       } else {
-        toast.error("Failed to create profile. Please try again.");
+        toast.error(t("profile.farmer.createAccount.toasts.createFailed"));
       }
     } catch {
-      setErrors({ submit: "Something went wrong. Please try again." });
+      setErrors({ submit: t("profile.farmer.createAccount.errors.submit") });
     } finally {
       setLoading(false);
     }
@@ -510,11 +510,10 @@ export default function CreateAccount() {
             </div>
             <div className="text-center">
               <CardTitle className="text-3xl font-bold">
-                Farmer Registration
+                {t("profile.farmer.createAccount.title")}
               </CardTitle>
               <CardDescription className="text-green-50 text-sm mt-1">
-                Welcome, {user.firstName}
-                {"! Let's set up your profile"}
+                {t("profile.farmer.createAccount.welcome", { name: user.firstName ?? "" })}
               </CardDescription>
             </div>
           </div>
@@ -552,7 +551,7 @@ export default function CreateAccount() {
                       step >= 1 ? "text-white" : "text-green-200"
                     }`}
                   >
-                    Personal Info
+                    {t("profile.farmer.createAccount.stepLabels.personal")}
                   </span>
                 </div>
               </div>
@@ -574,7 +573,7 @@ export default function CreateAccount() {
                       step >= 2 ? "text-white" : "text-green-200"
                     }`}
                   >
-                    Farm Details
+                    {t("profile.farmer.createAccount.stepLabels.farm")}
                   </span>
                 </div>
               </div>
@@ -598,7 +597,7 @@ export default function CreateAccount() {
                   {user.primaryEmailAddress?.emailAddress}
                 </p>
               </div>
-              <Badge className="ml-auto bg-green-600">Step {step}/2</Badge>
+              <Badge className="ml-auto bg-green-600">{t("profile.farmer.createAccount.step", { step })}</Badge>
             </div>
           </div>
 
@@ -615,14 +614,14 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <CreditCard className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Identity Verification
+                        {t("profile.farmer.createAccount.section.identity")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <CreditCard className="h-3.5 w-3.5" />
-                        Aadhaar Number <span className="text-red-500">*</span>
+                        {t("profile.farmer.createAccount.labels.aadharnumber")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="aadharnumber"
@@ -653,8 +652,7 @@ export default function CreateAccount() {
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Upload className="h-3.5 w-3.5" />
-                        Aadhaar Card Photo (File Must Be Less than 1MB){" "}
-                        <span className="text-red-500">*</span>
+                        {t("profile.farmer.createAccount.labels.aadharPhoto")} <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -682,7 +680,7 @@ export default function CreateAccount() {
                         </p>
                       )}
                       <p className="text-xs text-gray-500">
-                        Max size: 5MB | Formats: JPG, PNG
+                        {t("profile.farmer.createAccount.hints.aadharHint")}
                       </p>
                     </div>
                   </div>
@@ -692,14 +690,14 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Phone className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Contact Information
+                        {t("profile.farmer.createAccount.section.contact")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                        <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Phone className="h-3.5 w-3.5" />
-                        Phone Number <span className="text-red-500">*</span>
+                        {t("profile.farmer.createAccount.labels.phone")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="phone"
@@ -728,14 +726,14 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <MapPin className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Location Details
+                        {t("profile.farmer.createAccount.section.location")}
                       </h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          State <span className="text-red-500">*</span>
+                          {t("profile.farmer.createAccount.labels.state")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) => {
@@ -757,7 +755,7 @@ export default function CreateAccount() {
                                 : ""
                             }`}
                           >
-                            <SelectValue placeholder="Select State" />
+                            <SelectValue placeholder={t("profile.farmer.createAccount.placeholders.selectState")} />
                           </SelectTrigger>
                           <SelectContent>
                             {Address.states.map((s) => (
@@ -776,7 +774,7 @@ export default function CreateAccount() {
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          District <span className="text-red-500">*</span>
+                          {t("profile.farmer.createAccount.labels.district")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) => {
@@ -801,8 +799,8 @@ export default function CreateAccount() {
                             <SelectValue
                               placeholder={
                                 form.state
-                                  ? "Select District"
-                                  : "Select State First"
+                                  ? t("profile.farmer.createAccount.placeholders.selectDistrict")
+                                  : t("profile.farmer.createAccount.placeholders.selectStateFirst")
                               }
                             />
                           </SelectTrigger>
@@ -826,7 +824,7 @@ export default function CreateAccount() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Taluka <span className="text-red-500">*</span>
+                          {t("profile.farmer.createAccount.labels.taluka")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) => {
@@ -846,8 +844,8 @@ export default function CreateAccount() {
                             <SelectValue
                               placeholder={
                                 form.district
-                                  ? "Select Taluka"
-                                  : "Select District First"
+                                  ? t("profile.farmer.createAccount.placeholders.selectTaluka")
+                                  : t("profile.farmer.createAccount.placeholders.selectDistrictFirst")
                               }
                             />
                           </SelectTrigger>
@@ -868,7 +866,7 @@ export default function CreateAccount() {
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Village / City <span className="text-red-500">*</span>
+                          {t("profile.farmer.createAccount.labels.village")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) => {
@@ -888,8 +886,8 @@ export default function CreateAccount() {
                             <SelectValue
                               placeholder={
                                 form.taluka
-                                  ? "Select Village/City"
-                                  : "Select Taluka First"
+                                  ? t("profile.farmer.createAccount.placeholders.selectVillage")
+                                  : t("profile.farmer.createAccount.placeholders.selectTalukaFirst")
                               }
                             />
                           </SelectTrigger>
@@ -915,14 +913,13 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Home className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Address Details
+                        {t("profile.farmer.createAccount.section.address")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        House Number / Building Name{" "}
-                        <span className="text-red-500">*</span>
+                        {t("profile.farmer.createAccount.labels.houseBuildingName")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="houseBuildingName"
@@ -941,8 +938,7 @@ export default function CreateAccount() {
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        Road, Area, Landmark{" "}
-                        <span className="text-red-500">*</span>
+                        {t("profile.farmer.createAccount.labels.roadarealandmarkName")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="roadarealandmarkName"
@@ -966,14 +962,14 @@ export default function CreateAccount() {
                     disabled={!canProceedToStep2()}
                     className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-14 text-base font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Continue to Farm Details
+                    {t("profile.farmer.createAccount.actions.continueToFarmDetails")}
                     <CheckCircle2 className="ml-2 h-5 w-5" />
                   </Button>
 
                   {!canProceedToStep2() && (
                     <p className="text-sm text-center text-amber-600 flex items-center justify-center gap-1">
                       <AlertCircle className="h-4 w-4" />
-                      Please fill all required fields correctly
+                      {t("profile.farmer.createAccount.validation.fillRequired")}
                     </p>
                   )}
                 </div>
@@ -984,15 +980,14 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <FileText className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Farm Documentation
+                        {t("profile.farmer.createAccount.section.farmDocumentation")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <FileText className="h-3.5 w-3.5" />
-                        7/12 or 8A Document Number{" "}
-                        <span className="text-red-500">*</span>
+                        {t("profile.farmer.createAccount.labels.farmNumber")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="farmNumber"
@@ -1014,15 +1009,14 @@ export default function CreateAccount() {
                         </p>
                       )}
                       <p className="text-xs text-gray-500">
-                        This is your official land ownership document number
+                        {t("profile.farmer.createAccount.hints.farmNumberNote")}
                       </p>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Upload className="h-3.5 w-3.5" />
-                        Upload Farm Document (File Must Be Less than 1MB){" "}
-                        <span className="text-red-500">*</span>
+                        {t("profile.farmer.createAccount.labels.uploadFarmDoc")} <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -1052,7 +1046,7 @@ export default function CreateAccount() {
                         </p>
                       )}
                       <p className="text-xs text-gray-500">
-                        Max size: 10MB | Formats: JPG, PNG, PDF
+                        {t("profile.farmer.createAccount.hints.farmdocHint")}
                       </p>
                     </div>
                   </div>
@@ -1060,13 +1054,13 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Leaf className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">Farm Area</h3>
+                      <h3 className="font-semibold text-gray-900">{t("profile.farmer.createAccount.labels.farmArea")}</h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Total Area <span className="text-red-500">*</span>
+                          {t("profile.farmer.createAccount.labels.totalArea")} <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           type="number"
@@ -1098,7 +1092,7 @@ export default function CreateAccount() {
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Unit <span className="text-red-500">*</span>
+                          {t("profile.farmer.createAccount.labels.unit")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) => {
@@ -1107,14 +1101,12 @@ export default function CreateAccount() {
                           }}
                           value={form.farmUnit}
                         >
-                          <SelectTrigger className="h-12 border-green-300 bg-green-50/30">
+                            <SelectTrigger className="h-12 border-green-300 bg-green-50/30">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="hectare">
-                              Hectare (ha)
-                            </SelectItem>
-                            <SelectItem value="acre">Acre</SelectItem>
+                            <SelectItem value="hectare">{t("profile.farmer.createAccount.units.hectareLabel")}</SelectItem>
+                            <SelectItem value="acre">{t("profile.farmer.createAccount.units.acreLabel")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1124,26 +1116,22 @@ export default function CreateAccount() {
                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p className="text-sm text-blue-900">
                           <span className="font-semibold">
-                            Total Farm Area:
+                            {t("profile.farmer.createAccount.labels.totalArea")}
                           </span>{" "}
                           {form.farmArea}{" "}
-                          {form.farmUnit === "hectare" ? "hectares" : "acres"}
+                          {form.farmUnit === "hectare" ? t("profile.farmer.createAccount.units.hectares") : t("profile.farmer.createAccount.units.acres")}
                           {form.farmUnit === "hectare" && form.farmArea && (
                             <span className="text-blue-600">
                               {" "}
-                              ≈ {(parseFloat(form.farmArea) * 2.471).toFixed(
-                                2
-                              )}{" "}
-                              acres
+                              ≈ {(parseFloat(form.farmArea) * 2.471).toFixed(2)}{" "}
+                              {t("profile.farmer.createAccount.units.acres")}
                             </span>
                           )}
                           {form.farmUnit === "acre" && form.farmArea && (
                             <span className="text-blue-600">
                               {" "}
-                              ≈ {(parseFloat(form.farmArea) / 2.471).toFixed(
-                                2
-                              )}{" "}
-                              hectares
+                              ≈ {(parseFloat(form.farmArea) / 2.471).toFixed(2)}{" "}
+                              {t("profile.farmer.createAccount.units.hectares")}
                             </span>
                           )}
                         </p>
@@ -1167,7 +1155,7 @@ export default function CreateAccount() {
                       className="w-full sm:w-1/2 border-2 border-green-600 text-green-600 hover:bg-green-50 h-14 text-base font-semibold"
                     >
                       <CheckCircle2 className="mr-2 h-5 w-5 rotate-180" />
-                      Back to Personal Info
+                      {t("profile.farmer.createAccount.actions.backToPersonalInfo")}
                     </Button>
                     <Button
                       type="submit"
@@ -1177,26 +1165,19 @@ export default function CreateAccount() {
                       {loading ? (
                         <>
                           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Creating Profile...
+                          {t("profile.farmer.createAccount.actions.creating")}
                         </>
                       ) : (
                         <>
                           <CheckCircle2 className="mr-2 h-5 w-5" />
-                          Complete Registration
+                          {t("profile.farmer.createAccount.actions.completeRegistration")}
                         </>
                       )}
                     </Button>
                   </div>
 
                   <p className="text-center text-xs text-gray-500">
-                    By completing registration, you agree to our{" "}
-                    <span className="text-green-600 underline cursor-pointer">
-                      Terms of Service
-                    </span>{" "}
-                    and{" "}
-                    <span className="text-green-600 underline cursor-pointer">
-                      Privacy Policy
-                    </span>
+                    {t("legal.agreement", { terms: t("legal.terms"), privacy: t("legal.privacy") })}
                   </p>
                 </div>
               </div>

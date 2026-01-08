@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +65,7 @@ interface WasteManagementRules {
 }
 
 export default function Process() {
+  const t = useTranslations("faq");
   const [formData, setFormData] = useState<WasteForm>({
     wasteType: "",
     wasteProduct: "",
@@ -168,7 +170,7 @@ export default function Process() {
       const { wasteType, wasteProduct, moisture } = formData;
 
       if (!wasteType || !wasteProduct || !moisture) {
-        setError("Please choose waste type, product and moisture level.");
+        setError(t("process.pleaseChoose"));
         setIsSubmitting(false);
         return;
       }
@@ -182,9 +184,7 @@ export default function Process() {
       const typeMap = rules?.[wasteType];
 
       if (!typeMap) {
-        setError(
-          `We don't have guidance for "${wasteType}". Try a different type.`
-        );
+        setError(t("process.noGuidanceForType", { type: wasteType }));
         setIsSubmitting(false);
         return;
       }
@@ -192,9 +192,7 @@ export default function Process() {
       const productMap = typeMap?.[wasteProduct];
 
       if (!productMap) {
-        setError(
-          `No guidance found for "${wasteProduct}". Try a similar product.`
-        );
+        setError(t("process.noGuidanceForProduct", { product: wasteProduct }));
         setIsSubmitting(false);
         return;
       }
@@ -202,7 +200,7 @@ export default function Process() {
       const key = moistureToKey(moisture);
       const recommended = productMap[key] || productMap["default"];
       if (!recommended) {
-        setError("No recommendation available. Try different options.");
+        setError(t("process.noRecommendation"));
         setIsSubmitting(false);
         return;
       }
@@ -223,7 +221,7 @@ export default function Process() {
       setTimeout(() => window.scrollTo({ top: 400, behavior: "smooth" }), 150);
     } catch (err) {
       console.error("Lookup error:", err);
-      setError("Unexpected error — please try again.");
+      setError(t("process.unexpectedError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -233,9 +231,9 @@ export default function Process() {
     if (!result) return;
     try {
       await navigator.clipboard.writeText(JSON.stringify(result, null, 2));
-      alert("Recommendation copied to clipboard!");
+      alert(t("process.copiedClipboard"));
     } catch {
-      alert("Unable to copy. Try download instead.");
+      alert(t("process.copyFailed"));
     }
   };
 
@@ -271,9 +269,7 @@ export default function Process() {
                 <CheckCircle className="w-5 h-5 text-green-700" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-bold text-gray-900 truncate">
-                  Ready to Go!
-                </h3>
+                <h3 className="text-sm font-bold text-gray-900 truncate">{t("process.readyTitle")}</h3>
                 <p className="text-xs text-gray-600 truncate">
                   {result.final_use}
                 </p>
@@ -282,7 +278,7 @@ export default function Process() {
             <button
               onClick={clearResult}
               className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition"
-              aria-label="Close result"
+              aria-label={t("process.closeResult")}
             >
               <X className="w-4 h-4 text-gray-500" />
             </button>
@@ -292,9 +288,7 @@ export default function Process() {
 
           {/* Process Steps */}
           <div>
-            <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">
-              Step-by-step plan
-            </h4>
+            <h4 className="text-xs font-semibold text-gray-700 uppercase mb-3">{t("process.stepByStep")}</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
               {result.recommended_process.map((step: string, i: number) => (
                 <div key={i} className="flex gap-2 items-start text-xs">
@@ -311,9 +305,7 @@ export default function Process() {
           <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
             <div className="flex items-center gap-2 mb-2">
               <Hammer className="w-4 h-4 text-blue-600" />
-              <span className="text-xs font-semibold text-gray-900">
-                What {"you'll"} need
-              </span>
+              <span className="text-xs font-semibold text-gray-900">{t("process.whatYouNeed")}</span>
             </div>
             <ul className="space-y-1">
               {result.needs.map((need: string, idx: number) => (
@@ -329,9 +321,7 @@ export default function Process() {
           <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-amber-600" />
-              <span className="text-xs font-semibold text-gray-900">
-                Effort level
-              </span>
+              <span className="text-xs font-semibold text-gray-900">{t("process.effortLevel")}</span>
             </div>
             <div className={`text-sm font-medium ${result.difficulty.color}`}>
               {result.difficulty.label}
@@ -353,9 +343,7 @@ export default function Process() {
           {/* Notes */}
           {result.notes && (
             <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
-              <div className="text-xs font-semibold text-gray-900 mb-2">
-                Important notes
-              </div>
+              <div className="text-xs font-semibold text-gray-900 mb-2">{t("process.importantNotes")}</div>
               <div className="text-xs text-gray-700 leading-relaxed">
                 {result.notes}
               </div>
@@ -369,14 +357,14 @@ export default function Process() {
               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition text-gray-700 font-medium"
             >
               <Copy className="w-3.5 h-3.5" />
-              Copy
+              {t("process.copy")}
             </button>
             <button
               onClick={downloadResult}
               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
             >
               <Download className="w-3.5 h-3.5" />
-              Download
+              {t("process.download")}
             </button>
           </div>
 
@@ -384,17 +372,11 @@ export default function Process() {
           <div className="p-3 bg-green-50 rounded-lg border border-green-200">
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb className="w-4 h-4 text-green-700" />
-              <span className="text-xs font-semibold text-gray-900">
-                Quick tips
-              </span>
+              <span className="text-xs font-semibold text-gray-900">{t("process.quickTips")}</span>
             </div>
             <ul className="space-y-1.5">
-              <li className="text-xs text-gray-700">
-                ✓ Remove plastics & metal before processing
-              </li>
-              <li className="text-xs text-gray-700">
-                ✓ Keep compost piles moist, turn weekly
-              </li>
+              <li className="text-xs text-gray-700">✓ {t("process.tip1")}</li>
+              <li className="text-xs text-gray-700">✓ {t("process.tip2")}</li>
             </ul>
           </div>
         </div>
@@ -407,16 +389,16 @@ export default function Process() {
         {/* Quick reference */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Quick reference</CardTitle>
+            <CardTitle className="text-sm">{t("process.sidebar.quickReference")}</CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-gray-700 space-y-2.5">
             <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
               <Sun className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-              <span>Dry = good for compost/drying</span>
+              <span>{t("process.quickRef.dry")}</span>
             </div>
             <div className="flex items-center gap-2 p-2 bg-sky-50 rounded">
               <Droplet className="w-4 h-4 text-sky-500 flex-shrink-0" />
-              <span>Semi-wet = pre-dry or mix</span>
+              <span>{t("process.quickRef.semiwet")}</span>
             </div>
           </CardContent>
         </Card>
@@ -424,24 +406,24 @@ export default function Process() {
         {/* FAQ */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">FAQ</CardTitle>
+            <CardTitle className="text-sm">{t("process.sidebar.faq")}</CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-gray-700 space-y-3">
             <div>
               <div className="font-semibold text-gray-900 mb-1">
-                Do I need a machine?
+                {t("process.faq.machineQuestion")}
               </div>
               <div className="text-gray-600 leading-relaxed">
-                Composting & drying are manual. Pelletizing needs equipment.
+                {t("process.faq.machineAnswer")}
               </div>
             </div>
             <Separator className="my-2" />
             <div>
               <div className="font-semibold text-gray-900 mb-1">
-                Is this free?
+                {t("process.faq.freeQuestion")}
               </div>
               <div className="text-gray-600 leading-relaxed">
-                Yes! Information only. Consult suppliers for facilities.
+                {t("process.faq.freeAnswer")}
               </div>
             </div>
           </CardContent>
@@ -450,20 +432,20 @@ export default function Process() {
         {/* Next steps */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Get started</CardTitle>
+            <CardTitle className="text-sm">{t("process.sidebar.getStarted")}</CardTitle>
           </CardHeader>
           <CardContent className="text-xs text-gray-700 space-y-2">
             <div className="flex gap-2">
               <span className="text-green-600 font-bold">1.</span>
-              <span>Try a preset for quick results</span>
+              <span>{t("process.sidebar.steps.step1")}</span>
             </div>
             <div className="flex gap-2">
               <span className="text-green-600 font-bold">2.</span>
-              <span>Fill your details</span>
+              <span>{t("process.sidebar.steps.step2")}</span>
             </div>
             <div className="flex gap-2">
               <span className="text-green-600 font-bold">3.</span>
-              <span>Get your plan & share it</span>
+              <span>{t("process.sidebar.steps.step3")}</span>
             </div>
           </CardContent>
         </Card>
@@ -481,12 +463,8 @@ export default function Process() {
               <Recycle className="h-8 w-8 text-green-700" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
-                Smart Waste Management
-              </h1>
-              <p className="text-sm md:text-base text-gray-700 mt-1">
-                Get a simple step-by-step plan for your waste
-              </p>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">{t("process.header.title")}</h1>
+              <p className="text-sm md:text-base text-gray-700 mt-1">{t("process.header.subtitle")}</p>
             </div>
           </div>
         </div>
@@ -499,12 +477,8 @@ export default function Process() {
             <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-sm">
               <CardContent className="p-6 md:p-8">
                 <div className="mb-6">
-                  <h2 className="text-lg md:text-xl font-semibold">
-                    Tell us about your waste
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Pick the options below — {"we'll"} suggest an easy process.
-                  </p>
+                  <h2 className="text-lg md:text-xl font-semibold">{t("process.form.title")}</h2>
+                  <p className="text-sm text-gray-600 mt-1">{t("process.form.subtitle")}</p>
                 </div>
 
                 {/* Presets - full width, horizontal scroll on mobile */}
@@ -528,20 +502,18 @@ export default function Process() {
                         value={formData.wasteType}
                       >
                         <SelectTrigger className="h-11 mt-2">
-                          <SelectValue placeholder="Select waste type" />
+                          <SelectValue placeholder={t("process.form.selectWasteType")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="crop">🌾 Crop residues</SelectItem>
-                          <SelectItem value="fruit">🍌 Fruit waste</SelectItem>
-                          <SelectItem value="vegetable">
-                            🥬 Vegetable waste
-                          </SelectItem>
+                          <SelectItem value="crop">{t("process.form.type.crop")}</SelectItem>
+                          <SelectItem value="fruit">{t("process.form.type.fruit")}</SelectItem>
+                          <SelectItem value="vegetable">{t("process.form.type.vegetable")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-semibold">Product *</Label>
+                      <Label className="text-sm font-semibold">{t("process.form.productLabel")}</Label>
                       <Select
                         disabled={!formData.wasteType}
                         onValueChange={(value: string) =>
@@ -550,7 +522,7 @@ export default function Process() {
                         value={formData.wasteProduct}
                       >
                         <SelectTrigger className="h-11 mt-2">
-                          <SelectValue placeholder="Select product" />
+                          <SelectValue placeholder={t("process.form.selectProduct")} />
                         </SelectTrigger>
                         <SelectContent>
                           {formData.wasteType &&
@@ -569,10 +541,10 @@ export default function Process() {
                   {/* Quantity & moisture */}
                   <div className="grid gap-4 md:grid-cols-3">
                     <div>
-                      <Label className="text-sm font-semibold">Quantity</Label>
+                      <Label className="text-sm font-semibold">{t("process.form.quantity")}</Label>
                       <Input
                         type="number"
-                        placeholder="e.g. 50"
+                        placeholder={t("process.form.quantityPlaceholder")}
                         value={formData.quantity}
                         onChange={(e) =>
                           setFormData({
@@ -582,9 +554,7 @@ export default function Process() {
                         }
                         className="mt-2 h-11"
                       />
-                      <p className="text-xs text-gray-500 mt-2">
-                        Estimate is fine
-                      </p>
+                      <p className="text-xs text-gray-500 mt-2">{t("process.form.estimateIsFine")}</p>
                     </div>
 
                     <div className="md:col-span-2">
@@ -611,7 +581,7 @@ export default function Process() {
                         >
                           <div className="flex items-center justify-center gap-2">
                             <Sun className="w-4 h-4" />
-                            <span>Dry</span>
+                            <span>{t("process.form.moisture.dry")}</span>
                           </div>
                         </button>
 
@@ -628,7 +598,7 @@ export default function Process() {
                         >
                           <div className="flex items-center justify-center gap-2">
                             <Droplet className="w-4 h-4" />
-                            <span>Semi-wet</span>
+                            <span>{t("process.form.moisture.semiwet")}</span>
                           </div>
                         </button>
 
@@ -645,7 +615,7 @@ export default function Process() {
                         >
                           <div className="flex items-center justify-center gap-2">
                             <Droplet className="w-4 h-4" />
-                            <span>Wet</span>
+                            <span>{t("process.form.moisture.wet")}</span>
                           </div>
                         </button>
                       </div>
@@ -657,9 +627,7 @@ export default function Process() {
                   {/* Processing prefs & safety */}
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <Label className="text-sm font-semibold">
-                        Intended Use *
-                      </Label>
+                      <Label className="text-sm font-semibold">{t("process.form.intendedUse")}</Label>
                       <Select
                         onValueChange={(value: string) =>
                           setFormData({ ...formData, intendedUse: value })
@@ -667,20 +635,18 @@ export default function Process() {
                         value={formData.intendedUse}
                       >
                         <SelectTrigger className="h-11 mt-2">
-                          <SelectValue placeholder="What do you want?" />
+                          <SelectValue placeholder={t("process.form.intendedPlaceholder")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="compost">🌱 Compost</SelectItem>
-                          <SelectItem value="feed">🐄 Feed</SelectItem>
-                          <SelectItem value="sell">💰 Sell</SelectItem>
+                          <SelectItem value="compost">{t("process.form.intent.compost")}</SelectItem>
+                          <SelectItem value="feed">{t("process.form.intent.feed")}</SelectItem>
+                          <SelectItem value="sell">{t("process.form.intent.sell")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-semibold">
-                        Contamination?
-                      </Label>
+                      <Label className="text-sm font-semibold">{t("process.form.contamination")}</Label>
                       <RadioGroup
                         value={formData.contamination}
                         onValueChange={(value: string) =>
@@ -690,18 +656,14 @@ export default function Process() {
                       >
                         <label className="flex items-center gap-2 cursor-pointer">
                           <RadioGroupItem value="no" />
-                          <span className="text-sm">No</span>
+                          <span className="text-sm">{t("process.form.contamination.no")}</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <RadioGroupItem value="yes" />
-                          <span className="text-sm">
-                            Yes (plastic/metal/chemicals)
-                          </span>
+                          <span className="text-sm">{t("process.form.contamination.yes")}</span>
                         </label>
                       </RadioGroup>
-                      <p className="text-xs text-gray-500 mt-2">
-                        Remove before processing
-                      </p>
+                      <p className="text-xs text-gray-500 mt-2">{t("process.form.removeBeforeProcessing")}</p>
                     </div>
                   </div>
 
@@ -709,8 +671,8 @@ export default function Process() {
                     <Label className="text-sm font-semibold">
                       Notes (optional)
                     </Label>
-                    <Textarea
-                      placeholder="Add extra details — e.g., nearby facilities, weather"
+                      <Textarea
+                      placeholder={t("process.form.notesPlaceholder")}
                       value={formData.notes}
                       onChange={(e) =>
                         setFormData({ ...formData, notes: e.target.value })
@@ -725,7 +687,7 @@ export default function Process() {
                       className="flex-1 h-12 text-base"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Thinking..." : "Show me the plan"}
+                      {isSubmitting ? t("process.buttons.thinking") : t("process.buttons.showPlan")}
                     </Button>
 
                     <Button
@@ -747,7 +709,7 @@ export default function Process() {
                         setError("");
                       }}
                     >
-                      Reset
+                      {t("process.buttons.reset")}
                     </Button>
                   </div>
                 </form>

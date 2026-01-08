@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Order } from "@/components/types/orders";
 import { useUser } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import axios from "axios";
 import { toast } from "sonner";
 import { useNotification } from "@/components/hooks/useNotification";
@@ -164,6 +165,7 @@ export default function BuyerPurchasesPage() {
   const { user } = useUser();
 
   const { sendNotification } = useNotification();
+  const t = useTranslations("faq");
 
   useEffect(() => {
     const buyerId = user?.id.replace("user_", "buy_");
@@ -178,7 +180,7 @@ export default function BuyerPurchasesPage() {
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
-        toast.error("Failed to load your orders");
+        toast.error(t("profile.myPurchases.toasts.loadFailed"));
         setLoading(false);
       }
     };
@@ -225,7 +227,7 @@ export default function BuyerPurchasesPage() {
         setPurchases((prev) =>
           prev.map((o) => (o._id === id ? { ...o, status } : o))
         );
-        toast.success(`Order has successfully ${status}`);
+        toast.success(t("profile.myPurchases.toasts.orderStatusChanged", { status }));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
           title: `Buyer has ${status} the Order`,
@@ -234,7 +236,7 @@ export default function BuyerPurchasesPage() {
         });
       }
     } catch {
-      toast.error("Failed to change order status");
+      toast.error(t("profile.myPurchases.toasts.failedChange"));
     }
   };
 
@@ -249,7 +251,7 @@ export default function BuyerPurchasesPage() {
         setPurchases((prev) =>
           prev.map((o) => (o._id === id ? { ...o, isOutForDelivery: true } : o))
         );
-        toast.success("Order marked out for delivery");
+        toast.success(t("profile.myPurchases.toasts.addedToCart"));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
           title: "Order is out for Pickup",
@@ -273,7 +275,7 @@ export default function BuyerPurchasesPage() {
         setPurchases((prev) =>
           prev.map((o) => (o._id === id ? { ...o, isDelivered: true } : o))
         );
-        toast.success("Order successfully delivered");
+        toast.success(t("profile.myPurchases.toasts.addedToCart"));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
           title: "Order is Picked Up",
@@ -298,11 +300,11 @@ export default function BuyerPurchasesPage() {
                   <div className="p-3 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-xl shadow-lg">
                     <ShoppingBag className="h-8 w-8 text-white" />
                   </div>
-                  My Purchases
+                  {t("profile.myPurchases.title")}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 text-lg flex items-center gap-2">
                   <Zap className="h-4 w-4 text-amber-500" />
-                  Track and manage all your orders from local farmers
+                  {t("profile.myPurchases.subtitle")}
                 </p>
               </div>
 
@@ -313,7 +315,7 @@ export default function BuyerPurchasesPage() {
               >
                 <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 dark:from-blue-700 dark:to-cyan-700 dark:hover:from-blue-600 dark:hover:to-cyan-600 flex items-center gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-105 h-11 px-6">
                   <MessageCircle className="h-5 w-5" />
-                  <span className="font-semibold">Negotiations</span>
+                  <span className="font-semibold">{t("profile.negotiations.title")}</span>
                   <ChevronDown className="h-4 w-4 opacity-70" />
                 </Button>
               </Link>
@@ -327,8 +329,8 @@ export default function BuyerPurchasesPage() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in"
             style={{ animationDelay: "50ms" }}
           >
-            <StatCard
-              label="Total Orders"
+              <StatCard
+              label={t("profile.myPurchases.stats.total")}
               value={stats.total}
               icon={
                 <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -338,7 +340,7 @@ export default function BuyerPurchasesPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Pending"
+              label={t("profile.myPurchases.stats.pending")}
               value={stats.pending}
               icon={
                 <div className="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
@@ -348,7 +350,7 @@ export default function BuyerPurchasesPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Confirmed"
+              label={t("profile.myPurchases.stats.confirmed")}
               value={stats.confirmed}
               icon={
                 <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -358,7 +360,7 @@ export default function BuyerPurchasesPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Delivered"
+              label={t("profile.myPurchases.stats.delivered")}
               value={stats.delivered}
               icon={
                 <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
@@ -381,7 +383,7 @@ export default function BuyerPurchasesPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search orders, buyers, or products..."
+                placeholder={t("profile.myPurchases.searchPlaceholder")}
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all shadow-sm"
               />
             </div>
@@ -394,11 +396,11 @@ export default function BuyerPurchasesPage() {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="pl-9 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm appearance-none cursor-pointer"
                 >
-                  <option value="all">All Orders</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="all">{t("profile.myPurchases.filters.all")}</option>
+                  <option value="pending">{t("profile.myPurchases.filters.pending")}</option>
+                  <option value="confirmed">{t("profile.myPurchases.filters.confirmed")}</option>
+                  <option value="delivered">{t("profile.myPurchases.filters.delivered")}</option>
+                  <option value="cancelled">{t("profile.myPurchases.filters.cancelled")}</option>
                 </select>
               </div>
             </div>
@@ -423,7 +425,7 @@ export default function BuyerPurchasesPage() {
               <Loader2 className="h-14 w-14 animate-spin text-emerald-600 dark:text-emerald-400 relative" />
             </div>
             <p className="mt-4 text-gray-600 dark:text-gray-400 font-medium">
-              Loading your orders...
+              {t("profile.myPurchases.loading")}
             </p>
           </div>
         )}
@@ -436,16 +438,15 @@ export default function BuyerPurchasesPage() {
                 <Package className="h-16 w-16 text-emerald-600 dark:text-emerald-400" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                No Orders Yet
+                {t("profile.myPurchases.empty.title")}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-lg">
-                Start shopping to see your orders here. Browse our marketplace
-                and find great agricultural products from local farmers.
+                {t("profile.myPurchases.empty.description")}
               </p>
               <Link href="/marketplace">
                 <Button className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white mt-4 h-11 px-6">
                   <ShoppingBag className="h-4 w-4 mr-2" />
-                  Browse Products
+                  {t("profile.myPurchases.empty.button")}
                 </Button>
               </Link>
             </div>
@@ -459,11 +460,10 @@ export default function BuyerPurchasesPage() {
               <Search className="h-12 w-12 text-gray-400 dark:text-gray-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              No orders found
+              {t("profile.myPurchases.noResultsTitle")}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
-              Try adjusting your search or filter to find what you are looking
-              for.
+              {t("profile.myPurchases.noResultsDescription")}
             </p>
           </div>
         )}
@@ -524,7 +524,7 @@ export default function BuyerPurchasesPage() {
                   <CardContent className="space-y-4">
                     {/* Items Preview */}
                     <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 space-y-2 border border-gray-200 dark:border-gray-700">
-                      <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
+                          <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
                         Items ({order.items.length})
                       </p>
                       <div className="space-y-1.5">
@@ -559,8 +559,8 @@ export default function BuyerPurchasesPage() {
                     {/* Total Amount & Payment */}
                     <div className="grid md:grid-cols-2 gap-3">
                       <div className="flex justify-between items-center p-3.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                        <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                          Total
+                          <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                          {t("profile.singlePurchase.totalAmount")}
                         </span>
                         <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                           ₹
@@ -580,7 +580,7 @@ export default function BuyerPurchasesPage() {
                           <p className="text-xs text-purple-700 dark:text-purple-400 font-semibold">
                             Payment
                           </p>
-                          <p className="text-sm font-bold text-purple-900 dark:text-purple-200">
+                            <p className="text-sm font-bold text-purple-900 dark:text-purple-200">
                             {order.hasPayment ? "Completed" : "Pending"}
                           </p>
                         </div>
@@ -594,12 +594,12 @@ export default function BuyerPurchasesPage() {
                         href={`/profile/buyer/my-purchases/single-purchase?orderid=${order._id}`}
                         className="flex-1 sm:flex-initial"
                       >
-                        <Button
+                          <Button
                           size="sm"
                           className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white shadow-sm hover:shadow-md transition-all"
                         >
                           <Eye className="h-4 w-4" />
-                          View Details
+                          {t("profile.myPurchases.actions.viewDetails")}
                           <ArrowRight className="h-3 w-3" />
                         </Button>
                       </Link>
@@ -620,7 +620,7 @@ export default function BuyerPurchasesPage() {
                           }
                         >
                           <XCircle className="h-4 w-4" />
-                          <span className="hidden sm:inline">Cancel</span>
+                          <span className="hidden sm:inline">{t("profile.myPurchases.actions.cancel")}</span>
                         </Button>
                       )}
 
@@ -642,7 +642,7 @@ export default function BuyerPurchasesPage() {
                           >
                             <Truck className="h-4 w-4" />
                             <span className="hidden sm:inline">
-                              Out for Pickup
+                              {t("profile.myPurchases.actions.outForPickup")}
                             </span>
                           </Button>
                         )}
@@ -664,7 +664,7 @@ export default function BuyerPurchasesPage() {
                           >
                             <CheckCircle className="h-5 w-5" />
                             <span className="hidden sm:inline">
-                              Confirm Pickup
+                              {t("profile.myPurchases.actions.confirmPickup")}
                             </span>
                           </Button>
                         )}
@@ -679,7 +679,7 @@ export default function BuyerPurchasesPage() {
                           }
                         >
                           <CreditCard className="h-4 w-4" />
-                          <span className="hidden sm:inline">Pay Now</span>
+                          <span className="hidden sm:inline">{t("profile.myPurchases.actions.payNow")}</span>
                         </Button>
                       )}
                     </div>

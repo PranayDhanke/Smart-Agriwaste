@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sheet,
   SheetContent,
@@ -17,6 +18,7 @@ export default function FloatingCart() {
   const { isSignedIn, user } = useUser();
   const { cartItems } = useCart();
   const [open, setOpen] = useState(false);
+  const t = useTranslations("faq");
 
   const role = user?.unsafeMetadata?.role;
 
@@ -31,7 +33,7 @@ export default function FloatingCart() {
             "fixed bottom-5 right-5 z-[100] flex items-center justify-center w-14 h-14 rounded-full bg-green-600 text-white shadow-lg transition",
             open ? "opacity-0 pointer-events-none" : "hover:bg-green-700"
           )}
-          aria-label="Open cart"
+          aria-label={t("floatingCart.openCart")}
         >
           <FiShoppingCart className="h-6 w-6" />
 
@@ -44,8 +46,8 @@ export default function FloatingCart() {
       </SheetTrigger>
 
       {/* Cart Drawer */}
-      <SheetContent side="right" className="p-2 w-[340px] sm:w-[500px]">
-        <SheetTitle>Your Cart</SheetTitle>
+        <SheetContent side="right" className="p-2 w-[340px] sm:w-[500px]">
+        <SheetTitle>{t("floatingCart.yourCart")}</SheetTitle>
         <CartDrawer />
       </SheetContent>
     </Sheet>

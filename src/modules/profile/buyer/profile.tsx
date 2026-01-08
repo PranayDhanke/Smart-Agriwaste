@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const formSchema = z.object({
   phone: z.string().optional(),
@@ -34,21 +35,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Field labels mapping
-const fieldLabels: Record<string, string> = {
-  phone: "Phone Number",
-  aadharnumber: "Aadhar Number",
-  state: "State",
-  district: "District",
-  taluka: "Taluka",
-  village: "Village",
-  houseBuildingName: "House/Building Name",
-  roadarealandmarkName: "Road, Area, Landmark Name",
-};
+// note: labels use translations via next-intl
 
 export default function Profile() {
   const { user } = useUser();
   const router = useRouter();
+  const t = useTranslations("faq");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -153,32 +145,30 @@ export default function Profile() {
       );
 
       if (res.status >= 200 && res.status < 300) {
-        toast.success("Buyer profile updated");
+        toast.success(t("profile.buyerProfile.toasts.updated"));
         // optional: navigate to dashboard
         // router.push("/profile/buyer");
       } else {
-        toast.error("Failed to update profile. Please try again.");
+        toast.error(t("profile.buyerProfile.toasts.updateFailed"));
       }
     } catch (err) {
       console.error("Profile update failed:", err);
-      toast.error("Something went wrong, please try again.");
+      toast.error(t("profile.buyerProfile.toasts.updateFailed"));
     }
   };
 
-  if (!user) return <p className="text-center py-10">Loading user...</p>;
+  if (!user) return <p className="text-center py-10">{t("profile.buyerProfile.loadingUser")}</p>;
   if (isLoading)
-    return <p className="text-center py-10">Loading buyer data...</p>;
+    return <p className="text-center py-10">{t("profile.buyerProfile.loadingData")}</p>;
 
   return (
     <div className="container py-10">
       <Card className="max-w-4xl mx-auto border-gray-200 shadow-lg">
         <CardHeader className="bg-blue-50">
           <CardTitle className="text-2xl font-bold text-blue-700">
-            Buyer Profile
+            {t("profile.buyerProfile.title")}
           </CardTitle>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage your personal and contact information
-          </p>
+          <p className="text-sm text-gray-600 mt-1">{t("profile.buyerProfile.subtitle")}</p>
         </CardHeader>
 
         <CardContent className="pt-6">
@@ -195,11 +185,11 @@ export default function Profile() {
               {/* Account Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Account Information
+                  {t("profile.buyerProfile.headings.accountInformation")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <FormLabel className="text-gray-700">First Name</FormLabel>
+                    <FormLabel className="text-gray-700">{t("profile.buyerProfile.labels.firstName")}</FormLabel>
                     <Input
                       value={user?.firstName || ""}
                       disabled
@@ -207,7 +197,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Last Name</FormLabel>
+                    <FormLabel className="text-gray-700">{t("profile.buyerProfile.labels.lastName")}</FormLabel>
                     <Input
                       value={user?.lastName || ""}
                       disabled
@@ -215,7 +205,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Username</FormLabel>
+                    <FormLabel className="text-gray-700">{t("profile.buyerProfile.labels.username")}</FormLabel>
                     <Input
                       value={user?.username || ""}
                       disabled
@@ -224,7 +214,7 @@ export default function Profile() {
                   </div>
                   <div>
                     <FormLabel className="text-gray-700">
-                      Email Address
+                      {t("profile.buyerProfile.labels.emailAddress")}
                     </FormLabel>
                     <Input
                       value={user?.primaryEmailAddress?.emailAddress || ""}
@@ -240,33 +230,33 @@ export default function Profile() {
               {/* Contact Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Contact & Personal Details
+                  {t("profile.buyerProfile.headings.contactPersonalDetails")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700">
-                          {fieldLabels.phone}
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter phone number" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700">
+                              {t("profile.buyerProfile.labels.phone")}
+                            </FormLabel>
+                            <FormControl>
+                              <Input placeholder={t("profile.buyerProfile.labels.phone")} {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                   <FormField
                     control={form.control}
                     name="aadharnumber"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700">
-                          {fieldLabels.aadharnumber}
+                          {t("profile.buyerProfile.labels.aadharnumber")}
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter Aadhar number" {...field} />
+                          <Input placeholder={t("profile.buyerProfile.labels.aadharnumber")} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -279,7 +269,7 @@ export default function Profile() {
               {/* Address Details */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Address Details
+                  {t("profile.buyerProfile.headings.addressDetails")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   {[
@@ -297,13 +287,13 @@ export default function Profile() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-gray-700">
-                            {fieldLabels[key]}
+                            {t(`profile.buyerProfile.labels.${key}`)}
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={`Enter ${fieldLabels[
-                                key
-                              ].toLowerCase()}`}
+                              placeholder={t(
+                                `profile.buyerProfile.labels.${key}`
+                              )}
                               {...field}
                             />
                           </FormControl>
@@ -319,7 +309,7 @@ export default function Profile() {
               {/* Document */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Document
+                  {t("profile.buyerProfile.headings.document")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-8">
                   <FormField
@@ -328,7 +318,7 @@ export default function Profile() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700">
-                          Aadhar Document
+                          {t("profile.buyerProfile.labels.aadharUrl")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -362,7 +352,7 @@ export default function Profile() {
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-base font-semibold"
                 >
-                  Save Changes
+                  {t("profile.buyerProfile.buttons.saveChanges")}
                 </Button>
               </div>
             </form>

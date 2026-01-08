@@ -46,5 +46,44 @@
       "subtitle": "Discover the best methods and processes for managing different types of agricultural waste.",
       "title": "Need Waste Management Guidance?"
     }
-  
+    ,
+    "about": {
+      "hero": {
+        "title": "About Us",
+        "subtitle": "Our Agriculture Waste Management platform helps farmers and communities turn agricultural residues into valuable resources."
+      },
+      "mission": {
+        "title": "Our Mission",
+        "content": "To empower farmers and rural communities with sustainable waste management solutions that reduce pollution and improve incomes."
+      },
+      "vision": {
+        "title": "Our Vision",
+        "content": "A future where agricultural waste is transformed into compost, energy, or materials, supporting a cleaner, greener ecosystem."
+      },
+      "cta": {
+        "title": "Join Our Mission",
+        "description": "Whether you’re a farmer, entrepreneur, or eco-conscious citizen, be a part of the change.",
+        "button": "Explore Marketplace"
+      }
+    },
+    "contact": {
+      "hero": {
+        "title": "Contact Us",
+        "subtitle": "We’d love to hear from you. Reach out for support, questions, or collaboration."
+      },
+      "form": {
+        "title": "Send us a Message",
+        "namePlaceholder": "Your Name",
+        "emailPlaceholder": "Your Email",
+        "messagePlaceholder": "Your Message",
+        "submit": "Send Message",
+        "thanks": "Thank you! We'll get back to you soon."
+      },
+      "info": {
+        "title": "Get in Touch",
+        "email": "support@agriplatform.com",
+        "phone": "+91 98765 43210",
+        "address": "Pune, Maharashtra, India"
+      }
+    }
 }

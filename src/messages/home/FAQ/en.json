@@ -42,4 +42,843 @@
     "description": "Our team is here to help you with any queries about the platform or waste management.",
     "button": "Visit Community Forum"
   }
-}
+  ,
+  "community": {
+    "title": "Community",
+    "subtitle": "Connect with farmers, buyers and experts",
+    "intro": {
+      "heading": "Community",
+      "description": "Connect with farmers, experts, and innovators who are passionate about sustainable agriculture waste management. Share ideas, ask questions, and collaborate!",
+      "joinButton": "Join the Discussion"
+    },
+    "cards": {
+      "title": "Why Join Our Community?",
+      "connect": {
+        "title": "Connect",
+        "description": "Meet other farmers, researchers, and eco-entrepreneurs who share your goals."
+      },
+      "share": {
+        "title": "Share",
+        "description": "Post your challenges, success stories, and ask questions to learn together."
+      },
+      "learn": {
+        "title": "Learn",
+        "description": "Discover innovative waste management practices and earn from your knowledge."
+      }
+    },
+    "discussion": {
+      "title": "Discussions",
+      "empty": "No discussions yet. Start the conversation!",
+      "reply": "Reply",
+      "like": "Like",
+      "searchPlaceholder": "Search discussions...",
+      "inputPlaceholder": "Type a message...",
+      "offlinePlaceholder": "Can't send while offline",
+      "signInButton": "Sign In to Chat",
+      "sendButton": "Send"
+    }
+  }
+  ,
+  "extra": {
+    "notifications": {
+      "title": "Notifications",
+      "empty": "No notifications yet"
+    },
+    "signup": {
+      "title": "Create an account",
+      "subtitle": "Choose the role that best describes you — we’ll tailor the signup experience.",
+      "roles": {
+        "farmer": "Farmer",
+        "buyer": "Buyer"
+      },
+      "footer": "By continuing you agree to our Terms and Privacy Policy.",
+      "buttons": {
+        "signin": "Already have an account?",
+        "cancel": "Cancel"
+      }
+    },
+    "createAccountRedirect": {
+      "loading": "Redirecting to account creation..."
+    },
+    "enablePermission": {
+      "title": "Enable Notifications"
+    }
+  }
+    ,
+    "marketplace": {
+      "hero": {
+        "title": "Marketplace",
+        "subtitle": "Connect with sustainable solutions. Buy and sell agricultural waste products responsibly."
+      },
+      "searchPlaceholder": "Search waste products, categories, or sellers...",
+      "pills": {
+        "allProducts": "All Products"
+      },
+      "categories": {
+        "crop": "Crop",
+        "fruit": "Fruit",
+        "vegetable": "Vegetable"
+      },
+      "filters": {
+        "show": "Show",
+        "hide": "Hide",
+        "label": "Filters",
+        "clearAll": "Clear all",
+        "location": "Location",
+        "minPrice": "Min Price (₹)",
+        "maxPrice": "Max Price (₹)",
+        "sortBy": "Sort By",
+        "locationPlaceholder": "City / District",
+        "minPricePlaceholder": "0",
+        "maxPricePlaceholder": "10000"
+      },
+      "sortOptions": {
+        "recent": "Most Recent",
+        "price-asc": "Price: Low to High",
+        "price-desc": "Price: High to Low",
+        "name": "Name (A–Z)"
+      },
+      "results": {
+        "activeListings": "listings active",
+        "showing": "Showing",
+        "product": "product",
+        "products": "products",
+        "filtersApplied": "Filters applied:"
+      },
+      "actions": {
+        "loginToBuy": "Login as Buyer to buy item",
+        "cart": "Cart",
+        "negotiate": "🤝 Negotiate",
+        "view": "View",
+        "clearFilters": "Clear Filters",
+        "addedToCart": "{title} added to cart",
+        "addToCart": "Add to Cart",
+        "proceedToCheckout": "Proceeding to checkout with {count} unit(s)",
+        "shareUnsupported": "Share functionality not supported on this browser",
+        "backToMarketplace": "Back to Marketplace",
+        "inStock": "In Stock",
+        "viewAll": "View All"
+      },
+      "productPage": {
+        "buyNow": "Buy Now",
+        "sellerHeading": "Seller Information",
+        "verifiedSeller": "Verified Seller",
+        "contactSeller": "Contact Seller",
+        "importantTitle": "Important Information",
+        "importantBody": "Please verify product quality and quantity upon delivery. Contact the seller for any specific requirements or bulk orders.",
+        "relatedTitle": "Similar Products",
+        "relatedSubtitle": "You might also be interested in these",
+        "relatedEmpty": "Related products will appear here"
+      },
+
+      "productDetails":{
+        "inclusiveTaxes":"Inclusive of all taxes",
+        "moisture":"Moisture",
+        "quantity":"Quantity",
+        "location":"Location",
+        "type":"Type",
+        "productDescriptionHeading":"Product Description",
+        "selectQuantity":"Select Quantity",
+        "totalPrice":"Total Price",
+        "save":"Save",
+        "saved":"Saved",
+        "share":"Share"
+      },
+      "noResults": {
+        "title": "No products found",
+        "description": "Try adjusting your search filters or explore other categories",
+        "button": "Clear Filters"
+      }
+    }
+  ,
+  "negotiation":{
+    "title":"Price Negotiation",
+    "description":"Negotiate directly with the farmer for this product",
+    "pendingRequests":"{count} Pending Request{plural}",
+    "close":"Close",
+    "yourOffer":"Your Offer",
+    "listedPrice":"Listed Price: ₹{price} / {unit}",
+    "sending":"Sending...",
+    "submit":"Submit Negotiation",
+    "loadingFailed":"Failed to load negotiations",
+    "errors":{
+      "invalidPrice":"Please enter a valid price",
+      "mustBeLower":"Negotiated price must be lower than listed price"
+    },
+    "success":"Negotiation request sent to seller",
+    "failure":"Failed to send negotiation request",
+    "toasts":{
+      "accepted":"✓ Negotiation accepted successfully",
+      "rejected":"✗ Negotiation rejected",
+      "actionFailed":"Action failed. Please try again."
+    },
+    "notification":{
+      "title":"Negotiation Request {action}",
+      "message":"Farmer {farmer} has {action} Negotiation Request for the Product {title}."
+    },
+    "empty":{
+      "title":"No negotiation requests yet",
+      "body":"When buyers make offers on your products, they will appear here"
+    },
+    "labels":{
+      "product":"Product Name :",
+      "offerFrom":"Offer from",
+      "moisture":"Moisture",
+      "yourPrice":"Your Price",
+      "theirOffer":"Their Offer"
+    },
+    "priceComparison":{
+      "below":"{percent}% below your asking price (₹{absDiff} less)"
+    },
+    "actions":{
+      "reject":"Reject Offer",
+      "accept":"Accept Offer"
+    },
+    "status":{
+      "accepted":"✓ You accepted this offer",
+      "rejected":"✗ You rejected this offer"
+    },
+    "notificationTitle":"New Negotiation Request",
+    "notificationMessage":"Buyer {buyer} sent a negotiation request for the Product {title}."
+  },
+  "cart":{
+    "emptyTitle":"Your cart is empty",
+    "emptyDescription":"Add products to place an order",
+    "browseButton":"Browse Products",
+    "orderSummary":"Order Summary",
+    "deliveryMethod":"Delivery Method",
+    "deliveryOptions":{
+      "pickup":"Pickup by you",
+      "farmerDelivery":"Farmer Delivery"
+    },
+    "deliveryChargesNotice":"Delivery charges may apply for farmer delivery",
+    "total":"Total",
+    "clearCart":"Clear Cart",
+    "selectDelivery":"Please select delivery method",
+    "orderPlaced":"Order placed successfully",
+    "proceedCheckout":"Proceed to Checkout",
+    "selectPaymentAndDelivery":"Select payment & delivery method",
+    "notificationTitle":"New Order Placed",
+    "notificationMessage":"New Order Placed by Buyer {buyer}"
+  },
+  "floatingCart":{
+    "openCart":"Open cart",
+    "yourCart":"Your Cart"
+  }
+  ,
+  "process":{
+    "pleaseChoose":"Please choose waste type, product and moisture level.",
+    "noGuidanceForType":"We don't have guidance for \"{type}\". Try a different type.",
+    "noGuidanceForProduct":"No guidance found for \"{product}\". Try a similar product.",
+    "noRecommendation":"No recommendation available. Try different options.",
+    "unexpectedError":"Unexpected error — please try again.",
+    "copiedClipboard":"Recommendation copied to clipboard!",
+    "copyFailed":"Unable to copy. Try download instead.",
+    "downloadFilenameDefault":"recommendation",
+
+    "readyTitle":"Ready to Go!",
+    "stepByStep":"Step-by-step plan",
+    "whatYouNeed":"What you'll need",
+    "effortLevel":"Effort level",
+    "importantNotes":"Important notes",
+    "copy":"Copy",
+    "download":"Download",
+    "quickTips":"Quick tips",
+    "tip1":"Remove plastics & metal before processing",
+    "tip2":"Keep compost piles moist, turn weekly",
+    "closeResult":"Close result",
+
+    "sidebar":{
+      "quickReference":"Quick reference",
+      "faq":"FAQ",
+      "getStarted":"Get started",
+      "steps":{
+        "step1":"Try a preset for quick results",
+        "step2":"Fill your details",
+        "step3":"Get your plan & share it"
+      }
+    },
+
+    "quickRef":{
+      "dry":"Dry = good for compost/drying",
+      "semiwet":"Semi-wet = pre-dry or mix"
+    },
+
+    "faq":{
+      "machineQuestion":"Do I need a machine?",
+      "machineAnswer":"Composting & drying are manual. Pelletizing needs equipment.",
+      "freeQuestion":"Is this free?",
+      "freeAnswer":"Yes! Information only. Consult suppliers for facilities."
+    },
+
+    "header":{
+      "title":"Smart Waste Management",
+      "subtitle":"Get a simple step-by-step plan for your waste"
+    },
+
+    "form":{
+      "title":"Tell us about your waste",
+      "subtitle":"Pick the options below — we'll suggest an easy process.",
+      "selectWasteType":"Select waste type",
+      "type":{
+        "crop":"🌾 Crop residues",
+        "fruit":"🍌 Fruit waste",
+        "vegetable":"🥬 Vegetable waste"
+      },
+      "productLabel":"Product *",
+      "selectProduct":"Select product",
+      "quantity":"Quantity",
+      "quantityPlaceholder":"e.g. 50",
+      "estimateIsFine":"Estimate is fine",
+      "moistureLabel":"Moisture *",
+      "moisture":{
+        "dry":"Dry",
+        "semiwet":"Semi-wet",
+        "wet":"Wet"
+      },
+      "intendedUse":"Intended Use *",
+      "intendedPlaceholder":"What do you want?",
+      "intent":{
+        "compost":"🌱 Compost",
+        "feed":"🐄 Feed",
+        "sell":"💰 Sell"
+      },
+      "contaminationLabel":"Contamination?",
+      "contamination":{
+        "no":"No",
+        "yes":"Yes (plastic/metal/chemicals)"
+      },
+      "removeBeforeProcessing":"Remove before processing",
+      "notesPlaceholder":"Add extra details — e.g., nearby facilities, weather"
+    },
+
+    "buttons":{
+      "thinking":"Thinking...",
+      "showPlan":"Show me the plan",
+      "reset":"Reset"
+    }
+  }
+  ,
+  "profile":{
+    "loading":"Loading...",
+    "authRequired":{
+      "title":"Authentication Required",
+      "description":"You must be signed in to access this page",
+      "signIn":"Go to Sign In"
+    },
+    "buyer":{
+      "createAccount":{
+        "title":"Buyer Registration",
+        "welcome":"Welcome, {name}! Let's set up your profile",
+        "section":{
+          "identity":"Identity Verification",
+          "contact":"Contact Information",
+          "location":"Location Details",
+          "address":"Address Details (Optional)"
+        },
+      
+      "headings":{
+        "accountInformation":"Account Information",
+        "contactPersonalDetails":"Contact & Personal Details",
+        "addressDetails":"Address Details",
+        "document":"Document"
+      },
+      
+          "aadharnumber":"Aadhaar Number",
+          "aadharPhoto":"Aadhaar Card Photo",
+          "phone":"Phone Number",
+          "state":"State",
+          "district":"District",
+          "taluka":"Taluka",
+          "village":"Village / City",
+          "house":"House Number / Building Name",
+          "road":"Road, Area, Landmark"
+        },
+        "placeholders":{
+          "aadharnumber":"XXXX XXXX XXXX",
+          "phone":"+91 XXXXX XXXXX",
+          "selectState":"Select State",
+          "selectDistrict":"Select District",
+          "selectStateFirst":"Select State First",
+          "selectTaluka":"Select Taluka",
+          "selectDistrictFirst":"Select District First",
+          "selectVillage":"Select Village/City",
+          "selectTalukaFirst":"Select Taluka First",
+          "houseExample":"e.g., House No. 123, Residential Complex",
+          "roadExample":"e.g., Near Town Hall, MG Road"
+        },
+        "hints":{
+          "aadharHint":"Max size: 5MB | Formats: JPG, PNG"
+        },
+        "buttons":{
+          "uploading":"Uploading Aadhaar...",
+          "creating":"Creating Profile...",
+          "complete":"Complete Registration"
+        }
+      },
+      "myPurchases":{
+        "title":"My Purchases",
+        "subtitle":"Track and manage all your orders from local farmers",
+        "searchPlaceholder":"Search orders, buyers, or products...",
+        "filters":{
+          "all":"All Orders",
+          "pending":"Pending",
+          "confirmed":"Confirmed",
+          "delivered":"Delivered",
+          "cancelled":"Cancelled"
+        },
+        "stats":{
+          "total":"Total Orders",
+          "pending":"Pending",
+          "confirmed":"Confirmed",
+          "delivered":"Delivered"
+        },
+        "empty":{
+          "title":"No Orders Yet",
+          "description":"Start shopping to see your orders here. Browse our marketplace and find great agricultural products from local farmers.",
+          "button":"Browse Products"
+        },
+        "loading":"Loading your orders...",
+        "noResultsTitle":"No orders found",
+        "noResultsDescription":"Try adjusting your search or filter to find what you are looking for.",
+        "actions":{
+          "viewDetails":"View Details",
+          "cancel":"Cancel",
+          "outForPickup":"Out for Pickup",
+          "confirmPickup":"Confirm Pickup",
+          "payNow":"Pay Now"
+        },
+        "toasts":{
+          "orderStatusChanged":"Order has been {status}",
+          "failedChange":"Failed to change order status",
+          "paymentPending":"Payment gateway coming soon!"
+        }
+      },
+      "negotiations":{
+        "title":"Your Negotiations",
+        "subtitle":"Track farmer responses and take action when available",
+        "emptyTitle":"No negotiations yet",
+        "emptyBody":"Your negotiation requests will appear here",
+        "youRequested":"You requested",
+        "lowerPrice":"lower price",
+        "difference":"₹{diff} difference",
+        "listedPrice":"Listed Price",
+        "yourOffer":"Your Offer",
+        "moisture":"Moisture",
+        "placeOrder":"Place Order",
+        "sendNew":"Send New Negotiation",
+        "toasts":{
+          "addedToCart":"Item added to cart",
+          "loadFailed":"Failed to load negotiations"
+        }
+      },
+      "buyerProfile":{
+        "loadingUser":"Loading user...",
+        "loadingData":"Loading buyer data...",
+        "title":"Buyer Profile",
+        "subtitle":"Manage your personal and contact information",
+        "labels":{
+          "phone":"Phone Number",
+          "aadharnumber":"Aadhar Number",
+          "state":"State",
+          "district":"District",
+          "taluka":"Taluka",
+          "village":"Village",
+          "houseBuildingName":"House/Building Name",
+          "roadarealandmarkName":"Road, Area, Landmark Name",
+            "firstName":"First Name",
+            "lastName":"Last Name",
+            "username":"Username",
+            "emailAddress":"Email Address",
+          "aadharUrl":"Aadhar Document"
+        },
+        "buttons":{
+          "saveChanges":"Save Changes"
+        },
+        "toasts":{
+          "updated":"Buyer profile updated",
+          "updateFailed":"Failed to update profile. Please try again.",
+          "uploadFailed":"Image upload failed"
+        }
+      },
+      "singlePurchase":{
+        "back":"Back to My Orders",
+        "loading":"Loading order details...",
+        "orderDetailsTitle":"My Order Details",
+        "orderPlacedOn":"Order placed on {date}",
+        "orderId":"Order ID:",
+        "copied":"✓ Copied!",
+        "orderStatus":"Order Status",
+        "orderDate":"Order Date",
+        "items":"Items",
+        "payment":"Payment",
+        "paid":"Paid",
+        "pending":"Pending",
+        "totalAmount":"Total Amount",
+        "deliveryProgress":"Delivery Progress",
+        "pickupProgress":"Pickup Progress",
+        "pickupLocationTitle":"Pickup Location Details",
+        "pickupLocationBody":"Please coordinate with the farmer for pickup timing. Items will be ready once the farmer confirms.",
+        "contact":"Contact",
+        "share":"Share",
+        "currentStatus":"Current Status",
+        "orderCancelled":"Order Cancelled",
+        "orderHasBeenCancelled":"Order has been cancelled",
+        "awaitingFarmerConfirmation":"⏳ Awaiting Farmer Confirmation",
+        "farmerPreparingPickup":"Farmer is preparing your items for pickup.",
+        "orderHasBeenConfirmed":"⏳ Order has been confirmed",
+        "farmerPreparedForPickup":"Farmer has prepared your items for pickup.",
+        "outForYourPickup":"🎯 Out for Your Pickup",
+        "headingToFarmerLocation":"Heading to the farmer's location to collect them.",
+        "pickupComplete":"✅ Pickup Complete",
+        "farmerInformation":"Farmer Information",
+        "farmerName":"Farmer Name",
+        "farmerLocation":"Farmer Location",
+        "orderInformation":"Order Information",
+        "paymentMethod":"Payment Method",
+        "deliveryMethod":"Delivery Method",
+        "paymentVerified":"✓ Payment Verified",
+        "orderCancelledNotice":"This order has been cancelled",
+        "orderCompleted":"Order completed successfully ✅",
+        "outForPickup":"Out for Pickup",
+        "notification": {
+          "farmerPreparingPickup": "Farmer is preparing your pickup.",
+          "outForPickup": "Your order is out for pickup.",
+          "pickupComplete": "Pickup completed.",
+          "orderCancelled": "Order was cancelled.",
+          "orderConfirmed": "Order confirmed by farmer."
+        },
+        "outForYourPickupMessage": "Buyer {buyer} is heading to the farmer's location to collect the items.",
+        "failedSetOutForPickup": "Failed to set order as out for pickup.",
+        "pickupByYou": "Pickup by You",
+        "deliveredByFarmer": "Delivered by Farmer",
+        "moisture": "{val}% moisture",
+        "paymentConfirmedBody": "Payment confirmed. Your order is being processed.",
+        "cancelOrder": "Cancel Order",
+        "confirmPickup": "Confirm Pickup",
+        "proceedPayment": "Proceed Payment",
+        "notFoundTitle": "Order Not Found",
+        "notFoundDescription": "We couldn't find the order you're looking for. Please check the order ID and try again."
+        }
+      },
+      "farmer": {
+        "createAccount": {
+          "title": "Farmer Registration",
+          "welcome": "Welcome, {name}! Let's set up your profile",
+          "authSignUp": "Go to Sign up",
+          "step": "Step {step}/2",
+          "stepLabels": {
+            "personal": "Personal Info",
+            "farm": "Farm Details"
+          },
+          "section": {
+            "identity": "Identity Verification",
+            "contact": "Contact Information",
+            "location": "Location Details"
+          },
+          "labels": {
+            "aadharnumber": "Aadhaar Number",
+            "aadharPhoto": "Aadhaar Card Photo (File Must Be Less than 1MB)",
+            "phone": "Phone Number",
+            "state": "State",
+            "district": "District",
+            "taluka": "Taluka",
+            "village": "Village / City",
+            "farmNumber": "Document Number",
+            "farmArea": "Farm Area",
+            "farmUnit": "Area Unit",
+            "totalArea": "Total Farm Area:"
+          },
+          "placeholders": {
+            "aadharnumber": "XXXX XXXX XXXX",
+            "phone": "+91 XXXXX XXXXX",
+            "selectState": "Select State",
+            "selectDistrict": "Select District",
+            "selectStateFirst": "Select State First",
+            "selectTaluka": "Select Taluka",
+            "selectDistrictFirst": "Select District First",
+            "selectVillage": "Select Village/City",
+            "selectTalukaFirst": "Select Taluka First"
+          },
+          "hints": {
+            "aadharHint": "Max size: 5MB | Formats: JPG, PNG"
+          },
+            "units": {
+              "hectareLabel": "Hectare (ha)",
+              "acreLabel": "Acre",
+              "hectares": "hectares",
+              "acres": "acres"
+            },
+          "hintsExtra": {
+            "farmNumberNote": "This is your official land ownership document number",
+            "farmdocHint": "Max size: 10MB | Formats: JPG, PNG, PDF"
+          },
+          "uploading": {
+            "aadhar": "Uploading Aadhaar...",
+            "farmdoc": "Uploading Farm Document..."
+          },
+          "validation": {
+            "fillRequired": "Please fill all required fields correctly"
+          },
+          "actions": {
+            "continueToFarmDetails": "Continue to Farm Details",
+            "backToPersonalInfo": "Back to Personal Info",
+            "creating": "Creating Profile...",
+            "completeRegistration": "Complete Registration"
+          },
+          "errors": {
+            "aadharnumber": {
+              "required": "Aadhaar is required",
+              "invalid": "Aadhaar must be 12 digits"
+            },
+            "phone": {
+              "required": "Phone number is required",
+              "invalid": "Enter valid 10-digit phone number"
+            },
+            "farmArea": {
+              "required": "Farm area is required",
+              "invalidNumber": "Enter a valid number",
+              "greaterThanZero": "Area must be greater than 0"
+            },
+            "state": { "required": "State is required" },
+            "district": { "required": "District is required" },
+            "taluka": { "required": "Taluka is required" },
+            "village": { "required": "Village/City is required" },
+            "farmNumber": { "required": "Document number is required" },
+            "aadhar": { "required": "Aadhaar file is required", "maxSize": "Aadhaar file must be less than 1MB" },
+            "farmdoc": { "required": "Farm document is required", "maxSize": "Farm document must be less than 1MB" },
+            "submit": "Please fill all required fields correctly before submitting."
+          },
+          "toasts": {
+            "createFailed": "Failed to create profile. Please try again."
+          }
+        },
+        "myListing": {
+          "title": "My Listings",
+          "subtitle": "Manage your agricultural waste inventory",
+          "searchPlaceholder": "Search your listings...",
+          "filters": {
+            "all": "All",
+            "crop": "Crops",
+            "vegetable": "Vegetables",
+            "fruit": "Fruits"
+          },
+          "resultsCount": "{shown} of {total} listings",
+          "loading": "Loading listings...",
+          "empty": {
+            "title": "No listings found",
+            "tryAdjust": "Try adjusting your search or filters",
+            "startCreate": "Start by creating your first waste listing"
+          },
+          "unknown": "Unknown",
+          "labels": {
+            "quantity": "Quantity",
+            "moisture": "Moisture"
+          },
+          "perUnit": " /{unit}",
+          "actions": {
+            "edit": "Edit",
+            "delete": "Delete"
+          },
+          "toasts": {
+            "deleted": "Listing deleted",
+            "deleteFailed": "Failed to delete listing. Please try again.",
+            "deleteError": "Delete failed. Please try again."
+          },
+          "confirmDelete": "Are you sure you want to delete this listing?"
+        },
+        "orders": {
+          "title": "Orders",
+          "subtitle": "Manage and track orders from buyers.",
+          "actions": {
+            "negotiations": "Open Negotiations",
+            "view": "View",
+            "accept": "Accept",
+            "reject": "Reject",
+            "outForDelivery": "Out for Delivery",
+            "delivered": "Mark Delivered"
+          },
+          "stats": {
+            "total": "Total Orders",
+            "pending": "Pending",
+            "confirmed": "Confirmed",
+            "delivered": "Delivered"
+          },
+          "searchPlaceholder": "Search orders, buyer names, or products...",
+          "filters": {
+            "all": "All",
+            "pending": "Pending",
+            "confirmed": "Confirmed",
+            "delivered": "Delivered",
+            "cancelled": "Cancelled"
+          },
+          "searchResults": "{count} results found",
+          "loading": "Loading orders...",
+          "empty": { "title": "No orders yet", "body": "You have no orders yet." },
+          "noResults": "No orders match your search criteria",
+          "labels": { "buyer": "Buyer" },
+          "delivery": { "deliveryByYou": "Delivery by you", "pickupByBuyer": "Pickup by buyer" },
+          "currency": "₹",
+          "totalEarning": "Order Total",
+          "paymentVerified": "✓ Payment Verified",
+          "toasts": {
+            "loadFailed": "Error loading orders. Please refresh the page.",
+            "statusUpdated": "Order {status} successfully",
+            "statusUpdateFailed": "Failed to update order status",
+            "outForDelivery": "Order marked as out for delivery",
+            "outForDeliveryFailed": "Failed to update delivery status",
+            "delivered": "Order marked as delivered",
+            "deliveredFailed": "Failed to confirm delivery"
+          },
+          "notification": {
+            "statusTitle": "Your order has been {status}",
+            "statusMessage": "Farmer {farmer} has {status} your order",
+            "outForDeliveryTitle": "Order is out for delivery",
+            "outForDeliveryMessage": "Farmer {farmer} has sent your order for delivery",
+            "deliveredTitle": "Order Delivered",
+            "deliveredMessage": "Your order from farmer {farmer} has been delivered"
+          },
+          "badges": {
+            "waitingPickup": "Waiting for Pickup",
+            "complete": "Complete",
+            "cancelled": "Cancelled"
+          }
+          ,
+          "status": {
+            "cancelled": "Cancelled",
+            "delivered": "Delivered",
+            "outForDelivery": "Out for Delivery",
+            "confirmed": "Confirmed",
+            "pending": "Pending"
+          }
+        },
+        "singleOrder": {
+          "back": "Back to Orders",
+          "loading": "Loading order details...",
+          "orderDetailsTitle": "Order Details",
+          "orderPlacedOn": "Order placed on {date}",
+          "orderIdLabel": "Order ID:",
+          "copyOrderId": "Copy Order ID",
+          "copied": "✓ Copied!",
+          "orderStatusLabel": "Order Status",
+          "totalEarning": "Total Earning",
+          "currency": "₹",
+          "items": "Items",
+          "payment": "Payment",
+          "paid": "Verified",
+          "pending": "Pending",
+          "delivery": "Delivery",
+          "byYou": "By You",
+          "pickupByBuyer": "Buyer Pickup",
+          "farmerFulfillmentProgress": "Farmer Fulfillment Progress",
+          "cancelled": "Cancelled",
+          "timeline": {
+            "received": "Received",
+            "confirmed": "Confirmed",
+            "shipped": "Shipped",
+            "complete": "Complete"
+          },
+          "cancelledNotice": "⚠️ This order has been cancelled. No further fulfillment required.",
+          "buyerFulfillmentProgress": "Buyer Fulfillment Progress",
+          "currentStatus": "Current Status",
+          "orderCancelled": "Order Cancelled",
+          "orderHasBeenCancelled": "Order has been cancelled",
+          "awaitingConfirmation": "⏳ Awaiting Your Confirmation",
+          "awaitingConfirmationBody": "Confirm the order when the preparation has been done",
+          "orderConfirmed": "⏳ Order has been confirmed",
+          "orderConfirmedBody": "You have Confirmed the order.",
+          "outForYourPickup": "🎯 Buyer is Out for Pickup",
+          "headingToYourLocation": "Heading to the your location to collect the order.",
+          "buyerWillCollect": "👤 Buyer Will Collect Items",
+          "buyerCollectInstructions": "Please ensure all items are packaged and ready for buyer collection. Items will be marked as delivered once buyer collects them.",
+          "buyerInformation": "Buyer Information",
+          "nameLabel": "Name",
+          "deliveryLocation": "Delivery Location",
+          "contact": "Contact",
+          "share": "Share",
+          "orderInformation": "Order Information",
+          "paymentMethod": "Payment Method",
+          "deliveryMethod": "Delivery Method",
+          "pickupByBuyerLabel": "Pickup by Buyer",
+          "deliveredByFarmer": "Delivery by Farmer",
+          "yourEarning": "Your Earning",
+          "orderItems": "Order Items ({count})",
+          "paymentVerified": "✓ Payment Verified",
+          "paymentVerifiedBody": "Payment confirmed. You can proceed with fulfillment.",
+          "orderCancelledShort": "This order has been cancelled",
+          "orderCompleted": "Order completed successfully ✅",
+          "acceptOrder": "Accept Order",
+          "rejectOrder": "Reject Order",
+          "markOutForDelivery": "Mark Out for Delivery",
+          "confirmDelivery": "Confirm Delivery",
+          "notFoundTitle": "Order Not Found",
+          "notFoundDescription": "We couldn't find the order you're looking for. Please check the order ID and try again."
+        },
+        "analytics": {
+          "title": "Farmer Analytics",
+          "tabs": {
+            "waste": "Waste Trends",
+            "usage": "Usage Breakdown"
+          },
+          "wasteGenerationTitle": "Monthly Waste Generation",
+          "usageTitle": "How Waste Is Used",
+          "series": {
+            "crop": "Crop Residue",
+            "veg": "Vegetable Waste",
+            "fruit": "Fruit Waste"
+          },
+          "stats": {
+            "totalWasteManaged": "Total Waste Managed",
+            "productsSold": "Products Sold",
+            "biogasProduced": "Biogas Produced"
+          }
+        }
+        ,"profile": {
+          "farmer": {
+            "profile": {
+              "title": "Farmer Profile",
+              "subtitle": "Manage your personal and farm information",
+              "loading": "Loading farmer data...",
+              "headings": {
+                "accountInformation": "Account Information",
+                "contactPersonalDetails": "Contact & Personal Details",
+                "addressDetails": "Address Details",
+                "farmInfo": "Farm Information",
+                "documents": "Documents"
+              },
+              "labels": {
+                "farmerId": "Farmer ID:",
+                "firstName": "First Name",
+                "lastName": "Last Name",
+                "username": "Username",
+                "emailAddress": "Email Address",
+                "aadharUrl": "Aadhar Document",
+                "farmDocUrl": "Farm Document"
+              },
+              "placeholders": {
+                "phone": "Enter phone number",
+                "aadharnumber": "Enter Aadhar number",
+                "state": "Enter state",
+                "district": "Enter district",
+                "taluka": "Enter taluka",
+                "village": "Enter village/city",
+                "houseBuildingName": "Enter house/building name",
+                "roadarealandmarkName": "Enter road, area, landmark",
+                "farmNumber": "Enter farm document number",
+                "farmArea": "Enter farm area",
+                "farmUnit": "Enter farm unit"
+              },
+              "actions": {
+                "saveChanges": "Save Changes"
+              }
+            }
+          }
+        }
+      },
+      "legal":{
+        "agreement":"By completing registration, you agree to our {terms} and {privacy}.",
+        "terms":"Terms of Service",
+        "privacy":"Privacy Policy"
+      }
+    }
+  

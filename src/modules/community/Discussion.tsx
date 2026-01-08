@@ -11,10 +11,12 @@ import { Send, Loader2, WifiOff, Wifi } from "lucide-react";
 import { Chats } from "@/components/types/chats";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 const SOCKET_URL = "https://smartagriwastesocketserver.onrender.com/"; // replace with your server URL
 
 export default function Discussion() {
+  const t = useTranslations("faq");
   const { user, isLoaded } = useUser();
   const [messages, setMessages] = useState<Chats[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -255,7 +257,7 @@ export default function Discussion() {
                 ></span>
               </div>
               <div>
-                <h1 className="text-white font-bold text-xl">Community Chat</h1>
+                <h1 className="text-white font-bold text-xl">{t("community.discussion.title")}</h1>
                 <p className="text-emerald-100 text-sm flex items-center gap-2">
                   {isConnected ? (
                     <span className="inline-flex items-center gap-2">
@@ -300,9 +302,9 @@ export default function Discussion() {
                   <span className="text-5xl">💭</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No messages yet
+                  {t("community.discussion.empty")}
                 </h3>
-                <p className="text-gray-500">Be the first to start the conversation!</p>
+                <p className="text-gray-500">{t("community.discussion.empty")}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -372,9 +374,7 @@ export default function Discussion() {
                       sendMessage();
                     }
                   }}
-                  placeholder={
-                    isConnected ? "Type a message..." : "Can't send while offline"
-                  }
+                  placeholder={isConnected ? t("community.discussion.inputPlaceholder") : t("community.discussion.offlinePlaceholder")}
                   disabled={isSending || !isConnected}
                   className="w-full bg-gray-100 border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-full px-6 py-3 h-12 text-sm placeholder:text-gray-500"
                 />
@@ -383,7 +383,7 @@ export default function Discussion() {
               {!user ? (
                 <Link href="/sign-in">
                   <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-full h-12 px-6 shadow-lg hover:shadow-xl transition-all">
-                    Sign In to Chat
+                    {t("community.discussion.signInButton")}
                   </Button>
                 </Link>
               ) : (
