@@ -3,6 +3,7 @@ import React from "react";
 import { FiPackage, FiShoppingBag, FiX } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const RoleCard: React.FC<{
   href: string;
@@ -53,6 +54,13 @@ const RoleCard: React.FC<{
 
 const SignUpPopUp: React.FC = () => {
   const router = useRouter();
+  const t = useTranslations("extra");
+
+  const farmerTitle = t("SignUpPopUp.roles.farmer.title");
+  const farmerSubtitle = t("SignUpPopUp.roles.farmer.subtitle");
+  const farmerBadge = t("SignUpPopUp.roles.farmer.badge");
+  const buyerTitle = t("SignUpPopUp.roles.buyer.title");
+  const buyerSubtitle = t("SignUpPopUp.roles.buyer.subtitle");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -77,18 +85,15 @@ const SignUpPopUp: React.FC = () => {
               id="signup-modal-title"
               className="text-lg font-bold text-gray-900"
             >
-              Create an account
+              {t("SignUpPopUp.title")}
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Choose the role that best describes you — we’ll tailor the signup
-              experience.
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{t("SignUpPopUp.subtitle")}</p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.back()}
-              aria-label="Close sign up modal"
+              aria-label={t("SignUpPopUp.closeAria")}
               className="rounded-md p-2 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             >
               <FiX className="h-5 w-5" />
@@ -100,17 +105,17 @@ const SignUpPopUp: React.FC = () => {
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <RoleCard
             href="/sign-up?role=farmer"
-            title="Farmer"
-            subtitle="Sell your agricultural waste and get best offers."
+            title={farmerTitle}
+            subtitle={farmerSubtitle}
             Icon={FiPackage}
             accent="green"
-            badge="Recommended"
+            badge={farmerBadge}
           />
 
           <RoleCard
             href="/sign-up?role=buyer"
-            title="Buyer"
-            subtitle="Purchase quality agricultural materials and bulk lots."
+            title={buyerTitle}
+            subtitle={buyerSubtitle}
             Icon={FiShoppingBag}
             accent="blue"
           />
@@ -118,22 +123,23 @@ const SignUpPopUp: React.FC = () => {
 
         {/* footer */}
         <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
-          <p className="text-xs text-gray-500">
-            By continuing you agree to our{" "}
+            <p className="text-xs text-gray-500">
+            {t("SignUpPopUp.terms")} {" "}
             <Link
               className="font-medium text-indigo-600 underline"
               href="/terms"
               onClick={(e) => e.stopPropagation()}
             >
-              Terms
+              {t("SignUpPopUp.terms")}
             </Link>{" "}
-            and{" "}
+            {"and"}
+            {" "}
             <Link
               className="font-medium text-indigo-600 underline"
               href="/privacy"
               onClick={(e) => e.stopPropagation()}
             >
-              Privacy Policy
+              {t("SignUpPopUp.privacy")}
             </Link>
             .
           </p>
@@ -143,13 +149,13 @@ const SignUpPopUp: React.FC = () => {
               onClick={() => router.push("/sign-in")}
               className="rounded-md bg-transparent px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             >
-              Already have an account?
+              {t("SignUpPopUp.already")}
             </button>
             <button
               onClick={() => router.back()}
               className="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             >
-              Cancel
+              {t("SignUpPopUp.cancel")}
             </button>
           </div>
         </div>

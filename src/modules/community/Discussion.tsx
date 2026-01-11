@@ -11,10 +11,12 @@ import { Send, Loader2, WifiOff, Wifi } from "lucide-react";
 import { Chats } from "@/components/types/chats";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 const SOCKET_URL = "https://smartagriwastesocketserver.onrender.com/"; // replace with your server URL
 
 export default function Discussion() {
+  const t = useTranslations("community");
   const { user, isLoaded } = useUser();
   const [messages, setMessages] = useState<Chats[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -62,7 +64,7 @@ export default function Discussion() {
     };
     const onDisconnect = () => {
       setIsConnected(false);
-      if (mountedRef.current) toast.error("Disconnected from chat.");
+      if (mountedRef.current) toast.error(t("errors.disconnected"));
     };
 
     const onReconnectAttempt = (attempt: number) => {
@@ -95,18 +97,18 @@ export default function Discussion() {
       console.error("History load failed");
       if (mountedRef.current) {
         setLoading(false);
-        toast.error("Failed to load chat history.");
+        toast.error(t("errors.historyFailed"));
       }
     });
 
     socket.on("send-error", () => {
       console.error("Send failed");
-      if (mountedRef.current) toast.error("Message failed to send.");
+      if (mountedRef.current) toast.error(t("errors.sendFailed"));
     });
 
     socket.on("connect_error", () => {
       console.error("connect_error");
-      if (mountedRef.current) toast.error("Unable to connect to chat server.");
+      if (mountedRef.current) toast.error(t("errors.connectFailed"));
     });
 
     return () => {
@@ -190,8 +192,8 @@ export default function Discussion() {
   const sendMessage = async () => {
     if (!newMessage.trim() || isSending) return;
 
-    if (!isConnected) {
-      toast.error("You're offline. Message won't send.");
+      if (!isConnected) {
+      toast.error(t("errors.offlineSend"));
       return;
     }
 
@@ -215,7 +217,7 @@ export default function Discussion() {
           if (ack && ack.saved) {
             const saved = normalizeServerMessage(ack.saved);
             replaceTempOrAppend(saved);
-          }
+              }
         }
       );
     } catch (err) {
@@ -255,7 +257,7 @@ export default function Discussion() {
                 ></span>
               </div>
               <div>
-                <h1 className="text-white font-bold text-xl">Community Chat</h1>
+                <h1 className="text-white font-bold text-xl">{t("discussion.chatTitle")}</h1>
                 <p className="text-emerald-100 text-sm flex items-center gap-2">
                   {isConnected ? (
                     <span className="inline-flex items-center gap-2">
@@ -272,7 +274,7 @@ export default function Discussion() {
             </div>
             <div className="">
               <div className="text-white text-sm mr-2">
-                {user ? `Signed in as ${username}` : "Guest"}
+                {user ? t("discussion.signedInAs", { username }) : t("discussion.guest")}
               </div>
             </div>
           </div>
@@ -299,10 +301,8 @@ export default function Discussion() {
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-4">
                   <span className="text-5xl">💭</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  No messages yet
-                </h3>
-                <p className="text-gray-500">Be the first to start the conversation!</p>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">{t("discussion.noMessages")}</h3>
+                <p className="text-gray-500">{t("discussion.beFirst")}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -348,9 +348,9 @@ export default function Discussion() {
                             {msg.message}
                           </p>
                         </div>
-                        <span className="text-[10px] text-gray-500 mt-1 px-3">
-                          {formatTime()}
-                        </span>
+                                <span className="text-[10px] text-gray-500 mt-1 px-3">
+                                  {formatTime()}
+                                </span>
                       </div>
                     </div>
                   );
@@ -372,9 +372,7 @@ export default function Discussion() {
                       sendMessage();
                     }
                   }}
-                  placeholder={
-                    isConnected ? "Type a message..." : "Can't send while offline"
-                  }
+                  placeholder={isConnected ? t("discussion.placeholder") : t("discussion.offlinePlaceholder")}
                   disabled={isSending || !isConnected}
                   className="w-full bg-gray-100 border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-full px-6 py-3 h-12 text-sm placeholder:text-gray-500"
                 />
@@ -383,7 +381,7 @@ export default function Discussion() {
               {!user ? (
                 <Link href="/sign-in">
                   <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-full h-12 px-6 shadow-lg hover:shadow-xl transition-all">
-                    Sign In to Chat
+                    {t("discussion.signInToChat")}
                   </Button>
                 </Link>
               ) : (
@@ -391,7 +389,7 @@ export default function Discussion() {
                   onClick={sendMessage}
                   disabled={!newMessage.trim() || isSending || !isConnected}
                   className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-full h-12 w-12 p-0 shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-                  aria-label="send message"
+                  aria-label={t("discussion.sendAria")}
                 >
                   {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                 </Button>

@@ -2,6 +2,7 @@
 
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -51,6 +52,7 @@ interface FormErrors {
 export default function CreateAccount() {
 
   const { user, isLoaded, isSignedIn } = useUser();
+  const t = useTranslations("profile.buyer.CreateAccount");
   const router = useRouter();
   const Address: AddressType = addressJson;
 
@@ -86,7 +88,7 @@ export default function CreateAccount() {
       case "aadharnumber":
         const aadharClean = (value as string).replace(/\s/g, "");
         if (!/^\d{12}$/.test(aadharClean)) {
-          newErrors.aadharnumber = "Aadhaar must be 12 digits";
+          newErrors.aadharnumber = t("errors.aadhaar12");
         } else {
           delete newErrors.aadharnumber;
         }
@@ -95,7 +97,7 @@ export default function CreateAccount() {
       case "phone":
         const phoneClean = (value as string).replace(/[\s\-\+]/g, "");
         if (!/^\d{10}$/.test(phoneClean) && !/^91\d{10}$/.test(phoneClean)) {
-          newErrors.phone = "Enter valid 10-digit phone number";
+          newErrors.phone = t("errors.phoneInvalid");
         } else {
           delete newErrors.phone;
         }
@@ -103,7 +105,7 @@ export default function CreateAccount() {
 
       case "aadhar":
         if (value && (value as File).size > 5 * 1024 * 1024) {
-          newErrors.aadhar = "File size must be less than 5MB";
+          newErrors.aadhar = t("errors.fileSize");
         } else {
           delete newErrors.aadhar;
         }
@@ -140,7 +142,7 @@ export default function CreateAccount() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-green-600" />
-          <span className="text-green-600 text-lg font-medium">Loading...</span>
+          <span className="text-green-600 text-lg font-medium">{t("loading")}</span>
         </div>
       </div>
     );
@@ -154,17 +156,13 @@ export default function CreateAccount() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Authentication Required
-            </h2>
-            <p className="text-gray-600">
-              You must be signed in to access this page
-            </p>
+            <h2 className="text-xl font-semibold text-gray-900">{t("authRequiredTitle")}</h2>
+            <p className="text-gray-600">{t("authRequiredDesc")}</p>
             <Button
               onClick={() => router.push("/sign-up?role=buyer")}
               className="w-full bg-green-600 hover:bg-green-700"
             >
-              Go to Sign In
+              {t("goToSignIn")}
             </Button>
           </div>
         </Card>
@@ -223,7 +221,7 @@ export default function CreateAccount() {
     try {
       let aadharUrl = "";
       if (form.aadhar) {
-        toast.loading("Uploading Aadhaar...");
+        toast.loading(t("uploadingAadhaar"));
         aadharUrl = await uploadToImageKit(form.aadhar, "aadhar");
       }
 
@@ -248,11 +246,11 @@ export default function CreateAccount() {
       if (res.status >= 200 && res.status < 300) {
         router.push("/?success=profile-created");
       } else {
-        toast.error("Failed to create profile. Please try again.");
+        toast.error(t("failedCreateProfile"));
       }
     } catch (err) {
       console.error(err);
-      setErrors({ submit: "Something went wrong. Please try again." });
+      setErrors({ submit: t("somethingWentWrong") });
     } finally {
       setLoading(false);
     }
@@ -268,12 +266,9 @@ export default function CreateAccount() {
               <Leaf className="w-8 h-8" />
             </div>
             <div className="text-center">
-              <CardTitle className="text-3xl font-bold">
-                Buyer Registration
-              </CardTitle>
+              <CardTitle className="text-3xl font-bold">{t("title")}</CardTitle>
               <CardDescription className="text-green-50 text-sm mt-1">
-                Welcome, {user.firstName}
-                {"! Let's set up your profile"}
+                {t("welcome", { name: user.firstName ?? "" })}
               </CardDescription>
             </div>
           </div>
@@ -308,21 +303,21 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <CreditCard className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Identity Verification
+                        {t("identityVerification")}
                       </h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <CreditCard className="h-3.5 w-3.5" />
-                        Aadhaar Number <span className="text-red-500">*</span>
+                        {t("aadhaarNumber")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="aadharnumber"
                         value={form.aadharnumber}
                         onChange={handleChange}
                         onBlur={() => handleBlur("aadharnumber")}
-                        placeholder="XXXX XXXX XXXX"
+                        placeholder={t("aadhaarPlaceholder")}
                         maxLength={14}
                         className={`h-12 transition-all ${
                           form.aadharnumber
@@ -346,8 +341,7 @@ export default function CreateAccount() {
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Upload className="h-3.5 w-3.5" />
-                        Aadhaar Card Photo{" "}
-                        <span className="text-red-500">*</span>
+                        {t("aadhaarPhoto")} <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -374,9 +368,7 @@ export default function CreateAccount() {
                           <AlertCircle className="h-3 w-3" /> {errors.aadhar}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500">
-                        Max size: 5MB | Formats: JPG, PNG
-                      </p>
+                      <p className="text-xs text-gray-500">{t("maxSizeNote")}</p>
                     </div>
                   </div>
 
@@ -384,15 +376,13 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Phone className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">
-                        Contact Information
-                      </h3>
+                      <h3 className="font-semibold text-gray-900">{t("contactInformation")}</h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Phone className="h-3.5 w-3.5" />
-                        Phone Number <span className="text-red-500">*</span>
+                        {t("phoneNumber")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="phone"
@@ -420,15 +410,13 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <MapPin className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">
-                        Location Details
-                      </h3>
+                      <h3 className="font-semibold text-gray-900">{t("locationDetails")}</h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          State <span className="text-red-500">*</span>
+                          {t("state")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -449,7 +437,7 @@ export default function CreateAccount() {
                                 : ""
                             }`}
                           >
-                            <SelectValue placeholder="Select State" />
+                            <SelectValue placeholder={t("selectState")} />
                           </SelectTrigger>
                           <SelectContent>
                             {Address.states.map((s) => (
@@ -463,7 +451,7 @@ export default function CreateAccount() {
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          District <span className="text-red-500">*</span>
+                          {t("district")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -486,9 +474,9 @@ export default function CreateAccount() {
                           >
                             <SelectValue
                               placeholder={
-                                form.state
-                                  ? "Select District"
-                                  : "Select State First"
+                                  form.state
+                                    ? t("selectDistrict")
+                                    : t("selectStateFirst")
                               }
                             />
                           </SelectTrigger>
@@ -506,7 +494,7 @@ export default function CreateAccount() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Taluka <span className="text-red-500">*</span>
+                          {t("taluka")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -524,9 +512,9 @@ export default function CreateAccount() {
                           >
                             <SelectValue
                               placeholder={
-                                form.district
-                                  ? "Select Taluka"
-                                  : "Select District First"
+                                  form.district
+                                    ? t("selectTaluka")
+                                    : t("selectDistrictFirst")
                               }
                             />
                           </SelectTrigger>
@@ -542,7 +530,7 @@ export default function CreateAccount() {
 
                       <div className="space-y-2">
                         <Label className="text-sm font-medium text-gray-700">
-                          Village / City <span className="text-red-500">*</span>
+                          {t("villageOrCity")} <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           onValueChange={(value:string) =>
@@ -560,9 +548,9 @@ export default function CreateAccount() {
                           >
                             <SelectValue
                               placeholder={
-                                form.taluka
-                                  ? "Select Village/City"
-                                  : "Select Taluka First"
+                                  form.taluka
+                                    ? t("selectVillage")
+                                    : t("selectTalukaFirst")
                               }
                             />
                           </SelectTrigger>
@@ -583,22 +571,18 @@ export default function CreateAccount() {
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Home className="h-4 w-4 text-green-600" />
                       <h3 className="font-semibold text-gray-900">
-                        Address Details{" "}
-                        <span className="text-xs text-gray-500 font-normal">
-                          (Optional)
-                        </span>
+                        {t("addressDetails")} {" "}
+                        <span className="text-xs text-gray-500 font-normal">{t("optional")}</span>
                       </h3>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">
-                        House Number / Building Name
-                      </Label>
+                      <Label className="text-sm font-medium text-gray-700">{t("houseBuilding")}</Label>
                       <Input
                         name="houseBuildingName"
                         value={form.houseBuildingName}
                         onChange={handleChange}
-                        placeholder="e.g., House No. 123, Residential Complex"
+                        placeholder={t("example.housePlaceholder")}
                         className={`h-12 transition-all ${
                           form.houseBuildingName
                             ? "border-green-300 bg-green-50/30"
@@ -608,14 +592,12 @@ export default function CreateAccount() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">
-                        Road, Area, Landmark
-                      </Label>
+                      <Label className="text-sm font-medium text-gray-700">{t("roadAreaLandmark")}</Label>
                       <Input
                         name="roadarealandmarkName"
                         value={form.roadarealandmarkName}
                         onChange={handleChange}
-                        placeholder="e.g., Near Town Hall, MG Road"
+                        placeholder={t("example.roadPlaceholder")}
                         className={`h-12 transition-all ${
                           form.roadarealandmarkName
                             ? "border-green-300 bg-green-50/30"
@@ -642,26 +624,22 @@ export default function CreateAccount() {
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Creating Profile...
+                        {t("creatingProfile")}
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="mr-2 h-5 w-5" />
-                        Complete Registration
+                        {t("completeRegistration")}
                       </>
                     )}
                   </Button>
                 </div>
 
                 <p className="text-center text-xs text-gray-500">
-                  By completing registration, you agree to our{" "}
-                  <span className="text-green-600 underline cursor-pointer">
-                    Terms of Service
-                  </span>{" "}
-                  and{" "}
-                  <span className="text-green-600 underline cursor-pointer">
-                    Privacy Policy
-                  </span>
+                  {t("agreeTo")} {" "}
+                  <span className="text-green-600 underline cursor-pointer">{t("terms")}</span>{" "}
+                  {t("and")}{" "}
+                  <span className="text-green-600 underline cursor-pointer">{t("privacy")}</span>
                 </p>
               </div>
             </div>

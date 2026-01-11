@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,9 @@ import axios from "axios";
 import { useNotification } from "@/components/hooks/useNotification";
 
 export default function FarmerNegotiationsPage() {
+  const t = useTranslations("profile.farmer.Negotiation");
+  const locale = useLocale();
+
   const [negotiations, setNegotiations] = useState<Negotiation[]>([]); // Replace with actual data fetching logic
 
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -47,7 +51,7 @@ export default function FarmerNegotiationsPage() {
           setNegotiations(response.data);
         }
       } catch {
-        toast.error("Failed to load negotiations");
+        toast.error(t("errors.loadFailed"));
       } finally {
         setLoading(false);
       }
@@ -87,7 +91,7 @@ export default function FarmerNegotiationsPage() {
         type: "negotiation",
       });
     } catch {
-      toast.error("Action failed. Please try again.");
+      toast.error(t("toast.actionFailed"));
     } finally {
       setLoadingId(null);
       refresh();
@@ -110,11 +114,9 @@ export default function FarmerNegotiationsPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Negotiation Requests
+              {t("title")}
             </h1>
-            <p className="text-gray-600">
-              Review and respond to buyer offers on your agricultural waste
-            </p>
+            <p className="text-gray-600">{t("subtitle")}</p>
           </div>
 
           {pendingCount > 0 && (
@@ -137,12 +139,9 @@ export default function FarmerNegotiationsPage() {
                 <Package className="h-8 w-8 text-gray-400" />
               </div>
               <p className="text-lg font-medium text-gray-900 mb-2">
-                No negotiation requests yet
+                {t("empty.title")}
               </p>
-              <p className="text-gray-500">
-                When buyers make offers on your products, {"they'll"} appear
-                here
-              </p>
+              <p className="text-gray-500">{t("empty.description")}</p>
             </CardContent>
           </Card>
         ) : (
@@ -189,14 +188,12 @@ export default function FarmerNegotiationsPage() {
                           {/* Header */}
                           <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                              Product Name :{" "}
-                              <span className="font-normal">
-                                {neg.item.title}
-                              </span>
+                              {t("productName")} :{" "}
+                              <span className="font-normal">{neg.item.title}</span>
                             </h2>
                             <p className="text-gray-600 flex items-center gap-2">
                               <User className="h-4 w-4" />
-                              Offer from{" "}
+                              {t("offerFrom")} {" "}
                               <span className="font-semibold text-gray-900">
                                 {neg.buyerName}
                               </span>
@@ -211,7 +208,7 @@ export default function FarmerNegotiationsPage() {
                               <div className="flex items-center gap-2 mb-1">
                                 <Droplets className="h-4 w-4 text-cyan-600" />
                                 <span className="text-xs font-medium text-cyan-900">
-                                  Moisture
+                                  {t("moisture")}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-cyan-900">
@@ -223,7 +220,7 @@ export default function FarmerNegotiationsPage() {
                               <div className="flex items-center gap-2 mb-1">
                                 <IndianRupee className="h-4 w-4 text-gray-600" />
                                 <span className="text-xs font-medium text-gray-700">
-                                  Your Price
+                                  {t("yourPrice")}
                                 </span>
                               </div>
                               <p className="text-lg font-bold text-gray-900">
@@ -253,7 +250,7 @@ export default function FarmerNegotiationsPage() {
                                       : "text-green-900"
                                   }`}
                                 >
-                                  Their Offer
+                                  {t("theirOffer")}
                                 </span>
                               </div>
                               <p
@@ -296,7 +293,7 @@ export default function FarmerNegotiationsPage() {
                                 disabled={loadingId === neg._id}
                               >
                                 <X className="h-5 w-5 mr-2" />
-                                Reject Offer
+                                {t("reject")}
                               </Button>
 
                               <Button
@@ -312,7 +309,7 @@ export default function FarmerNegotiationsPage() {
                                 disabled={loadingId === neg._id}
                               >
                                 <Check className="h-5 w-5 mr-2" />
-                                Accept Offer
+                                {t("accept")}
                               </Button>
                             </div>
                           )}
@@ -327,8 +324,8 @@ export default function FarmerNegotiationsPage() {
                             >
                               <p className="font-semibold">
                                 {neg.status === "accepted"
-                                  ? "✓ You accepted this offer"
-                                  : "✗ You rejected this offer"}
+                                  ? t("statusAccepted")
+                                  : t("statusRejected")}
                               </p>
                             </div>
                           )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { useUser } from "@clerk/nextjs";
 import {
   Card,
@@ -19,6 +20,8 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 export default function MyListing() {
+  const t = useTranslations("profile.farmer.MyListing");
+  const locale = useLocale();
   const { user } = useUser();
   const [search, setSearch] = useState("");
   const [listings, setListings] = useState<FarmerWasteFormData[]>([]);
@@ -66,15 +69,15 @@ export default function MyListing() {
       // show loader if needed
       const res = await axios.delete(`/api/waste/delete/${id}`);
 
-      if (res.status >= 200 && res.status < 300) {
+        if (res.status >= 200 && res.status < 300) {
         // remove from state (assumes item._id === id)
         setListings((prev) => prev.filter((item) => item._id !== id));
-        toast.success("Listing deleted");
+        toast.success(t("toast.deleted"));
       } else {
-        toast.error("Failed to delete listing. Please try again.");
+        toast.error(t("toast.deleteFailed"));
       }
     } catch {
-      toast.error("Delete failed. Please try again.");
+      toast.error(t("toast.deleteError"));
     }
   };
 
@@ -89,10 +92,8 @@ export default function MyListing() {
       <div className="max-w-7xl mx-auto">
         {/* Minimal Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Listings</h1>
-          <p className="text-gray-600">
-            Manage your agricultural waste inventory
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t("title")}</h1>
+          <p className="text-gray-600">{t("subtitle")}</p>
         </div>
 
         {/* Search Bar */}
@@ -100,7 +101,7 @@ export default function MyListing() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
-              placeholder="Search your listings..."
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10 h-12 bg-white border-gray-200 focus:border-green-500"
@@ -126,7 +127,7 @@ export default function MyListing() {
               selectedType === "all" ? "bg-green-600 hover:bg-green-700" : ""
             }
           >
-            All
+            {t("filters.all")}
           </Button>
           <Button
             variant={selectedType === "crop" ? "default" : "outline"}
@@ -138,7 +139,7 @@ export default function MyListing() {
                 : ""
             }
           >
-            Crops
+            {t("filters.crops")}
           </Button>
           <Button
             variant={selectedType === "vegetable" ? "default" : "outline"}
@@ -150,7 +151,7 @@ export default function MyListing() {
                 : ""
             }
           >
-            Vegetables
+            {t("filters.vegetables")}
           </Button>
           <Button
             variant={selectedType === "fruit" ? "default" : "outline"}
@@ -162,17 +163,17 @@ export default function MyListing() {
                 : ""
             }
           >
-            Fruits
+            {t("filters.fruits")}
           </Button>
         </div>
 
         {/* Results Count */}
         <div className="mb-4">
           <p className="text-sm text-gray-600">
-            <span className="font-semibold text-gray-900">
-              {filteredListings.length}
-            </span>{" "}
-            of <span className="font-semibold">{listings.length}</span> listings
+            {t("results", {
+              shown: filteredListings.length,
+              total: listings.length,
+            })}
           </p>
         </div>
 
@@ -180,18 +181,18 @@ export default function MyListing() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <LoaderCircle className="animate-spin w-12 h-12 mb-3" />
-            <p className="text-gray-600 text-sm">Loading listings...</p>
+            <p className="text-gray-600 text-sm">{t("loading")}</p>
           </div>
         ) : filteredListings.length === 0 ? (
           <div className="bg-white rounded-xl border p-12 text-center">
             <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No listings found
+              {t("empty.title")}
             </h3>
             <p className="text-gray-600 text-sm">
               {search || selectedType !== "all"
-                ? "Try adjusting your search or filters"
-                : "Start by creating your first waste listing"}
+                ? t("empty.tryFilters")
+                : t("empty.startCreate")}
             </p>
           </div>
         ) : (
@@ -217,7 +218,7 @@ export default function MyListing() {
                       <Package className="h-12 w-12 text-gray-300" />
                     </div>
                   )}
-                  <div className="absolute top-2 right-2">
+                    <div className="absolute top-2 right-2">
                     <Badge
                       className={`${
                         item.wasteType
@@ -225,7 +226,9 @@ export default function MyListing() {
                           : "bg-gray-100 text-gray-700"
                       } border text-xs font-medium px-2 py-0.5`}
                     >
-                      {item.wasteType || "Unknown"}
+                      {item.wasteType
+                        ? t(`wasteTypes.${item.wasteType}`, { default: item.wasteType })
+                        : t("unknown")}
                     </Badge>
                   </div>
                 </div>
@@ -243,13 +246,13 @@ export default function MyListing() {
                   {/* Info Grid */}
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <p className="text-gray-500">Quantity</p>
+                      <p className="text-gray-500">{t("labels.quantity")}</p>
                       <p className="font-medium text-gray-900">
                         {item.quantity} {item.unit}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Moisture</p>
+                      <p className="text-gray-500">{t("labels.moisture")}</p>
                       <p className="font-medium text-gray-900">
                         {item.moisture}
                       </p>
@@ -261,7 +264,7 @@ export default function MyListing() {
                     <span className="text-lg font-bold text-green-600">
                       ₹{item.price}
                     </span>
-                    <span className="text-xs text-gray-500"> /{item.unit}</span>
+                    <span className="text-xs text-gray-500">/{item.unit}</span>
                   </div>
 
                   {/* Description */}
@@ -276,7 +279,7 @@ export default function MyListing() {
                     className="flex-1 flex items-center justify-center border rounded-md h-8 text-xs hover:bg-green-50 hover:border-green-500 hover:text-green-700"
                   >
                     <Edit className="h-3.5 w-3.5 mr-1" />
-                    Edit
+                    {t("actions.edit")}
                   </Link>
                   <Button
                     variant="outline"
@@ -285,7 +288,7 @@ export default function MyListing() {
                     onClick={() => handleDelete(item._id)}
                   >
                     <Trash2 className="h-3.5 w-3.5 mr-1" />
-                    Delete
+                    {t("actions.delete")}
                   </Button>
                 </CardFooter>
               </Card>

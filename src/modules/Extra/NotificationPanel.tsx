@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Bell, XCircle } from "lucide-react";
 import { useNotification } from "@/components/hooks/useNotification";
+import { useTranslations } from "next-intl";
 
 interface NotificationPanelProps {
   open: boolean;
@@ -20,6 +21,8 @@ export default function NotificationPanel({
   open,
   onOpenChange,
 }: NotificationPanelProps) {
+  const t = useTranslations("extra");
+
   const {
     notifications,
     markAsReadNotification,
@@ -32,7 +35,7 @@ export default function NotificationPanel({
         <SheetHeader className="border-b p-4">
           <SheetTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-green-600" />
-            Notifications
+            {t("NotificationPanel.title")}
             <Badge variant="secondary">{notifications.length}</Badge>
           </SheetTitle>
         </SheetHeader>
@@ -41,7 +44,7 @@ export default function NotificationPanel({
           <div className="space-y-3 p-4">
             {notifications.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center">
-                No notifications yet
+                {t("NotificationPanel.none")}
               </p>
             ) : (
               notifications.map((n) => (

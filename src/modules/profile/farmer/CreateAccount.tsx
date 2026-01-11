@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl"
 import {
   Card,
   CardContent,
@@ -52,6 +53,7 @@ interface FormErrors {
 
 export default function CreateAccount() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const t = useTranslations("profile.farmer.CreateAccount")
   const router = useRouter();
   const Address: AddressType = addressJson;
 
@@ -92,9 +94,9 @@ export default function CreateAccount() {
       case "aadharnumber": {
         const aadharClean = (value as string).replace(/\s/g, "");
         if (!aadharClean) {
-          newErrors.aadharnumber = "Aadhaar is required";
+          newErrors.aadharnumber = t("errors.aadhaarRequired");
         } else if (!/^\d{12}$/.test(aadharClean)) {
-          newErrors.aadharnumber = "Aadhaar must be 12 digits";
+          newErrors.aadharnumber = t("errors.aadhaarDigits");
         } else {
           delete newErrors.aadharnumber;
         }
@@ -104,12 +106,12 @@ export default function CreateAccount() {
       case "phone": {
         const phoneClean = (value as string).replace(/[\s\-\+]/g, "");
         if (!phoneClean) {
-          newErrors.phone = "Phone number is required";
+          newErrors.phone = t("errors.phoneRequired");
         } else if (
           !/^\d{10}$/.test(phoneClean) &&
           !/^91\d{10}$/.test(phoneClean)
         ) {
-          newErrors.phone = "Enter valid 10-digit phone number";
+          newErrors.phone = t("errors.phoneInvalid");
         } else {
           delete newErrors.phone;
         }
@@ -118,11 +120,11 @@ export default function CreateAccount() {
 
       case "farmArea": {
         if (!value || String(value).trim() === "") {
-          newErrors.farmArea = "Farm area is required";
+          newErrors.farmArea = t("errors.farmAreaRequired");
         } else if (isNaN(Number(value))) {
-          newErrors.farmArea = "Enter a valid number";
+          newErrors.farmArea = t("errors.farmAreaNumber");
         } else if (parseFloat(value as string) <= 0) {
-          newErrors.farmArea = "Area must be greater than 0";
+          newErrors.farmArea = t("errors.farmAreaPositive");
         } else {
           delete newErrors.farmArea;
         }
@@ -131,7 +133,7 @@ export default function CreateAccount() {
 
       case "state":
         if (!value || (value as string).trim() === "") {
-          newErrors.state = "State is required";
+          newErrors.state = t("errors.stateRequired");
         } else {
           delete newErrors.state;
         }
@@ -139,7 +141,7 @@ export default function CreateAccount() {
 
       case "district":
         if (!value || (value as string).trim() === "") {
-          newErrors.district = "District is required";
+          newErrors.district = t("errors.districtRequired");
         } else {
           delete newErrors.district;
         }
@@ -147,7 +149,7 @@ export default function CreateAccount() {
 
       case "taluka":
         if (!value || (value as string).trim() === "") {
-          newErrors.taluka = "Taluka is required";
+          newErrors.taluka = t("errors.talukaRequired");
         } else {
           delete newErrors.taluka;
         }
@@ -155,7 +157,7 @@ export default function CreateAccount() {
 
       case "village":
         if (!value || (value as string).trim() === "") {
-          newErrors.village = "Village/City is required";
+          newErrors.village = t("errors.villageRequired");
         } else {
           delete newErrors.village;
         }
@@ -163,7 +165,7 @@ export default function CreateAccount() {
 
       case "farmNumber":
         if (!value || (value as string).trim() === "") {
-          newErrors.farmNumber = "Document number is required";
+          newErrors.farmNumber = t("errors.farmNumberRequired");
         } else {
           delete newErrors.farmNumber;
         }
@@ -172,9 +174,9 @@ export default function CreateAccount() {
       case "aadhar":
         // UI says max 5MB for Aadhaar
         if (!value) {
-          newErrors.aadhar = "Aadhaar file is required";
+          newErrors.aadhar = t("errors.aadharFileRequired");
         } else if ((value as File).size > 1 * 1024 * 1024) {
-          newErrors.aadhar = "Aadhaar file must be less than 1MB";
+          newErrors.aadhar = t("errors.aadharFileSize")
         } else {
           delete newErrors.aadhar;
         }
@@ -183,9 +185,9 @@ export default function CreateAccount() {
       case "farmdoc":
         // UI says max 10MB for farm doc
         if (!value) {
-          newErrors.farmdoc = "Farm document is required";
+          newErrors.farmdoc = t("errors.farmdocRequired");
         } else if ((value as File).size > 1 * 1024 * 1024) {
-          newErrors.farmdoc = "Farm document must be less than 1MB";
+          newErrors.farmdoc = t("errors.farmdocSize");
         } else {
           delete newErrors.farmdoc;
         }
@@ -217,12 +219,12 @@ export default function CreateAccount() {
     );
   };
 
-  if (!isLoaded) {
+    if (!isLoaded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin text-green-600" />
-          <span className="text-green-600 text-lg font-medium">Loading...</span>
+          <span className="text-green-600 text-lg font-medium">{t("loading")}</span>
         </div>
       </div>
     );
@@ -236,17 +238,13 @@ export default function CreateAccount() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Authentication Required
-            </h2>
-            <p className="text-gray-600">
-              You must be signed Up to access this page
-            </p>
+            <h2 className="text-xl font-semibold text-gray-900">{t("authRequired.title")}</h2>
+            <p className="text-gray-600">{t("authRequired.description")}</p>
             <Button
               onClick={() => router.push("/sign-up?role=farmer")}
               className="w-full bg-green-600 hover:bg-green-700"
             >
-              Go to Sign up
+              {t("authRequired.button")}
             </Button>
           </div>
         </Card>
@@ -445,7 +443,7 @@ export default function CreateAccount() {
     if (missing || Object.keys(errors).length > 0) {
       setErrors((prev) => ({
         ...prev,
-        submit: "Please fill all required fields correctly before submitting.",
+        submit: t("errors.submitFill"),
       }));
       setLoading(false);
       return;
@@ -456,12 +454,12 @@ export default function CreateAccount() {
       let farmDocUrl = "";
 
       if (form.aadhar) {
-        toast.loading("Uploading Aadhaar...");
+        toast.loading(t("actions.uploadingAadhaar"));
         aadharUrl = await uploadToImageKit(form.aadhar, "aadhar");
       }
 
       if (form.farmdoc) {
-        toast.loading("Uploading Farm Document...");
+        toast.loading(t("actions.uploadingFarmDoc"));
         farmDocUrl = await uploadToImageKit(form.farmdoc, "farmdoc");
       }
 
@@ -490,10 +488,10 @@ export default function CreateAccount() {
       if (res.status >= 200 && res.status < 300) {
         router.push("/?success=profile-created");
       } else {
-        toast.error("Failed to create profile. Please try again.");
+        toast.error(t("errors.createFailed"));
       }
     } catch {
-      setErrors({ submit: "Something went wrong. Please try again." });
+      setErrors({ submit: t("errors.somethingWrong") });
     } finally {
       setLoading(false);
     }
@@ -509,13 +507,8 @@ export default function CreateAccount() {
               <Leaf className="w-8 h-8" />
             </div>
             <div className="text-center">
-              <CardTitle className="text-3xl font-bold">
-                Farmer Registration
-              </CardTitle>
-              <CardDescription className="text-green-50 text-sm mt-1">
-                Welcome, {user.firstName}
-                {"! Let's set up your profile"}
-              </CardDescription>
+              <CardTitle className="text-3xl font-bold">{t("header.title")}</CardTitle>
+              <CardDescription className="text-green-50 text-sm mt-1">{t("header.description", { firstName: user.firstName || "" })}</CardDescription>
             </div>
           </div>
 
@@ -552,7 +545,7 @@ export default function CreateAccount() {
                       step >= 1 ? "text-white" : "text-green-200"
                     }`}
                   >
-                    Personal Info
+                    {t("steps.personalInfo")}
                   </span>
                 </div>
               </div>
@@ -574,7 +567,7 @@ export default function CreateAccount() {
                       step >= 2 ? "text-white" : "text-green-200"
                     }`}
                   >
-                    Farm Details
+                    {t("steps.farmDetails")}
                   </span>
                 </div>
               </div>
@@ -614,22 +607,20 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <CreditCard className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">
-                        Identity Verification
-                      </h3>
+                      <h3 className="font-semibold text-gray-900">{t("sections.identity.title")}</h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <CreditCard className="h-3.5 w-3.5" />
-                        Aadhaar Number <span className="text-red-500">*</span>
+                        {t("fields.aadhaarNumber")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="aadharnumber"
                         value={form.aadharnumber}
                         onChange={handleChange}
                         onBlur={() => handleBlur("aadharnumber")}
-                        placeholder="XXXX XXXX XXXX"
+                        placeholder={t("placeholders.aadhaar")}
                         maxLength={14}
                         className={`h-12 transition-all ${
                           form.aadharnumber
@@ -653,8 +644,7 @@ export default function CreateAccount() {
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Upload className="h-3.5 w-3.5" />
-                        Aadhaar Card Photo (File Must Be Less than 1MB){" "}
-                        <span className="text-red-500">*</span>
+                        {t("fields.aadhaarPhoto")} <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -681,9 +671,7 @@ export default function CreateAccount() {
                           <AlertCircle className="h-3 w-3" /> {errors.aadhar}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500">
-                        Max size: 5MB | Formats: JPG, PNG
-                      </p>
+                      <p className="text-xs text-gray-500">{t("hints.aadhaarFormat")}</p>
                     </div>
                   </div>
 
@@ -691,22 +679,20 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Phone className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">
-                        Contact Information
-                      </h3>
+                      <h3 className="font-semibold text-gray-900">{t("sections.contact.title")}</h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Phone className="h-3.5 w-3.5" />
-                        Phone Number <span className="text-red-500">*</span>
+                        {t("fields.phone")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="phone"
                         value={form.phone}
                         onChange={handleChange}
                         onBlur={() => handleBlur("phone")}
-                        placeholder="+91 XXXXX XXXXX"
+                        placeholder={t("placeholders.phone")}
                         maxLength={15}
                         className={`h-12 transition-all ${
                           form.phone ? "border-green-300 bg-green-50/30" : ""
@@ -727,16 +713,12 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <MapPin className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">
-                        Location Details
-                      </h3>
+                      <h3 className="font-semibold text-gray-900">{t("sections.location.title")}</h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">
-                          State <span className="text-red-500">*</span>
-                        </Label>
+                        <Label className="text-sm font-medium text-gray-700">{t("fields.state")} <span className="text-red-500">*</span></Label>
                         <Select
                           onValueChange={(value:string) => {
                             setForm({
@@ -750,14 +732,8 @@ export default function CreateAccount() {
                           }}
                           value={form.state}
                         >
-                          <SelectTrigger
-                            className={`h-12 transition-all ${
-                              form.state
-                                ? "border-green-300 bg-green-50/30"
-                                : ""
-                            }`}
-                          >
-                            <SelectValue placeholder="Select State" />
+                            <SelectTrigger className={`h-12 transition-all ${form.state ? "border-green-300 bg-green-50/30" : ""}`}>
+                            <SelectValue placeholder={t("placeholders.selectState")} />
                           </SelectTrigger>
                           <SelectContent>
                             {Address.states.map((s) => (
@@ -773,11 +749,29 @@ export default function CreateAccount() {
                           </p>
                         )}
                       </div>
+                          {form.farmArea && (
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <p className="text-sm text-blue-900">
+                                <span className="font-semibold">{t("labels.totalFarmArea")}</span>{" "}
+                                {form.farmArea} {form.farmUnit === "hectare" ? t("units.hectarePlural") : t("units.acrePlural")}
+                                {form.farmUnit === "hectare" && form.farmArea && (
+                                  <span className="text-blue-600">
+                                    {" "}
+                                    ≈ {(parseFloat(form.farmArea) * 2.471).toFixed(2)} {t("units.acrePlural")}
+                                  </span>
+                                )}
+                                {form.farmUnit === "acre" && form.farmArea && (
+                                  <span className="text-blue-600">
+                                    {" "}
+                                    ≈ {(parseFloat(form.farmArea) / 2.471).toFixed(2)} {t("units.hectarePlural")}
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                          )}
 
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">
-                          District <span className="text-red-500">*</span>
-                        </Label>
+                        <Label className="text-sm font-medium text-gray-700">{t("fields.district")} <span className="text-red-500">*</span></Label>
                         <Select
                           onValueChange={(value:string) => {
                             setForm({
@@ -791,20 +785,8 @@ export default function CreateAccount() {
                           disabled={!form.state}
                           value={form.district}
                         >
-                          <SelectTrigger
-                            className={`h-12 transition-all ${
-                              form.district
-                                ? "border-green-300 bg-green-50/30"
-                                : ""
-                            } ${!form.state ? "opacity-50" : ""}`}
-                          >
-                            <SelectValue
-                              placeholder={
-                                form.state
-                                  ? "Select District"
-                                  : "Select State First"
-                              }
-                            />
+                            <SelectTrigger className={`h-12 transition-all ${form.district ? "border-green-300 bg-green-50/30" : ""} ${!form.state ? "opacity-50" : ""}`}>
+                            <SelectValue placeholder={form.state ? t("placeholders.selectDistrict") : t("placeholders.selectStateFirst")} />
                           </SelectTrigger>
                           <SelectContent>
                             {(Address.districts[form.state] || []).map((d) => (
@@ -825,9 +807,7 @@ export default function CreateAccount() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Taluka <span className="text-red-500">*</span>
-                        </Label>
+                        <Label className="text-sm font-medium text-gray-700">{t("fields.taluka")} <span className="text-red-500">*</span></Label>
                         <Select
                           onValueChange={(value:string) => {
                             setForm({ ...form, taluka: value, village: "" });
@@ -836,20 +816,8 @@ export default function CreateAccount() {
                           disabled={!form.district}
                           value={form.taluka}
                         >
-                          <SelectTrigger
-                            className={`h-12 transition-all ${
-                              form.taluka
-                                ? "border-green-300 bg-green-50/30"
-                                : ""
-                            } ${!form.district ? "opacity-50" : ""}`}
-                          >
-                            <SelectValue
-                              placeholder={
-                                form.district
-                                  ? "Select Taluka"
-                                  : "Select District First"
-                              }
-                            />
+                            <SelectTrigger className={`h-12 transition-all ${form.taluka ? "border-green-300 bg-green-50/30" : ""} ${!form.district ? "opacity-50" : ""}`}>
+                            <SelectValue placeholder={form.district ? t("placeholders.selectTaluka") : t("placeholders.selectDistrictFirst")} />
                           </SelectTrigger>
                           <SelectContent>
                             {(Address.talukas[form.district] || []).map((t) => (
@@ -867,9 +835,7 @@ export default function CreateAccount() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Village / City <span className="text-red-500">*</span>
-                        </Label>
+                        <Label className="text-sm font-medium text-gray-700">{t("fields.village")} <span className="text-red-500">*</span></Label>
                         <Select
                           onValueChange={(value:string) => {
                             setForm({ ...form, village: value });
@@ -878,20 +844,8 @@ export default function CreateAccount() {
                           disabled={!form.taluka}
                           value={form.village}
                         >
-                          <SelectTrigger
-                            className={`h-12 transition-all ${
-                              form.village
-                                ? "border-green-300 bg-green-50/30"
-                                : ""
-                            } ${!form.taluka ? "opacity-50" : ""}`}
-                          >
-                            <SelectValue
-                              placeholder={
-                                form.taluka
-                                  ? "Select Village/City"
-                                  : "Select Taluka First"
-                              }
-                            />
+                            <SelectTrigger className={`h-12 transition-all ${form.village ? "border-green-300 bg-green-50/30" : ""} ${!form.taluka ? "opacity-50" : ""}`}>
+                            <SelectValue placeholder={form.taluka ? t("placeholders.selectVillage") : t("placeholders.selectTalukaFirst")} />
                           </SelectTrigger>
                           <SelectContent>
                             {(Address.villages[form.taluka] || []).map((v) => (
@@ -914,22 +868,19 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Home className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">
-                        Address Details
-                      </h3>
+                      <h3 className="font-semibold text-gray-900">{t("sections.address.title")}</h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        House Number / Building Name{" "}
-                        <span className="text-red-500">*</span>
+                        {t("fields.houseNumber")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="houseBuildingName"
                         value={form.houseBuildingName}
                         onChange={handleChange}
                         onBlur={() => handleBlur("houseBuildingName")}
-                        placeholder="e.g., House No. 123, Residential Complex"
+                        placeholder={t("placeholders.houseBuilding")}
                         className={`h-12 transition-all ${
                           form.houseBuildingName
                             ? "border-green-300 bg-green-50/30"
@@ -941,15 +892,14 @@ export default function CreateAccount() {
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        Road, Area, Landmark{" "}
-                        <span className="text-red-500">*</span>
+                        {t("fields.road")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="roadarealandmarkName"
                         value={form.roadarealandmarkName}
                         onChange={handleChange}
                         onBlur={() => handleBlur("roadarealandmarkName")}
-                        placeholder="e.g., Near Town Hall, MG Road"
+                        placeholder={t("placeholders.road")}
                         className={`h-12 transition-all ${
                           form.roadarealandmarkName
                             ? "border-green-300 bg-green-50/30"
@@ -966,14 +916,14 @@ export default function CreateAccount() {
                     disabled={!canProceedToStep2()}
                     className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-14 text-base font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Continue to Farm Details
+                    {t("actions.continue")}
                     <CheckCircle2 className="ml-2 h-5 w-5" />
                   </Button>
 
                   {!canProceedToStep2() && (
                     <p className="text-sm text-center text-amber-600 flex items-center justify-center gap-1">
                       <AlertCircle className="h-4 w-4" />
-                      Please fill all required fields correctly
+                      {t("warnings.fillRequired")}
                     </p>
                   )}
                 </div>
@@ -983,23 +933,20 @@ export default function CreateAccount() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <FileText className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">
-                        Farm Documentation
-                      </h3>
+                      <h3 className="font-semibold text-gray-900">{t("sections.farmDocs.title")}</h3>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <FileText className="h-3.5 w-3.5" />
-                        7/12 or 8A Document Number{" "}
-                        <span className="text-red-500">*</span>
+                        {t("fields.farmNumber")} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         name="farmNumber"
                         value={form.farmNumber}
                         onChange={handleChange}
                         onBlur={() => handleBlur("farmNumber")}
-                        placeholder="Enter your land document number"
+                        placeholder={t("placeholders.farmNumber")}
                         className={`h-12 transition-all ${
                           form.farmNumber
                             ? "border-green-300 bg-green-50/30"
@@ -1009,20 +956,16 @@ export default function CreateAccount() {
                       />
                       {errors.farmNumber && (
                         <p className="text-sm text-red-500 flex items-center gap-1">
-                          <AlertCircle className="h-3 w-3" />{" "}
-                          {errors.farmNumber}
+                          <AlertCircle className="h-3 w-3" /> {errors.farmNumber}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500">
-                        This is your official land ownership document number
-                      </p>
+                      <p className="text-xs text-gray-500">{t("hints.farmNumber")}</p>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Upload className="h-3.5 w-3.5" />
-                        Upload Farm Document (File Must Be Less than 1MB){" "}
-                        <span className="text-red-500">*</span>
+                        {t("fields.farmDoc")} <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -1051,23 +994,19 @@ export default function CreateAccount() {
                           <AlertCircle className="h-3 w-3" /> {errors.farmdoc}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500">
-                        Max size: 10MB | Formats: JPG, PNG, PDF
-                      </p>
+                      <p className="text-xs text-gray-500">{t("hints.farmDoc")}</p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                       <Leaf className="h-4 w-4 text-green-600" />
-                      <h3 className="font-semibold text-gray-900">Farm Area</h3>
+                      <h3 className="font-semibold text-gray-900">{t("sections.farmArea.title")}</h3>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Total Area <span className="text-red-500">*</span>
-                        </Label>
+                        <Label className="text-sm font-medium text-gray-700">{t("fields.totalArea")} <span className="text-red-500">*</span></Label>
                         <Input
                           type="number"
                           step="0.01"
@@ -1076,7 +1015,7 @@ export default function CreateAccount() {
                           value={form.farmArea}
                           onChange={handleChange}
                           onBlur={() => handleBlur("farmArea")}
-                          placeholder="e.g., 5.5"
+                          placeholder={t("placeholders.totalArea")}
                           className={`h-12 transition-all ${
                             form.farmArea
                               ? "border-green-300 bg-green-50/30"
@@ -1097,9 +1036,7 @@ export default function CreateAccount() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Unit <span className="text-red-500">*</span>
-                        </Label>
+                        <Label className="text-sm font-medium text-gray-700">{t("fields.unit")} <span className="text-red-500">*</span></Label>
                         <Select
                           onValueChange={(value:string) => {
                             setForm({ ...form, farmUnit: value });
@@ -1111,10 +1048,8 @@ export default function CreateAccount() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="hectare">
-                              Hectare (ha)
-                            </SelectItem>
-                            <SelectItem value="acre">Acre</SelectItem>
+                            <SelectItem value="hectare">{t("units.hectare")}</SelectItem>
+                            <SelectItem value="acre">{t("units.acre")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1123,28 +1058,13 @@ export default function CreateAccount() {
                     {form.farmArea && (
                       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p className="text-sm text-blue-900">
-                          <span className="font-semibold">
-                            Total Farm Area:
-                          </span>{" "}
-                          {form.farmArea}{" "}
-                          {form.farmUnit === "hectare" ? "hectares" : "acres"}
+                          <span className="font-semibold">{t("labels.totalFarmArea")}</span>{" "}
+                          {form.farmArea} {form.farmUnit === "hectare" ? t("units.hectarePlural") : t("units.acrePlural")}
                           {form.farmUnit === "hectare" && form.farmArea && (
-                            <span className="text-blue-600">
-                              {" "}
-                              ≈ {(parseFloat(form.farmArea) * 2.471).toFixed(
-                                2
-                              )}{" "}
-                              acres
-                            </span>
+                            <span className="text-blue-600"> {" "} ≈ {(parseFloat(form.farmArea) * 2.471).toFixed(2)} {t("units.acrePlural")}</span>
                           )}
                           {form.farmUnit === "acre" && form.farmArea && (
-                            <span className="text-blue-600">
-                              {" "}
-                              ≈ {(parseFloat(form.farmArea) / 2.471).toFixed(
-                                2
-                              )}{" "}
-                              hectares
-                            </span>
+                            <span className="text-blue-600"> {" "} ≈ {(parseFloat(form.farmArea) / 2.471).toFixed(2)} {t("units.hectarePlural")}</span>
                           )}
                         </p>
                       </div>
@@ -1167,7 +1087,7 @@ export default function CreateAccount() {
                       className="w-full sm:w-1/2 border-2 border-green-600 text-green-600 hover:bg-green-50 h-14 text-base font-semibold"
                     >
                       <CheckCircle2 className="mr-2 h-5 w-5 rotate-180" />
-                      Back to Personal Info
+                      {t("actions.back")}
                     </Button>
                     <Button
                       type="submit"
@@ -1175,29 +1095,22 @@ export default function CreateAccount() {
                       className="w-full sm:w-1/2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-14 text-base font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Creating Profile...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 className="mr-2 h-5 w-5" />
-                          Complete Registration
-                        </>
-                      )}
+                          <>
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            {t("actions.creating")}
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle2 className="mr-2 h-5 w-5" />
+                            {t("actions.complete")}
+                          </>
+                        )}
                     </Button>
                   </div>
 
-                  <p className="text-center text-xs text-gray-500">
-                    By completing registration, you agree to our{" "}
-                    <span className="text-green-600 underline cursor-pointer">
-                      Terms of Service
-                    </span>{" "}
-                    and{" "}
-                    <span className="text-green-600 underline cursor-pointer">
-                      Privacy Policy
-                    </span>
-                  </p>
+                    <p className="text-center text-xs text-gray-500">
+                      {t("legal.prefix")} <span className="text-green-600 underline cursor-pointer">{t("links.terms")}</span> {t("legal.and")} <span className="text-green-600 underline cursor-pointer">{t("links.privacy")}</span>
+                    </p>
                 </div>
               </div>
             </div>

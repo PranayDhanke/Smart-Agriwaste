@@ -8,6 +8,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { FiShoppingCart } from "react-icons/fi";
+import { useTranslations } from "next-intl";
 import { useUser } from "@clerk/nextjs";
 import CartDrawer from "../marketplace/CartDrawer";
 import { useCart } from "@/components/hooks/useCart";
@@ -20,6 +21,8 @@ export default function FloatingCart() {
 
   const role = user?.unsafeMetadata?.role;
 
+  const t = useTranslations("marketplace.FlotingCart");
+
   if (!isSignedIn || role !== "buyer") return null;
 
   return (
@@ -31,7 +34,7 @@ export default function FloatingCart() {
             "fixed bottom-5 right-5 z-[100] flex items-center justify-center w-14 h-14 rounded-full bg-green-600 text-white shadow-lg transition",
             open ? "opacity-0 pointer-events-none" : "hover:bg-green-700"
           )}
-          aria-label="Open cart"
+          aria-label={t("openAria")}
         >
           <FiShoppingCart className="h-6 w-6" />
 
@@ -44,8 +47,8 @@ export default function FloatingCart() {
       </SheetTrigger>
 
       {/* Cart Drawer */}
-      <SheetContent side="right" className="p-2 w-[340px] sm:w-[500px]">
-        <SheetTitle>Your Cart</SheetTitle>
+        <SheetContent side="right" className="p-2 w-[340px] sm:w-[500px]">
+        <SheetTitle>{t("title")}</SheetTitle>
         <CartDrawer />
       </SheetContent>
     </Sheet>
