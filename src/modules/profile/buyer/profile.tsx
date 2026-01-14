@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,21 +35,28 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Field labels mapping
-const fieldLabels: Record<string, string> = {
-  phone: "Phone Number",
-  aadharnumber: "Aadhar Number",
-  state: "State",
-  district: "District",
-  taluka: "Taluka",
-  village: "Village",
-  houseBuildingName: "House/Building Name",
-  roadarealandmarkName: "Road, Area, Landmark Name",
-};
+// Field labels mapping (localized via `t`)
+const getFieldLabels = (t: (key: string) => string): Record<string, string> => ({
+  phone: t("fields.phone"),
+  aadharnumber: t("fields.aadharnumber"),
+  state: t("fields.state"),
+  district: t("fields.district"),
+  taluka: t("fields.taluka"),
+  village: t("fields.village"),
+  houseBuildingName: t("fields.houseBuildingName"),
+  roadarealandmarkName: t("fields.roadarealandmarkName"),
+  firstName: t("fields.firstName"),
+  lastName: t("fields.lastName"),
+  username: t("fields.username"),
+  emailAddress: t("fields.emailAddress"),
+});
 
 export default function Profile() {
   const { user } = useUser();
   const router = useRouter();
+  const t = useTranslations("profile.buyer.Profile");
+
+  const fieldLabels = getFieldLabels(t);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -153,32 +161,29 @@ export default function Profile() {
       );
 
       if (res.status >= 200 && res.status < 300) {
-        toast.success("Buyer profile updated");
+        toast.success(t("toasts.updated"));
         // optional: navigate to dashboard
         // router.push("/profile/buyer");
       } else {
-        toast.error("Failed to update profile. Please try again.");
+        toast.error(t("toasts.updateFailed"));
       }
     } catch (err) {
       console.error("Profile update failed:", err);
-      toast.error("Something went wrong, please try again.");
+      toast.error(t("toasts.genericError"));
     }
   };
 
-  if (!user) return <p className="text-center py-10">Loading user...</p>;
-  if (isLoading)
-    return <p className="text-center py-10">Loading buyer data...</p>;
+  if (!user) return <p className="text-center py-10">{t("loadingUser")}</p>;
+  if (isLoading) return <p className="text-center py-10">{t("loadingBuyerData")}</p>;
 
   return (
     <div className="container py-10">
       <Card className="max-w-4xl mx-auto border-gray-200 shadow-lg">
         <CardHeader className="bg-blue-50">
           <CardTitle className="text-2xl font-bold text-blue-700">
-            Buyer Profile
+            {t("title")}
           </CardTitle>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage your personal and contact information
-          </p>
+          <p className="text-sm text-gray-600 mt-1">{t("description")}</p>
         </CardHeader>
 
         <CardContent className="pt-6">
@@ -187,7 +192,7 @@ export default function Profile() {
               {/* Buyer ID */}
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <p className="text-sm">
-                  <span className="font-semibold text-blue-700">Buyer ID:</span>{" "}
+                  <span className="font-semibold text-blue-700">{t("buyerIdLabel")}</span>{" "}
                   <span className="text-gray-700">{buyerId}</span>
                 </p>
               </div>
@@ -195,11 +200,11 @@ export default function Profile() {
               {/* Account Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Account Information
+                  {t("accountInformation")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <FormLabel className="text-gray-700">First Name</FormLabel>
+                    <FormLabel className="text-gray-700">{fieldLabels.firstName}</FormLabel>
                     <Input
                       value={user?.firstName || ""}
                       disabled
@@ -207,7 +212,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Last Name</FormLabel>
+                    <FormLabel className="text-gray-700">{fieldLabels.lastName}</FormLabel>
                     <Input
                       value={user?.lastName || ""}
                       disabled
@@ -215,7 +220,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Username</FormLabel>
+                    <FormLabel className="text-gray-700">{fieldLabels.username}</FormLabel>
                     <Input
                       value={user?.username || ""}
                       disabled
@@ -223,9 +228,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">
-                      Email Address
-                    </FormLabel>
+                    <FormLabel className="text-gray-700">{fieldLabels.emailAddress}</FormLabel>
                     <Input
                       value={user?.primaryEmailAddress?.emailAddress || ""}
                       disabled
@@ -240,7 +243,7 @@ export default function Profile() {
               {/* Contact Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Contact & Personal Details
+                  {t("contactPersonalDetails")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <FormField
@@ -248,11 +251,9 @@ export default function Profile() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          {fieldLabels.phone}
-                        </FormLabel>
+                          <FormLabel className="text-gray-700">{fieldLabels.phone}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter phone number" {...field} />
+                          <Input placeholder={t("enterField", { field: fieldLabels.phone })} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -262,11 +263,9 @@ export default function Profile() {
                     name="aadharnumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          {fieldLabels.aadharnumber}
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{fieldLabels.aadharnumber}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter Aadhar number" {...field} />
+                          <Input placeholder={t("enterField", { field: fieldLabels.aadharnumber })} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -278,9 +277,7 @@ export default function Profile() {
 
               {/* Address Details */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Address Details
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">{t("addressDetails")}</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   {[
                     "state",
@@ -296,14 +293,10 @@ export default function Profile() {
                       name={key as keyof FormValues}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">
-                            {fieldLabels[key]}
-                          </FormLabel>
+                              <FormLabel className="text-gray-700">{fieldLabels[key]}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={`Enter ${fieldLabels[
-                                key
-                              ].toLowerCase()}`}
+                              placeholder={t("enterField", { field: fieldLabels[key] })}
                               {...field}
                             />
                           </FormControl>
@@ -318,18 +311,14 @@ export default function Profile() {
 
               {/* Document */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Document
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">{t("document")}</h3>
                 <div className="grid md:grid-cols-2 gap-8">
                   <FormField
                     control={form.control}
                     name="aadharUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Aadhar Document
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{t("aadharDocument")}</FormLabel>
                         <FormControl>
                           <Input
                             type="file"
@@ -362,7 +351,7 @@ export default function Profile() {
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-base font-semibold"
                 >
-                  Save Changes
+                  {t("saveChanges")}
                 </Button>
               </div>
             </form>

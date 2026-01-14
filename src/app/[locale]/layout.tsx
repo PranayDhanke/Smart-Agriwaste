@@ -65,7 +65,10 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextIntlClientProvider>
-          <ClerkProvider localization={clerkLocale}>
+          <ClerkProvider
+            localization={clerkLocale}
+            publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+          >
             <OneSignalProvider />
             <Toaster position="top-center" />
             <CartProvider>

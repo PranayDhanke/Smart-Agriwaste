@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { CartItem, Negotiation } from "@/components/types/orders";
 import { useUser } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import axios from "axios";
 import { WasteItem } from "@/components/types/marketplace";
 import NegotiationPanel from "@/modules/marketplace/NegotiationPanel";
@@ -56,6 +57,7 @@ function StatBox({
 /* ---------------- Page ---------------- */
 
 export default function BuyerNegotiationsPage() {
+  const t = useTranslations("profile.buyer.Negotions");
   const [negotiations, setNegotiations] = useState<Negotiation[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
@@ -87,7 +89,7 @@ export default function BuyerNegotiationsPage() {
     };
 
     addToCart(cartItem);
-    toast.success("Item added to cart");
+    toast.success(t("toast.addedToCart"));
   };
 
   useEffect(() => {
@@ -97,8 +99,8 @@ export default function BuyerNegotiationsPage() {
       try {
         const res = await axios.get(`/api/negotiate/getBuyer/${buyerId}`);
         setNegotiations(res.data || []);
-      } catch {
-        toast.error("Failed to load negotiations");
+        } catch {
+        toast.error(t("toast.loadFailed"));
       } finally {
         setLoading(false);
       }
@@ -118,12 +120,8 @@ export default function BuyerNegotiationsPage() {
       <div className="mx-auto max-w-7xl p-6 space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Your Negotiations
-          </h1>
-          <p className="text-muted-foreground">
-            Track farmer responses and take action when available
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
 
         {/* Empty State */}
@@ -136,10 +134,8 @@ export default function BuyerNegotiationsPage() {
           <Card className="border-dashed border-2">
             <div className="p-12 text-center">
               <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-lg font-semibold">No negotiations yet</p>
-              <p className="text-sm text-muted-foreground">
-                Your negotiation requests will appear here
-              </p>
+              <p className="text-lg font-semibold">{t("empty.title")}</p>
+              <p className="text-sm text-muted-foreground">{t("empty.desc")}</p>
             </div>
           </Card>
         ) : (
@@ -174,7 +170,7 @@ export default function BuyerNegotiationsPage() {
                               : "destructive"
                           }
                         >
-                          {neg.status.toUpperCase()}
+                          {t(`status.${neg.status}`).toUpperCase()}
                         </Badge>
                       </div>
 
@@ -186,7 +182,7 @@ export default function BuyerNegotiationsPage() {
                           </h2>
                           <p className="flex items-center gap-2 text-sm text-muted-foreground">
                             <User className="h-4 w-4" />
-                            Farmer:{" "}
+                            {t("label.farmer")} {" "}
                             <span className="font-medium text-foreground">
                               {neg.item.sellerInfo.seller.farmerName}
                             </span>
@@ -199,33 +195,29 @@ export default function BuyerNegotiationsPage() {
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           <StatBox
                             icon={<IndianRupee className="h-4 w-4" />}
-                            label="Listed Price"
+                            label={t("stats.listedPrice")}
                             value={`₹${neg.item.price}`}
                           />
                           <StatBox
                             icon={<TrendingDown className="h-4 w-4" />}
-                            label="Your Offer"
+                            label={t("stats.yourOffer")}
                             value={`₹${neg.negotiatedPrice}`}
                             variant={isDiscount ? "danger" : "success"}
                           />
                           <StatBox
                             icon={<Droplets className="h-4 w-4" />}
-                            label="Moisture"
+                            label={t("stats.moisture")}
                             value={neg.item.moisture}
                           />
                         </div>
 
                         {/* Info */}
-                        {isDiscount && (
+                          {isDiscount && (
                           <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm">
-                            You requested{" "}
-                            <span className="font-bold text-amber-800">
-                              {percent}%
-                            </span>{" "}
-                            lower price
-                            <span className="ml-1 text-muted-foreground">
-                              (₹{Math.abs(diff)} difference)
-                            </span>
+                            {t("discount.text", {
+                              percent,
+                              diff: Math.abs(diff),
+                            })}
                           </div>
                         )}
 
@@ -234,21 +226,21 @@ export default function BuyerNegotiationsPage() {
                           {neg.status === "pending" && (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Clock className="h-4 w-4" />
-                              Waiting for farmer response
+                              {t("actions.waiting")}
                             </div>
                           )}
 
                           {neg.status === "accepted" && (
-                            <Button
+                              <Button
                               onClick={() => handleCart(neg)}
                               className="w-full bg-green-600 hover:bg-green-700"
                             >
-                              Place Order
+                              {t("actions.placeOrder")}
                             </Button>
                           )}
 
                           {neg.status === "rejected" && (
-                            <Button
+                              <Button
                               onClick={() =>
                                 handleNegotiate({
                                   _id: neg.item.prodId,
@@ -272,7 +264,7 @@ export default function BuyerNegotiationsPage() {
                               variant="outline"
                               className="w-full"
                             >
-                              Send New Negotiation
+                              {t("actions.sendNewNegotiation")}
                             </Button>
                           )}
                         </div>

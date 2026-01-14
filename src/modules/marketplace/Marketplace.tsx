@@ -1,6 +1,7 @@
 "use client";
 
 import { JSX, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,19 +45,19 @@ const categoryMeta: Record<
   { label: string; icon: JSX.Element; color: string; bgColor: string }
 > = {
   crop: {
-    label: "Crop",
+    label: "category.crop",
     icon: <Recycle className="h-3 w-3" />,
     color: "text-emerald-700",
     bgColor: "bg-emerald-100/80",
   },
   fruit: {
-    label: "Fruit",
+    label: "category.fruit",
     icon: <Leaf className="h-3 w-3" />,
     color: "text-amber-700",
     bgColor: "bg-amber-100/80",
   },
   vegetable: {
-    label: "Vegetable",
+    label: "category.vegetable",
     icon: <Factory className="h-3 w-3" />,
     color: "text-blue-700",
     bgColor: "bg-blue-100/80",
@@ -64,6 +65,7 @@ const categoryMeta: Record<
 };
 
 export default function Marketplace() {
+  const t = useTranslations("marketplace.Marketplace");
   const [wastes, setWastes] = useState<WasteItem[]>([]);
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -89,10 +91,10 @@ export default function Marketplace() {
           const data = await res.data.wastedata;
           setWastes(data);
         } else {
-          console.error("Failed to fetch waste listings");
+          console.error(t("errors.fetchListings"));
         }
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error(t("errors.fetchData"), err);
       } finally {
         setLoading(false);
       }
@@ -216,16 +218,14 @@ export default function Marketplace() {
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-                Marketplace
+                {t("title")}
               </h1>
-              <p className="text-lg text-gray-600 max-w-2xl">
-                Connect with sustainable solutions. Buy and sell agricultural
-                waste products responsibly.
-              </p>
+              <p className="text-lg text-gray-600 max-w-2xl">{t("subtitle")}</p>
             </div>
             <div className="hidden lg:flex items-center gap-2 text-green-600 text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
-              {filtered.length} listings active
+              <span className="font-medium">{filtered.length}</span>
+              <span>{t("listingsActive")}</span>
             </div>
           </div>
         </div>
@@ -235,7 +235,7 @@ export default function Marketplace() {
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors" />
             <Input
-              placeholder="Search waste products, categories, or sellers..."
+              placeholder={t("placeholders.search") as string}
               value={filters.search}
               onChange={(e) => handleFilterChange("search", e.target.value)}
               className="pl-12 h-14 bg-white border-2 border-gray-200 focus:border-green-500 rounded-lg text-base shadow-sm focus:shadow-md transition-all"
@@ -263,7 +263,7 @@ export default function Marketplace() {
                 : "border-gray-200 hover:border-green-300"
             }`}
           >
-            All Products
+            {t("categories.all")}
           </Button>
           {Object.entries(categoryMeta).map(([key, meta]) => (
             <Button
@@ -282,7 +282,7 @@ export default function Marketplace() {
               }`}
             >
               {meta.icon}
-              {meta.label}
+              {t(meta.label)}
             </Button>
           ))}
         </div>
@@ -301,7 +301,7 @@ export default function Marketplace() {
               }`}
             >
               <Filter className="h-4 w-4 mr-2" />
-              {showFilters ? "Hide" : "Show"} Filters
+              {showFilters ? t("filters.hide") : t("filters.show")} {t("filters.label")}
               {activeFiltersCount > 0 && (
                 <Badge className="ml-2 bg-amber-500 hover:bg-amber-600">
                   {activeFiltersCount}
@@ -316,7 +316,7 @@ export default function Marketplace() {
                 onClick={resetFilters}
                 className="text-gray-600 hover:text-gray-900"
               >
-                Clear all
+                {t("filters.clearAll")}
               </Button>
             )}
           </div>
@@ -332,10 +332,10 @@ export default function Marketplace() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="recent">Most Recent</SelectItem>
-              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc">Price: High to Low</SelectItem>
-              <SelectItem value="name">Name (A–Z)</SelectItem>
+              <SelectItem value="recent">{t("sort.mostRecent")}</SelectItem>
+              <SelectItem value="price-asc">{t("sort.priceAsc")}</SelectItem>
+              <SelectItem value="price-desc">{t("sort.priceDesc")}</SelectItem>
+              <SelectItem value="name">{t("sort.name")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -346,7 +346,7 @@ export default function Marketplace() {
             <div className="grid gap-4 md:grid-cols-4">
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Location
+                  {t("filters.location")}
                 </Label>
                 <Input
                   placeholder="City / District"
@@ -360,7 +360,7 @@ export default function Marketplace() {
 
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Min Price (₹)
+                  {t("filters.minPrice")}
                 </Label>
                 <Input
                   type="number"
@@ -375,7 +375,7 @@ export default function Marketplace() {
 
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Max Price (₹)
+                  {t("filters.maxPrice")}
                 </Label>
                 <Input
                   type="number"
@@ -390,7 +390,7 @@ export default function Marketplace() {
 
               <div className="space-y-2.5">
                 <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                  Sort By
+                  {t("filters.sortBy")}
                 </Label>
                 <Select
                   value={filters.sortBy}
@@ -402,14 +402,10 @@ export default function Marketplace() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                    <SelectItem value="price-asc">
-                      Price: Low to High
-                    </SelectItem>
-                    <SelectItem value="price-desc">
-                      Price: High to Low
-                    </SelectItem>
-                    <SelectItem value="name">Name (A–Z)</SelectItem>
+                    <SelectItem value="recent">{t("sort.mostRecent")}</SelectItem>
+                    <SelectItem value="price-asc">{t("sort.priceAsc")}</SelectItem>
+                    <SelectItem value="price-desc">{t("sort.priceDesc")}</SelectItem>
+                    <SelectItem value="name">{t("sort.name")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -428,10 +424,8 @@ export default function Marketplace() {
           </p>
           {activeFiltersCount > 0 && (
             <div className="text-sm text-gray-600">
-              Filters applied:{" "}
-              <span className="font-semibold text-green-600">
-                {activeFiltersCount}
-              </span>
+              {t("filters.applied")} {" "}
+              <span className="font-semibold text-green-600">{activeFiltersCount}</span>
             </div>
           )}
         </div>
@@ -527,7 +521,7 @@ export default function Marketplace() {
                     {/* Not logged in */}
                     {!user?.id && (
                       <p className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded">
-                        Login as Buyer to buy item
+                        {t("auth.loginBuyer")}
                       </p>
                     )}
 
@@ -541,7 +535,7 @@ export default function Marketplace() {
                           onClick={() => handleAddToCart(p)}
                         >
                           <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-                          Cart
+                          {t("actions.cart")}
                         </Button>
 
                         <Button
@@ -549,19 +543,19 @@ export default function Marketplace() {
                           className="h-8 text-xs bg-amber-500 hover:bg-amber-600 text-white"
                           onClick={() => handleNegotiate(p)}
                         >
-                          🤝 Negotiate
+                          🤝 {t("actions.negotiate")}
                         </Button>
                       </>
                     )}
 
                     {/* View (always aligned at end naturally) */}
                     <Link href={`/marketplace/view/?product=${p._id}`}>
-                      <Button
+                        <Button
                         size="sm"
                         variant="ghost"
                         className="h-8 text-xs text-green-700 hover:bg-green-50"
                       >
-                        View
+                        {t("actions.view")}
                         <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
                       </Button>
                     </Link>
@@ -574,18 +568,14 @@ export default function Marketplace() {
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-gray-100 mb-6">
                 <Leaf className="h-10 w-10 text-gray-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                No products found
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Try adjusting your search filters or explore other categories
-              </p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t("noResults.title")}</h3>
+              <p className="text-gray-600 mb-6">{t("noResults.message")}</p>
               <Button
                 variant="outline"
                 onClick={resetFilters}
                 className="border-gray-300 hover:border-green-300"
               >
-                Clear Filters
+                {t("noResults.clear")}
               </Button>
             </div>
           )

@@ -4,6 +4,7 @@ import { Order } from "@/components/types/orders";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +43,7 @@ const BuyerOrderView = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("profile.buyer.SinglePurchase");
 
   useEffect(() => {
     const fetchOrderData = async () => {
@@ -54,7 +56,7 @@ const BuyerOrderView = () => {
         }
       } catch (error) {
         console.error("Failed to fetch order:", error);
-        toast.error("Failed to load order details");
+        toast.error(t("toasts.loadFailed"));
       } finally {
         setLoading(false);
       }
@@ -121,6 +123,11 @@ const BuyerOrderView = () => {
   };
 
   const statusConfig = getStatusColor(order?.status || "");
+  const statusLabel = order?.status
+    ? ["pending", "confirmed", "cancelled"].includes(order.status)
+      ? t(`status.${order.status}`)
+      : order.status.charAt(0).toUpperCase() + order.status.slice(1)
+    : "";
   const copyToClipboard = () => {
     if (order?._id) {
       navigator.clipboard.writeText(order._id);
@@ -145,16 +152,16 @@ const BuyerOrderView = () => {
           if (!prev) return prev;
           return { ...prev, status };
         });
-        toast.success(`Order has been ${status} successfully`);
+        toast.success(t("toasts.statusChanged", { status }));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          title: `Buyer has ${status} the Order`,
-          message: `Buyer ${buyerName} has ${status} the order`,
+          title: t("notifications.farmerTitle", { status }),
+          message: t("notifications.farmerMessage", { buyerName, status }),
           type: "order",
         });
       }
     } catch {
-      toast.error("Failed to change order status");
+      toast.error(t("toasts.changeStatusFailed"));
     }
   };
 
@@ -170,16 +177,16 @@ const BuyerOrderView = () => {
           if (!prev) return prev;
           return { ...prev, isOutForDelivery: true };
         });
-        toast.success("Order marked as out for pickup");
+        toast.success(t("toasts.outForPickup"));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          title: "Order is out for Pickup",
-          message: `Buyer ${buyerName} is out for pickup`,
+          title: t("notifications.outForPickupTitle"),
+          message: t("notifications.outForPickupMessage", { buyerName }),
           type: "Order",
         });
       }
     } catch {
-      toast.error("Failed to mark order out for pickup");
+      toast.error(t("toasts.outForPickupFailed"));
     }
   };
 
@@ -195,16 +202,16 @@ const BuyerOrderView = () => {
           if (!prev) return prev;
           return { ...prev, isDelivered: true };
         });
-        toast.success("Order pickup confirmed");
+        toast.success(t("toasts.pickupConfirmed"));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          title: "Order Picked Up",
-          message: `Buyer ${buyerName} has picked up the order`,
+          title: t("notifications.pickupTitle"),
+          message: t("notifications.pickupMessage", { buyerName }),
           type: "Order",
         });
       }
     } catch {
-      toast.error("Failed to confirm pickup");
+      toast.error(t("toasts.confirmPickupFailed"));
     }
   };
 
@@ -222,7 +229,7 @@ const BuyerOrderView = () => {
           onClick={() => window.history.back()}
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to My Orders
+          {t("backToOrders")}
         </Button>
 
         {/* Loading State */}
@@ -233,7 +240,7 @@ const BuyerOrderView = () => {
               <Loader2 className="h-14 w-14 animate-spin text-emerald-600 dark:text-emerald-400 relative" />
             </div>
             <p className="text-gray-600 dark:text-gray-400 font-medium">
-              Loading order details...
+              {t("loadingOrder")}
             </p>
           </div>
         )}
@@ -259,11 +266,10 @@ const BuyerOrderView = () => {
                         </div>
                         <div>
                           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                            My Order Details
+                            {t("title")}
                           </h1>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Order placed on{" "}
-                            <span className="font-semibold">
+                            {t("placedOn")} <span className="font-semibold">
                               {new Intl.DateTimeFormat("en-IN", {
                                 month: "short",
                                 day: "numeric",
@@ -276,8 +282,8 @@ const BuyerOrderView = () => {
 
                       {/* Order ID */}
                       <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 w-fit px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <span className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
-                          Order ID:
+                          <span className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+                          {t("orderIdLabel")}
                         </span>
                         <code className="font-mono font-bold text-gray-900 dark:text-white">
                           {order._id.slice(-12).toUpperCase()}
@@ -285,13 +291,13 @@ const BuyerOrderView = () => {
                         <button
                           onClick={copyToClipboard}
                           className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                          title="Copy Order ID"
+                          title={t("copyOrderId")}
                         >
                           <Copy className="h-3.5 w-3.5 text-gray-500" />
                         </button>
                         {copied && (
                           <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-                            ✓ Copied!
+                            {t("copied")}
                           </span>
                         )}
                       </div>
@@ -309,13 +315,10 @@ const BuyerOrderView = () => {
                         ></div>
                         <div className="flex flex-col">
                           <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
-                            Order Status
+                            {t("orderStatusLabel")}
                           </span>
-                          <span
-                            className={`font-bold text-lg ${statusConfig.text}`}
-                          >
-                            {order.status.charAt(0).toUpperCase() +
-                              order.status.slice(1)}
+                          <span className={`font-bold text-lg ${statusConfig.text}`}>
+                            {statusLabel}
                           </span>
                         </div>
                       </div>
@@ -333,9 +336,9 @@ const BuyerOrderView = () => {
               {/* Order Date */}
               <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 hover:shadow-lg transition-all">
                 <CardContent className="pt-5">
-                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Order Date
+                      {t("metrics.orderDate")}
                     </span>
                     <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
@@ -351,9 +354,9 @@ const BuyerOrderView = () => {
               {/* Items Count */}
               <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 hover:shadow-lg transition-all">
                 <CardContent className="pt-5">
-                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Items
+                      {t("metrics.items")}
                     </span>
                     <Package className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                   </div>
@@ -366,20 +369,14 @@ const BuyerOrderView = () => {
               {/* Payment Status */}
               <Card className="border-0 shadow-md bg-white/80 dark:bg-slate-800/80 hover:shadow-lg transition-all">
                 <CardContent className="pt-5">
-                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Payment
+                      {t("metrics.payment")}
                     </span>
                     <CreditCard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <p
-                    className={`font-bold ${
-                      order.hasPayment
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-amber-600 dark:text-amber-400"
-                    }`}
-                  >
-                    {order.hasPayment ? "Paid" : "Pending"}
+                  <p className={`font-bold ${order.hasPayment ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+                    {order.hasPayment ? t("payment.paid") : t("payment.pending")}
                   </p>
                 </CardContent>
               </Card>
@@ -389,7 +386,7 @@ const BuyerOrderView = () => {
                 <CardContent className="pt-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase">
-                      Total Amount
+                      {t("metrics.totalAmount")}
                     </span>
                     <IndianRupee className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
@@ -413,7 +410,7 @@ const BuyerOrderView = () => {
                     <div className="flex items-center gap-2">
                       <Truck className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       <p className="text-sm font-bold text-gray-900 dark:text-white">
-                        Delivery Progress
+                        {t("deliveryProgress.title")}
                       </p>
                     </div>
 
@@ -426,15 +423,15 @@ const BuyerOrderView = () => {
                       {[
                         {
                           status: "pending",
-                          label: "Order Confirmed",
+                          label: t("progress.orderConfirmed"),
                           icon: CheckCircle2,
                         },
                         {
                           status: "confirmed",
-                          label: "Out for Delivery",
+                          label: t("progress.outForDelivery"),
                           icon: Truck,
                         },
-                        { status: "confirmed", label: "Delivered", icon: Home },
+                        { status: "confirmed", label: t("progress.delivered"), icon: Home },
                       ].map((step, idx) => {
                         const isCompleted =
                           (isConfirmed && idx <= 0) ||
@@ -487,7 +484,7 @@ const BuyerOrderView = () => {
                     <div className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                       <p className="text-sm font-bold text-gray-900 dark:text-white">
-                        Pickup Progress
+                        {t("pickupProgress.title")}
                       </p>
                     </div>
 
@@ -500,11 +497,11 @@ const BuyerOrderView = () => {
                           <div className="p-4 rounded-lg border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                  Current Status
+                                  <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
+                                  {t("currentStatusLabel")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                  Order Cancelled
+                                  {t("pickup.cancelledTitle")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -512,7 +509,7 @@ const BuyerOrderView = () => {
                               </div>
                             </div>
                             <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                              Order has been cancelled
+                              {t("pickup.cancelledMessage")}
                             </p>
                           </div>
                         )}
@@ -525,10 +522,10 @@ const BuyerOrderView = () => {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                    Current Status
+                                    {t("currentStatusLabel")}
                                   </p>
                                   <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                    ⏳ Awaiting Farmer Confirmation
+                                    {t("pickup.awaitingConfirmationTitle")}
                                   </p>
                                 </div>
                                 <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -536,7 +533,7 @@ const BuyerOrderView = () => {
                                 </div>
                               </div>
                               <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                                Farmer is preparing your items for pickup.
+                                {t("pickup.preparingMessage")}
                               </p>
                             </div>
                           )}
@@ -546,10 +543,10 @@ const BuyerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-yellow-700 dark:text-yellow-400">
-                                  Current Status
+                                  {t("currentStatusLabel")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-yellow-700 dark:text-yellow-300">
-                                  ⏳ Order has been confirmed
+                                  {t("pickup.confirmedTitle")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-yellow-100 dark:bg-yellow-900/40">
@@ -557,7 +554,7 @@ const BuyerOrderView = () => {
                               </div>
                             </div>
                             <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-3">
-                              Farmer has prepared your items for pickup.
+                              {t("pickup.preparedMessage")}
                             </p>
                           </div>
                         )}
@@ -567,11 +564,11 @@ const BuyerOrderView = () => {
                           <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-xs font-semibold uppercase text-blue-700 dark:text-blue-400">
-                                  Current Status
+                                  <p className="text-xs font-semibold uppercase text-blue-700 dark:text-blue-400">
+                                  {t("currentStatusLabel")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-blue-700 dark:text-blue-300">
-                                  🎯 Out for Your Pickup
+                                  {t("pickup.outForPickupTitle")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/40">
@@ -579,7 +576,7 @@ const BuyerOrderView = () => {
                               </div>
                             </div>
                             <p className="text-xs text-blue-700 dark:text-blue-300 mt-3">
-                              Heading to the {"farmer's"} location to collect them.
+                              {t("pickup.headingToFarmer")}
                             </p>
                           </div>
                         )}
@@ -590,10 +587,10 @@ const BuyerOrderView = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-xs font-semibold uppercase text-emerald-700 dark:text-emerald-400">
-                                  Current Status
+                                  {t("currentStatusLabel")}
                                 </p>
                                 <p className="font-bold mt-1 text-sm text-emerald-700 dark:text-emerald-300">
-                                  ✅ Pickup Complete
+                                  {t("pickup.completeTitle")}
                                 </p>
                               </div>
                               <div className="p-2.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
@@ -622,11 +619,10 @@ const BuyerOrderView = () => {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-blue-900 dark:text-blue-100">
-                      📍 Pickup Location Details
+                      {t("pickup.locationTitle")}
                     </p>
                     <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                      Please coordinate with the farmer for pickup timing. Items
-                      will be ready once the farmer confirms.
+                      {t("pickup.locationMessage")}
                     </p>
                   </div>
                 </CardContent>
@@ -642,16 +638,16 @@ const BuyerOrderView = () => {
               <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 overflow-hidden hover:shadow-xl transition-all">
                 <div className="h-1.5 bg-gradient-to-r from-blue-400 to-cyan-400"></div>
                 <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <CardTitle className="flex items-center gap-2 text-lg">
                     <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    Farmer Information
+                    {t("farmerInfo.title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4">
                   {/* Farmer Name */}
                   <div className="p-3.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                     <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">
-                      Farmer Name
+                      {t("farmerInfo.name")}
                     </p>
                     <p className="font-semibold text-gray-900 dark:text-white">
                       {farmerName || "N/A"}
@@ -662,7 +658,7 @@ const BuyerOrderView = () => {
                   {farmerAddress && (
                     <div className="p-3.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                       <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-2">
-                        Farmer Location
+                        {t("farmerInfo.location")}
                       </p>
                       <div className="space-y-1">
                         <p className="font-semibold text-gray-900 dark:text-white text-sm">
@@ -683,14 +679,14 @@ const BuyerOrderView = () => {
                   <div className="grid grid-cols-2 gap-2 pt-2">
                     <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white h-10 flex items-center justify-center gap-2">
                       <Phone className="h-4 w-4" />
-                      <span className="hidden sm:inline text-sm">Contact</span>
+                      <span className="hidden sm:inline text-sm">{t("actions.contact")}</span>
                     </Button>
                     <Button
                       variant="outline"
                       className="border-blue-200 dark:border-blue-800 h-10 flex items-center justify-center gap-2"
                     >
                       <Share2 className="h-4 w-4" />
-                      <span className="hidden sm:inline text-sm">Share</span>
+                      <span className="hidden sm:inline text-sm">{t("actions.share")}</span>
                     </Button>
                   </div>
                 </CardContent>
@@ -700,16 +696,16 @@ const BuyerOrderView = () => {
               <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 overflow-hidden hover:shadow-xl transition-all">
                 <div className="h-1.5 bg-gradient-to-r from-amber-400 to-orange-400"></div>
                 <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <CardTitle className="flex items-center gap-2 text-lg">
                     <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    Order Information
+                    {t("orderInfo.title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-6">
                   {/* Payment Method */}
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Payment Method
+                      {t("orderInfo.paymentMethod")}
                     </p>
                     <div className="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700">
                       <CheckCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -719,14 +715,14 @@ const BuyerOrderView = () => {
                   {/* Delivery Method */}
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">
-                      Delivery Method
+                      {t("orderInfo.deliveryMethod")}
                     </p>
                     <div className="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700">
                       <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       <span className="font-semibold text-gray-900 dark:text-white text-sm">
                         {order.deliveryMode === "PICKUPBYBUYER"
-                          ? "Pickup by You"
-                          : "Delivered by Farmer"}
+                          ? t("delivery.pickupByYou")
+                          : t("delivery.deliveredByFarmer")}
                       </span>
                     </div>
                   </div>
@@ -736,7 +732,7 @@ const BuyerOrderView = () => {
                   {/* Total Amount Highlight */}
                   <div className="p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                     <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold uppercase mb-1">
-                      Order Total
+                      {t("orderInfo.totalLabel")}
                     </p>
                     <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       ₹{totalAmount.toLocaleString("en-IN")}
@@ -756,7 +752,7 @@ const BuyerOrderView = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-3 text-lg">
                     <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    Order Items ({order.items.length})
+                    {t("orderItems.title")} ({order.items.length})
                   </CardTitle>
                 </div>
               </CardHeader>
@@ -821,10 +817,10 @@ const BuyerOrderView = () => {
                   <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">
-                      ✓ Payment Verified
+                      {t("payment.verifiedTitle")}
                     </p>
                     <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
-                      Payment confirmed. Your order is being processed.
+                      {t("payment.verifiedMessage")}
                     </p>
                   </div>
                 </CardContent>
@@ -841,7 +837,7 @@ const BuyerOrderView = () => {
                   <CardContent className="py-3 px-4 flex items-center gap-3">
                     <XCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
                     <p className="font-semibold text-red-700 dark:text-red-300 text-sm">
-                      This order has been cancelled
+                      {t("cancelled.banner")}
                     </p>
                   </CardContent>
                 </Card>
@@ -852,7 +848,7 @@ const BuyerOrderView = () => {
                   <CardContent className="py-3 px-4 flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                     <p className="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">
-                      Order completed successfully ✅
+                      {t("completed.banner")}
                     </p>
                   </CardContent>
                 </Card>
@@ -873,7 +869,7 @@ const BuyerOrderView = () => {
                   }
                 >
                   <XCircle className="h-5 w-5" />
-                  Cancel Order
+                  {t("actions.cancelOrder")}
                 </Button>
               )}
 
@@ -893,7 +889,7 @@ const BuyerOrderView = () => {
                     }
                   >
                     <Truck className="h-5 w-5" />
-                    Out for Pickup
+                    {t("actions.outForPickup")}
                   </Button>
                 )}
 
@@ -913,7 +909,7 @@ const BuyerOrderView = () => {
                     }
                   >
                     <CheckCircle className="h-5 w-5" />
-                    Confirm Pickup
+                    {t("actions.confirmPickup")}
                   </Button>
                 )}
 
@@ -921,10 +917,10 @@ const BuyerOrderView = () => {
                 <Button
                   size="lg"
                   className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl transition-all h-11"
-                  onClick={() => toast.success("soooonnn")}
+                  onClick={() => toast.success(t("toasts.comingSoon"))}
                 >
                   <CheckCircle className="h-5 w-5" />
-                  Proceed Payment
+                  {t("actions.proceedPayment")}
                 </Button>
               )}
             </div>
@@ -939,11 +935,10 @@ const BuyerOrderView = () => {
                 <AlertCircle className="h-14 w-14 text-gray-400 dark:text-gray-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Order Not Found
+                {t("notFound.title")}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-sm text-sm">
-                We {"couldn't"} find the order {"you're"} looking for. Please check the
-                order ID and try again.
+                {t("notFound.message")}
               </p>
             </div>
           </div>

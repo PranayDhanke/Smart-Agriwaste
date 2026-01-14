@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Form,
   FormControl,
@@ -56,6 +57,8 @@ const fieldLabels: Record<string, string> = {
 export default function Profile() {
   const { user } = useUser();
   const router = useRouter();
+  const t = useTranslations("profile.farmer.Profile");
+  const locale = useLocale();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -145,7 +148,7 @@ export default function Profile() {
     const res = await axios.post("/api/upload", formdata);
 
     if (!res.data || !res.data.url) {
-      toast.error("Upload failed Please Try again");
+      toast.error(t("uploadFailed"));
     }
 
     const url: string = res.data.url;
@@ -180,30 +183,28 @@ export default function Profile() {
       );
 
       if (res.status >= 200 && res.status < 300) {
-        toast.success("Profile updated");
+        toast.success(t("profileUpdated"));
         // do any post-success actions (navigate/refresh)
       } else {
-        toast.error("Failed to update profile. Please try again.");
+        toast.error(t("profileUpdateFailed"));
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("somethingWentWrong"));
     }
   };
 
-  if (!user) return <p className="text-center py-10">Loading user...</p>;
+  if (!user) return <p className="text-center py-10">{t("loadingUser")}</p>;
   if (isLoading)
-    return <p className="text-center py-10">Loading farmer data...</p>;
+    return <p className="text-center py-10">{t("loadingData")}</p>;
 
   return (
     <div className="container py-10">
       <Card className="max-w-4xl mx-auto border-gray-200 shadow-lg">
         <CardHeader className="bg-green-50">
           <CardTitle className="text-2xl font-bold text-green-700">
-            Farmer Profile
+            {t("title")}
           </CardTitle>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage your personal and farm information
-          </p>
+          <p className="text-sm text-gray-600 mt-1">{t("subtitle")}</p>
         </CardHeader>
 
         <CardContent className="pt-6">
@@ -213,7 +214,7 @@ export default function Profile() {
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <p className="text-sm">
                   <span className="font-semibold text-green-700">
-                    Farmer ID:
+                    {t("farmerIdLabel")}
                   </span>{" "}
                   <span className="text-gray-700">{farmerId}</span>
                 </p>
@@ -222,11 +223,11 @@ export default function Profile() {
               {/* Account Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Account Information
+                  {t("account.heading")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <FormLabel className="text-gray-700">First Name</FormLabel>
+                    <FormLabel className="text-gray-700">{t("account.firstName")}</FormLabel>
                     <Input
                       value={user?.firstName || ""}
                       disabled
@@ -234,7 +235,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Last Name</FormLabel>
+                    <FormLabel className="text-gray-700">{t("account.lastName")}</FormLabel>
                     <Input
                       value={user?.lastName || ""}
                       disabled
@@ -242,7 +243,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">Username</FormLabel>
+                    <FormLabel className="text-gray-700">{t("account.username")}</FormLabel>
                     <Input
                       value={user?.username || ""}
                       disabled
@@ -250,9 +251,7 @@ export default function Profile() {
                     />
                   </div>
                   <div>
-                    <FormLabel className="text-gray-700">
-                      Email Address
-                    </FormLabel>
+                    <FormLabel className="text-gray-700">{t("account.emailAddress")}</FormLabel>
                     <Input
                       value={user?.primaryEmailAddress?.emailAddress || ""}
                       disabled
@@ -267,7 +266,7 @@ export default function Profile() {
               {/* Contact Information */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Contact & Personal Details
+                  {t("contact.heading")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <FormField
@@ -276,10 +275,10 @@ export default function Profile() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700">
-                          {fieldLabels.phone}
+                          {t("fields.phone")}
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter phone number" {...field} />
+                          <Input placeholder={t("placeholders.phone")} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -290,10 +289,10 @@ export default function Profile() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700">
-                          {fieldLabels.aadharnumber}
+                          {t("fields.aadharnumber")}
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter Aadhar number" {...field} />
+                          <Input placeholder={t("placeholders.aadharnumber")} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -306,7 +305,7 @@ export default function Profile() {
               {/* Address Details */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Address Details
+                  {t("address.heading")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   {[
@@ -328,9 +327,7 @@ export default function Profile() {
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={`Enter ${fieldLabels[
-                                key
-                              ].toLowerCase()}`}
+                              placeholder={t(`placeholders.${key}`)}
                               {...field}
                             />
                           </FormControl>
@@ -346,7 +343,7 @@ export default function Profile() {
               {/* Farm Details */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Farm Information
+                  {t("farm.heading")}
                 </h3>
                 <div className="grid md:grid-cols-3 gap-6">
                   {["farmNumber", "farmArea", "farmUnit"].map((key) => (
@@ -357,7 +354,7 @@ export default function Profile() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-gray-700">
-                            {fieldLabels[key]}
+                            {t(`fields.${key}`)}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -379,7 +376,7 @@ export default function Profile() {
               {/* Documents */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Documents
+                  {t("documents.heading")}
                 </h3>
                 <div className="grid md:grid-cols-2 gap-8">
                   <FormField
@@ -387,9 +384,7 @@ export default function Profile() {
                     name="aadharUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Aadhar Document
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{t("documents.aadhar")}</FormLabel>
                         <FormControl>
                           <Input
                             type="file"
@@ -420,9 +415,7 @@ export default function Profile() {
                     name="farmDocUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">
-                          Farm Document
-                        </FormLabel>
+                        <FormLabel className="text-gray-700">{t("documents.farm")}</FormLabel>
                         <FormControl>
                           <Input
                             type="file"
@@ -456,7 +449,7 @@ export default function Profile() {
                   type="submit"
                   className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-base font-semibold"
                 >
-                  Save Changes
+                  {t("saveChanges")}
                 </Button>
               </div>
             </form>
@@ -465,4 +458,4 @@ export default function Profile() {
       </Card>
     </div>
   );
-}
+  }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { WasteItem } from "@/components/types/marketplace";
 import {
   Card,
@@ -26,6 +27,7 @@ const NegotiationPanel = ({
   onClose: () => void;
 }) => {
   const [price, setPrice] = useState<number | "">("");
+  const t = useTranslations("marketplace.NegotiationPanel");
   const [loading, setLoading] = useState(false);
 
   const { user } = useUser();
@@ -34,12 +36,12 @@ const NegotiationPanel = ({
 
   const handleSubmit = async () => {
     if (!price || price <= 0) {
-      toast.error("Please enter a valid price");
+      toast.error(t("errors.invalidPrice"));
       return;
     }
 
     if (price >= item.price) {
-      toast.error("Negotiated price must be lower than listed price");
+      toast.error(t("errors.mustBeLower"));
       return;
     }
 
@@ -79,19 +81,20 @@ const NegotiationPanel = ({
       if (response.status === 200) {
         sendNotification({
           userId: item.seller.farmerId.replace("fam_", "user_"), // farmer receives notification
-          title: "New Negotiation Request",
-          message: `Buyer ${
-            user?.fullName || "buyer"
-          } sent a negotiation request for the Product ${item.title}.`,
+          title: t("notification.title"),
+          message: t("notification.message", {
+            buyer: user?.fullName || t("buyerPlaceholder"),
+            title: item.title,
+          }),
           type: "negotiation",
         });
 
-        toast.success("Negotiation request sent to seller");
+        toast.success(t("success.sent"));
       }
 
       onClose();
     } catch {
-      toast.error("Failed to send negotiation request");
+      toast.error(t("errors.failed"));
     } finally {
       setLoading(false);
       refresh()
@@ -107,7 +110,7 @@ const NegotiationPanel = ({
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2">
           <Handshake className="h-5 w-5 text-amber-600" />
-          Price Negotiation
+          {t("title")}
         </CardTitle>
 
         {/* Close */}
@@ -120,23 +123,19 @@ const NegotiationPanel = ({
           ✕
         </Button>
 
-        <CardDescription>
-          Negotiate directly with the farmer for this product
-        </CardDescription>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
         {/* Product Info */}
         <div className="rounded-md bg-gray-50 p-3 text-sm">
           <p className="font-medium">{item.title}</p>
-          <p className="text-xs text-gray-500">
-            Listed Price: ₹{item.price} / {item.unit}
-          </p>
+          <p className="text-xs text-gray-500">{t("listedPrice", { price: item.price, unit: item.unit })}</p>
         </div>
 
         {/* Input */}
         <div className="space-y-1.5">
-          <Label>Your Offer</Label>
+          <Label>{t("labels.yourOffer")}</Label>
           <div className="relative">
             <IndianRupee className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
             <Input
@@ -155,7 +154,7 @@ const NegotiationPanel = ({
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? "Sending..." : "Submit Negotiation"}
+          {loading ? t("buttons.sending") : t("buttons.submit")}
         </Button>
       </CardContent>
     </Card>

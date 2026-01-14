@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,8 @@ export default function ContactUs() {
     email: "",
     message: "",
   });
+
+  const t = useTranslations("home");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -33,11 +36,10 @@ export default function ContactUs() {
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-16">
         <div className="max-w-4xl mx-auto text-center px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-          <p className="text-lg text-green-100">
-            We’d love to hear from you. Reach out for support, questions, or
-            collaboration.
-          </p>
+          {/* View: "Contact Us" */}
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t("contact.title")}</h1>
+          {/* View: "We’d love to hear from you. Reach out for support, questions, or collaboration." */}
+          <p className="text-lg text-green-100">{t("contact.subtitle")}</p>
         </div>
       </div>
 
@@ -46,52 +48,59 @@ export default function ContactUs() {
         {/* Map / Placeholder */}
         <Card>
           <CardHeader>
-            <CardTitle>Our Location</CardTitle>
+            {/* View: "Our Location" */}
+            <CardTitle>{t("contact.map.title")}</CardTitle>
           </CardHeader>
           <CardContent>
+            {/* View: "🌍 Map Placeholder" */}
             <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm rounded-lg">
-              🌍 Map Placeholder
+              {t("contact.map.placeholder")}
             </div>
           </CardContent>
         </Card>
         <div className="space-y-6">
           {/* Contact Form */}
           <Card className="shadow-lg">
-            <CardHeader>
+              <CardHeader>
+              {/* View: "Send us a Message" */}
               <CardTitle className="text-2xl font-semibold">
-                Send us a Message
+                {t("contact.form.title")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* View: "Your Name" */}
                 <Input
-                  placeholder="Your Name"
+                  placeholder={t("contact.form.namePlaceholder")}
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
                 />
+                {/* View: "Your Email" */}
                 <Input
                   type="email"
-                  placeholder="Your Email"
+                  placeholder={t("contact.form.emailPlaceholder")}
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
                 />
+                {/* View: "Your Message" */}
                 <Textarea
-                  placeholder="Your Message"
+                  placeholder={t("contact.form.messagePlaceholder")}
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   rows={5}
                   required
                 />
+                {/* Button view: <Send /> */}
                 <Button
                   type="submit"
                   className="w-full flex items-center gap-2"
                 >
-                  <Send className="w-4 h-4" /> Send Message
+                  <Send className="w-4 h-4" /> {t("contact.form.submit")}
                 </Button>
               </form>
             </CardContent>
@@ -100,20 +109,21 @@ export default function ContactUs() {
           {/* Contact Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Get in Touch</CardTitle>
+              {/* View: "Get in Touch" */}
+              <CardTitle>{t("contact.info.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-green-600" />
-                <span>support@agriplatform.com</span>
+                <span>{t("contact.info.email")}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-green-600" />
-                <span>+91 98765 43210</span>
+                <span>{t("contact.info.phone")}</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-green-600" />
-                <span>Pune, Maharashtra, India</span>
+                <span>{t("contact.info.location")}</span>
               </div>
             </CardContent>
           </Card>

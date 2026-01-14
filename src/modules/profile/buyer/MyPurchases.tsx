@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Order } from "@/components/types/orders";
 import { useUser } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import axios from "axios";
 import { toast } from "sonner";
 import { useNotification } from "@/components/hooks/useNotification";
@@ -44,13 +45,13 @@ const formatDate = (date: string) =>
 const calcOrderAmount = (items: Order["items"]) =>
   items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-const getStatusConfig = (order: Order) => {
+const getStatusConfig = (order: Order, t: any) => {
   if (order.isDelivered) {
     return {
       badge: (
         <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-semibold">
           <CheckCircle2 className="h-3 w-3 mr-2" />
-          Delivered
+          {t("status.delivered")}
         </Badge>
       ),
       gradient: "from-emerald-500 to-teal-500",
@@ -63,8 +64,8 @@ const getStatusConfig = (order: Order) => {
         <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-semibold">
           <Truck className="h-3 w-3 mr-2" />
           {order.deliveryMode === "PICKUPBYBUYER"
-            ? "Ready for Pickup"
-            : "Out for Delivery"}
+            ? t("status.readyForPickup")
+            : t("status.outForDelivery")}
         </Badge>
       ),
       gradient: "from-blue-500 to-cyan-500",
@@ -76,7 +77,7 @@ const getStatusConfig = (order: Order) => {
       badge: (
         <Badge className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 font-semibold">
           <XCircle className="h-3 w-3 mr-2" />
-          Cancelled
+          {t("status.cancelled")}
         </Badge>
       ),
       gradient: "from-red-500 to-rose-500",
@@ -88,7 +89,7 @@ const getStatusConfig = (order: Order) => {
       badge: (
         <Badge className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-semibold">
           <CheckCircle2 className="h-3 w-3 mr-2" />
-          Confirmed
+          {t("status.confirmed")}
         </Badge>
       ),
       gradient: "from-purple-500 to-indigo-500",
@@ -99,26 +100,26 @@ const getStatusConfig = (order: Order) => {
     badge: (
       <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-semibold">
         <Clock className="h-3 w-3 mr-2" />
-        Pending
+        {t("status.pending")}
       </Badge>
     ),
     gradient: "from-amber-500 to-orange-500",
   };
 };
 
-const getDeliveryModeBadge = (mode: string) => {
+const getDeliveryModeBadge = (mode: string, t: any) => {
   if (mode === "DELIVERYBYFARMER") {
     return (
       <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1.5 rounded-full border border-blue-200 dark:border-blue-800 flex items-center gap-1">
         <Truck className="h-3 w-3" />
-        Delivery
+        {t("delivery.delivery")}
       </span>
     );
   }
   return (
     <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-1.5 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1">
       <Home className="h-3 w-3" />
-      Pickup
+      {t("delivery.pickup")}
     </span>
   );
 };
@@ -156,6 +157,7 @@ const StatCard = ({
 /* ============ Main Component ============ */
 
 export default function BuyerPurchasesPage() {
+  const t = useTranslations("profile.buyer.MyPurchases");
   const [search, setSearch] = useState("");
   const [purchases, setPurchases] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +180,7 @@ export default function BuyerPurchasesPage() {
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
-        toast.error("Failed to load your orders");
+        toast.error(t("toast.loadFailed"));
         setLoading(false);
       }
     };
@@ -225,16 +227,17 @@ export default function BuyerPurchasesPage() {
         setPurchases((prev) =>
           prev.map((o) => (o._id === id ? { ...o, status } : o))
         );
-        toast.success(`Order has successfully ${status}`);
+        const translatedStatus = t(`status.${status}`);
+        toast.success(t("toast.orderStatusSuccess", { status: translatedStatus }));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          title: `Buyer has ${status} the Order`,
-          message: `buyer ${buyerName} has ${status} order`,
+          title: t("notify.titleStatus", { status: translatedStatus }),
+          message: t("notify.messageStatus", { buyer: buyerName, status: translatedStatus }),
           type: "order",
         });
       }
     } catch {
-      toast.error("Failed to change order status");
+      toast.error(t("toast.changeStatusFailed"));
     }
   };
 
@@ -249,16 +252,16 @@ export default function BuyerPurchasesPage() {
         setPurchases((prev) =>
           prev.map((o) => (o._id === id ? { ...o, isOutForDelivery: true } : o))
         );
-        toast.success("Order marked out for delivery");
+        toast.success(t("toast.outForDelivery"));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          title: "Order is out for Pickup",
-          message: `Buyer ${buyerName} is out for Pickup`,
+          title: t("notify.outForPickupTitle"),
+          message: t("notify.outForPickupMessage", { buyer: buyerName }),
           type: "order",
         });
       }
     } catch {
-      toast.error("Failed to set out for delivery");
+      toast.error(t("toast.outForDeliveryFailed"));
     }
   };
 
@@ -273,16 +276,16 @@ export default function BuyerPurchasesPage() {
         setPurchases((prev) =>
           prev.map((o) => (o._id === id ? { ...o, isDelivered: true } : o))
         );
-        toast.success("Order successfully delivered");
+        toast.success(t("toast.deliveredSuccess"));
         sendNotification({
           userId: farmerId.replace("fam_", "user_"),
-          title: "Order is Picked Up",
-          message: `Buyer ${buyerName} picked up order`,
+          title: t("notify.pickedUpTitle"),
+          message: t("notify.pickedUpMessage", { buyer: buyerName }),
           type: "order",
         });
       }
     } catch {
-      toast.error("Failed to mark delivery");
+      toast.error(t("toast.markDeliveryFailed"));
     }
   };
 
@@ -298,11 +301,11 @@ export default function BuyerPurchasesPage() {
                   <div className="p-3 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-xl shadow-lg">
                     <ShoppingBag className="h-8 w-8 text-white" />
                   </div>
-                  My Purchases
+                  {t("title")}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 text-lg flex items-center gap-2">
                   <Zap className="h-4 w-4 text-amber-500" />
-                  Track and manage all your orders from local farmers
+                  {t("description")}
                 </p>
               </div>
 
@@ -313,7 +316,7 @@ export default function BuyerPurchasesPage() {
               >
                 <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 dark:from-blue-700 dark:to-cyan-700 dark:hover:from-blue-600 dark:hover:to-cyan-600 flex items-center gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-105 h-11 px-6">
                   <MessageCircle className="h-5 w-5" />
-                  <span className="font-semibold">Negotiations</span>
+                  <span className="font-semibold">{t("negotiations")}</span>
                   <ChevronDown className="h-4 w-4 opacity-70" />
                 </Button>
               </Link>
@@ -328,7 +331,7 @@ export default function BuyerPurchasesPage() {
             style={{ animationDelay: "50ms" }}
           >
             <StatCard
-              label="Total Orders"
+              label={t("stats.totalOrders")}
               value={stats.total}
               icon={
                 <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -338,7 +341,7 @@ export default function BuyerPurchasesPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Pending"
+              label={t("stats.pending")}
               value={stats.pending}
               icon={
                 <div className="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
@@ -348,7 +351,7 @@ export default function BuyerPurchasesPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Confirmed"
+              label={t("stats.confirmed")}
               value={stats.confirmed}
               icon={
                 <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -358,7 +361,7 @@ export default function BuyerPurchasesPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Delivered"
+              label={t("stats.delivered")}
               value={stats.delivered}
               icon={
                 <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
@@ -381,7 +384,7 @@ export default function BuyerPurchasesPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search orders, buyers, or products..."
+                placeholder={t("searchPlaceholder")}
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all shadow-sm"
               />
             </div>
@@ -394,11 +397,11 @@ export default function BuyerPurchasesPage() {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="pl-9 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm appearance-none cursor-pointer"
                 >
-                  <option value="all">All Orders</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="all">{t("filter.all")}</option>
+                  <option value="pending">{t("filter.pending")}</option>
+                  <option value="confirmed">{t("filter.confirmed")}</option>
+                  <option value="delivered">{t("filter.delivered")}</option>
+                  <option value="cancelled">{t("filter.cancelled")}</option>
                 </select>
               </div>
             </div>
@@ -406,11 +409,7 @@ export default function BuyerPurchasesPage() {
 
           {search && filteredOrders.length > 0 && (
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Found{" "}
-              <span className="font-semibold text-gray-700 dark:text-gray-300">
-                {filteredOrders.length}
-              </span>{" "}
-              result{filteredOrders.length !== 1 ? "s" : ""}
+              {t("foundResults", { count: filteredOrders.length })}
             </p>
           )}
         </div>
@@ -423,7 +422,7 @@ export default function BuyerPurchasesPage() {
               <Loader2 className="h-14 w-14 animate-spin text-emerald-600 dark:text-emerald-400 relative" />
             </div>
             <p className="mt-4 text-gray-600 dark:text-gray-400 font-medium">
-              Loading your orders...
+              {t("loading.text")}
             </p>
           </div>
         )}
@@ -436,16 +435,15 @@ export default function BuyerPurchasesPage() {
                 <Package className="h-16 w-16 text-emerald-600 dark:text-emerald-400" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                No Orders Yet
+                {t("empty.title")}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto text-lg">
-                Start shopping to see your orders here. Browse our marketplace
-                and find great agricultural products from local farmers.
+                {t("empty.desc")}
               </p>
               <Link href="/marketplace">
                 <Button className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white mt-4 h-11 px-6">
                   <ShoppingBag className="h-4 w-4 mr-2" />
-                  Browse Products
+                  {t("empty.browse")}
                 </Button>
               </Link>
             </div>
@@ -459,11 +457,10 @@ export default function BuyerPurchasesPage() {
               <Search className="h-12 w-12 text-gray-400 dark:text-gray-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              No orders found
+              {t("noResults.title")}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
-              Try adjusting your search or filter to find what you are looking
-              for.
+              {t("noResults.desc")}
             </p>
           </div>
         )}
@@ -479,7 +476,7 @@ export default function BuyerPurchasesPage() {
                 order.status !== "cancelled" &&
                 !order.isDelivered &&
                 !order.isOutForDelivery;
-              const statusConfig = getStatusConfig(order);
+              const statusConfig = getStatusConfig(order, t);
 
               return (
                 <Card
@@ -498,9 +495,9 @@ export default function BuyerPurchasesPage() {
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center gap-3 flex-wrap">
                           <CardTitle className="text-lg text-gray-900 dark:text-white">
-                            Order #{order._id.slice(-8).toUpperCase()}
+                            {t("orderNumber", { id: order._id.slice(-8).toUpperCase() })}
                           </CardTitle>
-                          {getDeliveryModeBadge(order.deliveryMode)}
+                          {getDeliveryModeBadge(order.deliveryMode, t)}
                         </div>
                         <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                           <span className="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
@@ -523,9 +520,9 @@ export default function BuyerPurchasesPage() {
                   {/* Content */}
                   <CardContent className="space-y-4">
                     {/* Items Preview */}
-                    <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 space-y-2 border border-gray-200 dark:border-gray-700">
+                        <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 space-y-2 border border-gray-200 dark:border-gray-700">
                       <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">
-                        Items ({order.items.length})
+                        {t("items")} ({order.items.length})
                       </p>
                       <div className="space-y-1.5">
                         {order.items.slice(0, 2).map((item, i) => (
@@ -549,8 +546,7 @@ export default function BuyerPurchasesPage() {
                         ))}
                         {order.items.length > 2 && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 italic font-medium pt-1">
-                            +{order.items.length - 2} more item
-                            {order.items.length - 2 !== 1 ? "s" : ""}
+                            {t("moreItems", { count: order.items.length - 2 })}
                           </p>
                         )}
                       </div>
@@ -558,9 +554,9 @@ export default function BuyerPurchasesPage() {
 
                     {/* Total Amount & Payment */}
                     <div className="grid md:grid-cols-2 gap-3">
-                      <div className="flex justify-between items-center p-3.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                        <div className="flex justify-between items-center p-3.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                         <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                          Total
+                          {t("total")}
                         </span>
                         <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                           ₹
@@ -578,10 +574,10 @@ export default function BuyerPurchasesPage() {
                         </div>
                         <div className="flex-1">
                           <p className="text-xs text-purple-700 dark:text-purple-400 font-semibold">
-                            Payment
+                            {t("payment.label")}
                           </p>
                           <p className="text-sm font-bold text-purple-900 dark:text-purple-200">
-                            {order.hasPayment ? "Completed" : "Pending"}
+                            {order.hasPayment ? t("payment.completed") : t("payment.pending")}
                           </p>
                         </div>
                       </div>
@@ -599,7 +595,7 @@ export default function BuyerPurchasesPage() {
                           className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white shadow-sm hover:shadow-md transition-all"
                         >
                           <Eye className="h-4 w-4" />
-                          View Details
+                          {t("actions.viewDetails")}
                           <ArrowRight className="h-3 w-3" />
                         </Button>
                       </Link>
@@ -610,7 +606,7 @@ export default function BuyerPurchasesPage() {
                           size="sm"
                           variant="outline"
                           className="flex items-center justify-center gap-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                          onClick={() =>
+                            onClick={() =>
                             changeOrderStatus(
                               order._id,
                               "cancelled",
@@ -620,7 +616,7 @@ export default function BuyerPurchasesPage() {
                           }
                         >
                           <XCircle className="h-4 w-4" />
-                          <span className="hidden sm:inline">Cancel</span>
+                          <span className="hidden sm:inline">{t("actions.cancel")}</span>
                         </Button>
                       )}
 
@@ -642,7 +638,7 @@ export default function BuyerPurchasesPage() {
                           >
                             <Truck className="h-4 w-4" />
                             <span className="hidden sm:inline">
-                              Out for Pickup
+                              {t("actions.outForPickup")}
                             </span>
                           </Button>
                         )}
@@ -664,7 +660,7 @@ export default function BuyerPurchasesPage() {
                           >
                             <CheckCircle className="h-5 w-5" />
                             <span className="hidden sm:inline">
-                              Confirm Pickup
+                              {t("actions.confirmPickup")}
                             </span>
                           </Button>
                         )}
@@ -674,12 +670,12 @@ export default function BuyerPurchasesPage() {
                         <Button
                           size="sm"
                           className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white shadow-sm hover:shadow-md transition-all"
-                          onClick={() =>
-                            toast.success("Payment gateway coming soon!")
+                            onClick={() =>
+                            toast.success(t("toast.paymentSoon"))
                           }
                         >
                           <CreditCard className="h-4 w-4" />
-                          <span className="hidden sm:inline">Pay Now</span>
+                          <span className="hidden sm:inline">{t("actions.payNow")}</span>
                         </Button>
                       )}
                     </div>

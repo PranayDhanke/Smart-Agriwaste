@@ -27,6 +27,7 @@ import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { useNotification } from "@/components/hooks/useNotification";
 import { Address } from "@/components/types/ListWaste";
+import { useTranslations } from "next-intl";
 
 type FarmerOrderGroup = {
   items: CartItem[];
@@ -56,6 +57,8 @@ function groupItemsByFarmer(cartItems: CartItem[]) {
 export default function CartDrawer() {
   const { cartItems, updateQuantity, removeFromCart, getTotalAmount } =
     useCart();
+
+  const t = useTranslations("marketplace.CartDrawer");
 
   const { sendNotification } = useNotification();
 
@@ -97,7 +100,7 @@ export default function CartDrawer() {
 
   const proceedOrder = async () => {
     if (!deliveryMethod) {
-      toast.error("Please select  delivery method");
+      toast.error(t("errors.selectDelivery"));
       return;
     }
 
@@ -137,7 +140,7 @@ export default function CartDrawer() {
       );
       toast.success(
         // 5️⃣ UX feedback
-        `Order placed successfully`
+        t("success.orderPlaced")
       );
 
       setloading(false);
@@ -155,13 +158,11 @@ export default function CartDrawer() {
           <ShoppingCart className="h-10 w-10 text-muted-foreground" />
         </div>
 
-        <h3 className="text-lg font-semibold">Your cart is empty</h3>
-        <p className="text-sm text-muted-foreground mt-1 mb-6">
-          Add products to place an order
-        </p>
+        <h3 className="text-lg font-semibold">{t("empty.title")}</h3>
+        <p className="text-sm text-muted-foreground mt-1 mb-6">{t("empty.subtitle")}</p>
 
         <Link href="/marketplace">
-          <Button className="px-6">Browse Products</Button>
+          <Button className="px-6">{t("empty.browse")}</Button>
         </Link>
       </div>
     );
@@ -264,11 +265,11 @@ export default function CartDrawer() {
       <Card className="sticky bottom-0 rounded-none border-t">
         <CardContent className="p-0">
           {/* Summary Header */}
-          <button
+            <button
             onClick={() => setSummaryOpen((prev) => !prev)}
             className="w-full flex items-center justify-between px-4 py-3 border-b bg-background"
           >
-            <span className="text-sm font-semibold">Order Summary</span>
+            <span className="text-sm font-semibold">{t("summary.title")}</span>
 
             <ChevronDown
               className={cn(
@@ -295,12 +296,12 @@ export default function CartDrawer() {
                   cartItems.forEach((item) => removeFromCart(item.prodId))
                 }
               >
-                Clear Cart
+                {t("summary.clearCart")}
               </Button>
 
               {/* Delivery Method */}
               <div>
-                <h4 className="text-sm font-semibold mb-2">Delivery Method</h4>
+                <h4 className="text-sm font-semibold mb-2">{t("delivery.title")}</h4>
                 <RadioGroup
                   value={deliveryMethod}
                   onValueChange={setDeliveryMethod}
@@ -309,12 +310,12 @@ export default function CartDrawer() {
                   {[
                     {
                       value: "PICKUPBYBUYER",
-                      label: "Pickup by you",
+                      label: t("delivery.pickup"),
                       icon: Store,
                     },
                     {
                       value: "DELIVERYBYFARMER",
-                      label: "Farmer Delivery",
+                      label: t("delivery.farmer"),
                       icon: Truck,
                     },
                   ].map(({ value, label, icon: Icon }) => (
@@ -336,7 +337,7 @@ export default function CartDrawer() {
 
                 {deliveryMethod === "DELIVERYBYFARMER" && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Delivery charges may apply for farmer delivery
+                    {t("delivery.farmerCharges")}
                   </p>
                 )}
               </div>
@@ -346,7 +347,7 @@ export default function CartDrawer() {
               {/* Totals */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium">Total</span>
+                  <span className="font-medium">{t("total.label")}</span>
                   <span className="text-lg font-semibold text-green-700">
                     ₹{getTotalAmount()}
                   </span>
@@ -365,8 +366,8 @@ export default function CartDrawer() {
                 ) : (
                   <>
                     {!deliveryMethod
-                      ? "Select payment & delivery method"
-                      : "Proceed to Checkout"}
+                      ? t("checkout.select")
+                      : t("checkout.proceed")}
                   </>
                 )}
               </Button>

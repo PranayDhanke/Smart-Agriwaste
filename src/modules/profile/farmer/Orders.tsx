@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,12 +42,12 @@ const formatDate = (date: string) =>
 const calcOrderAmount = (items: Order["items"]) =>
   items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-const getStatusBadge = (order: Order) => {
+const getStatusBadge = (order: Order, t: (key: string) => string) => {
   if (order.status === "cancelled") {
     return (
       <Badge className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 px-3 py-1">
         <XCircle className="h-3.5 w-3.5 mr-1.5" />
-        Cancelled
+        {t("status.cancelled")}
       </Badge>
     );
   }
@@ -55,7 +56,7 @@ const getStatusBadge = (order: Order) => {
     return (
       <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-3 py-1">
         <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-        Delivered
+          {t("status.delivered")}
       </Badge>
     );
   }
@@ -64,7 +65,7 @@ const getStatusBadge = (order: Order) => {
     return (
       <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 px-3 py-1">
         <Truck className="h-3.5 w-3.5 mr-1.5" />
-        Out for Delivery
+          {t("status.outForDelivery")}
       </Badge>
     );
   }
@@ -73,7 +74,7 @@ const getStatusBadge = (order: Order) => {
     return (
       <Badge className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 px-3 py-1">
         <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-        Confirmed
+          {t("status.confirmed")}
       </Badge>
     );
   }
@@ -81,12 +82,12 @@ const getStatusBadge = (order: Order) => {
   return (
     <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-3 py-1">
       <Clock className="h-3.5 w-3.5 mr-1.5" />
-      Pending
+      {t("status.pending")}
     </Badge>
   );
 };
 
-const getDeliveryModeBadge = (mode: string) => {
+const getDeliveryModeBadge = (mode: string, t: (key: string) => string) => {
   if (mode === "DELIVERYBYFARMER") {
     return (
       <Badge
@@ -94,7 +95,7 @@ const getDeliveryModeBadge = (mode: string) => {
         className="border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 text-xs font-medium"
       >
         <Truck className="h-3 w-3 mr-1" />
-        Delivery by You
+        {t("delivery.byFarmer")}
       </Badge>
     );
   }
@@ -104,7 +105,7 @@ const getDeliveryModeBadge = (mode: string) => {
       className="border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-2.5 py-0.5 text-xs font-medium"
     >
       <MapPin className="h-3 w-3 mr-1" />
-      Pickup by Buyer
+      {t("delivery.pickupByBuyer")}
     </Badge>
   );
 };
@@ -142,6 +143,8 @@ const StatCard = ({
 /* ------------------ Page ------------------ */
 
 export default function FarmerOrdersPage() {
+  const t = useTranslations("profile.farmer.Orders");
+  const locale = useLocale();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -165,7 +168,7 @@ export default function FarmerOrdersPage() {
           setLoading(false);
         }
       } catch {
-        toast.error("Error loading orders. Please refresh the page.");
+        toast.error(t("errors.loadFailed"));
         setLoading(false);
       }
     };
@@ -208,20 +211,20 @@ export default function FarmerOrdersPage() {
     try {
       const res = await axios.put("/api/order/changeStatus", { id, status });
 
-      if (res.status === 200) {
-        setOrders((prev) =>
-          prev.map((o) => (o._id === id ? { ...o, status } : o))
-        );
-        toast.success(`Order ${status} successfully`);
-        sendNotification({
-          userId: buyerId.replace("buy_", "user_"),
-          title: `Your order has been ${status}`,
-          message: `Farmer ${farmerName} has ${status} your order`,
-          type: "order",
-        });
+        if (res.status === 200) {
+          setOrders((prev) =>
+            prev.map((o) => (o._id === id ? { ...o, status } : o))
+          );
+          toast.success(t("toast.orderStatusUpdated", { status: t(`status.${status}`) }));
+          sendNotification({
+            userId: buyerId.replace("buy_", "user_"),
+            title: t("notify.orderStatusTitle", { status: t(`status.${status}`) }),
+            message: t("notify.orderStatusMessage", { farmer: farmerName, status: t(`status.${status}`) }),
+            type: "order",
+          });
       }
     } catch {
-      toast.error("Failed to update order status");
+      toast.error(t("errors.updateStatus"));
     }
   };
 
@@ -236,16 +239,16 @@ export default function FarmerOrdersPage() {
         setOrders((prev) =>
           prev.map((o) => (o._id === id ? { ...o, isOutForDelivery: true } : o))
         );
-        toast.success("Order marked as out for delivery");
+        toast.success(t("toast.outForDelivery"));
         sendNotification({
           userId: buyerId.replace("buy_", "user_"),
-          title: "Order is out for Delivery",
-          message: `Farmer ${farmerName} has sent your order for delivery`,
+          title: t("notify.outForDeliveryTitle"),
+          message: t("notify.outForDeliveryMessage", { farmer: farmerName }),
           type: "Order",
         });
       }
     } catch {
-      toast.error("Failed to update delivery status");
+      toast.error(t("errors.updateDelivery"));
     }
   };
 
@@ -260,16 +263,16 @@ export default function FarmerOrdersPage() {
         setOrders((prev) =>
           prev.map((o) => (o._id === id ? { ...o, isDelivered: true } : o))
         );
-        toast.success("Order marked as delivered");
+        toast.success(t("toast.delivered"));
         sendNotification({
           userId: buyerId.replace("buy_", "user_"),
-          title: "Order Delivered",
-          message: `Your order from farmer ${farmerName} has been delivered`,
+          title: t("notify.deliveredTitle"),
+          message: t("notify.deliveredMessage", { farmer: farmerName }),
           type: "Order",
         });
       }
     } catch {
-      toast.error("Failed to confirm delivery");
+      toast.error(t("errors.confirmDelivery"));
     }
   };
 
@@ -286,10 +289,10 @@ export default function FarmerOrdersPage() {
                 </div>
                 <div>
                   <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
-                    Order Management
+                    {t("title")}
                   </h1>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                    Track and manage incoming orders
+                    {t("subtitle")}
                   </p>
                 </div>
               </div>
@@ -298,7 +301,7 @@ export default function FarmerOrdersPage() {
             <Link href="/profile/farmer/negotiations">
               <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 h-11 px-6">
                 <MessageCircle className="h-4 w-4 mr-2" />
-                Negotiations
+                {t("actions.negotiations")}
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             </Link>
@@ -312,7 +315,7 @@ export default function FarmerOrdersPage() {
             style={{ animationDelay: "50ms" }}
           >
             <StatCard
-              label="Total Orders"
+              label={t("stats.total")}
               value={stats.total}
               icon={
                 <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -322,7 +325,7 @@ export default function FarmerOrdersPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Pending"
+              label={t("stats.pending")}
               value={stats.pending}
               icon={
                 <div className="p-2.5 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
@@ -332,7 +335,7 @@ export default function FarmerOrdersPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Confirmed"
+              label={t("stats.confirmed")}
               value={stats.confirmed}
               icon={
                 <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -342,7 +345,7 @@ export default function FarmerOrdersPage() {
               color="bg-white/50 dark:bg-slate-800/50"
             />
             <StatCard
-              label="Delivered"
+              label={t("stats.delivered")}
               value={stats.delivered}
               icon={
                 <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
@@ -365,7 +368,7 @@ export default function FarmerOrdersPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search orders, buyers, or products..."
+                placeholder={t("search.placeholder")}
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all shadow-sm"
               />
             </div>
@@ -378,11 +381,11 @@ export default function FarmerOrdersPage() {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="pl-9 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-sm appearance-none cursor-pointer"
                 >
-                  <option value="all">All Orders</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="all">{t("filters.all")}</option>
+                  <option value="pending">{t("filters.pending")}</option>
+                  <option value="confirmed">{t("filters.confirmed")}</option>
+                  <option value="delivered">{t("filters.delivered")}</option>
+                  <option value="cancelled">{t("filters.cancelled")}</option>
                 </select>
               </div>
             </div>
@@ -390,11 +393,7 @@ export default function FarmerOrdersPage() {
 
           {search && filteredOrders.length > 0 && (
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Found{" "}
-              <span className="font-semibold text-gray-700 dark:text-gray-300">
-                {filteredOrders.length}
-              </span>{" "}
-              result{filteredOrders.length !== 1 ? "s" : ""}
+              {t("found", { count: filteredOrders.length })}
             </p>
           )}
         </div>
@@ -407,7 +406,7 @@ export default function FarmerOrdersPage() {
               <Loader2 className="h-14 w-14 animate-spin text-amber-600 dark:text-amber-400 relative" />
             </div>
             <p className="text-gray-600 dark:text-gray-400 font-medium">
-              Loading your orders...
+              {t("loading")}
             </p>
           </div>
         )}
@@ -421,11 +420,10 @@ export default function FarmerOrdersPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  No Orders Yet
+                  {t("empty.title")}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                  Once buyers place orders for your products, they&apos;ll
-                  appear here. Start by listing your products to receive orders.
+                  {t("empty.description")}
                 </p>
               </div>
             </div>
@@ -442,7 +440,7 @@ export default function FarmerOrdersPage() {
               <div className="flex flex-col items-center justify-center py-16 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
                 <AlertCircle className="h-12 w-12 text-gray-400 mb-3" />
                 <p className="text-gray-500 dark:text-gray-400 font-medium">
-                  No orders match your search criteria
+                  {t("empty.noMatch")}
                 </p>
               </div>
             ) : (
@@ -474,14 +472,14 @@ export default function FarmerOrdersPage() {
                           <CardTitle className="text-lg text-gray-900 dark:text-white truncate">
                             #{order._id.slice(-8).toUpperCase()}
                           </CardTitle>
-                          {getDeliveryModeBadge(order.deliveryMode)}
-                          {getStatusBadge(order)}
+                          {getDeliveryModeBadge(order.deliveryMode, t)}
+                          {getStatusBadge(order, t)}
                         </div>
 
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 dark:text-gray-400">
                           <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/30 px-3 py-1.5 rounded-full w-fit">
                             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Buyer:
+                              {t("labels.buyer")}
                             </span>
                             <span className="font-semibold text-gray-900 dark:text-white">
                               {order.buyerInfo.buyerName}
@@ -537,7 +535,7 @@ export default function FarmerOrdersPage() {
                     {/* Order Total */}
                     <div className="flex justify-between items-center p-3.5 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/50">
                       <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                        Total Earning:
+                        {t("labels.totalEarning")}
                       </span>
                       <span className="text-lg font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
                         <IndianRupee className="h-4 w-4" />
@@ -550,7 +548,7 @@ export default function FarmerOrdersPage() {
                       <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-2.5">
                         <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                         <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">
-                          Payment Verified
+                          {t("payment.verified")}
                         </p>
                       </div>
                     )}
@@ -560,13 +558,13 @@ export default function FarmerOrdersPage() {
                       <Link
                         href={`/profile/farmer/my-orders/single-order?orderid=${order._id}`}
                       >
-                        <Button
+                            <Button
                           size="sm"
                           variant="outline"
                           className="border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 h-9"
                         >
                           <Eye className="h-4 w-4 mr-1.5" />
-                          View
+                          {t("actions.view")}
                         </Button>
                       </Link>
 
@@ -576,7 +574,7 @@ export default function FarmerOrdersPage() {
                         !order.isOutForDelivery && (
                           <>
                             {order.status !== "confirmed" && (
-                              <Button
+                                <Button
                                 size="sm"
                                 onClick={() =>
                                   changeOrderStatus(
@@ -589,7 +587,7 @@ export default function FarmerOrdersPage() {
                                 className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white h-9"
                               >
                                 <CheckCircle className="h-4 w-4 mr-1.5" />
-                                Accept
+                                {t("actions.accept")}
                               </Button>
                             )}
                             {!order.hasPayment && (
@@ -607,7 +605,7 @@ export default function FarmerOrdersPage() {
                                 className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 h-9"
                               >
                                 <XCircle className="h-4 w-4 mr-1.5" />
-                                Reject
+                                {t("actions.reject")}
                               </Button>
                             )}
                           </>
@@ -629,7 +627,7 @@ export default function FarmerOrdersPage() {
                             className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white h-9"
                           >
                             <Truck className="h-4 w-4 mr-1.5" />
-                            Out for Delivery
+                            {t("actions.outForDelivery")}
                           </Button>
                         )}
 
@@ -649,7 +647,7 @@ export default function FarmerOrdersPage() {
                             className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white h-9"
                           >
                             <CheckCircle className="h-4 w-4 mr-1.5" />
-                            Delivered
+                            {t("actions.delivered")}
                           </Button>
                         )}
 
@@ -659,7 +657,7 @@ export default function FarmerOrdersPage() {
                         order.status === "confirmed" && (
                           <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                             <Clock className="h-3 w-3 mr-1" />
-                            Waiting for Pickup
+                            {t("status.waitingPickup")}
                           </Badge>
                         )}
 
@@ -667,7 +665,7 @@ export default function FarmerOrdersPage() {
                       {order.isDelivered && (
                         <Badge className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                           <CheckCircle className="h-3 w-3 mr-1" />
-                          Complete
+                          {t("status.complete")}
                         </Badge>
                       )}
 
@@ -675,7 +673,7 @@ export default function FarmerOrdersPage() {
                       {order.status === "cancelled" && (
                         <Badge className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800">
                           <XCircle className="h-3 w-3 mr-1" />
-                          Cancelled
+                          {t("status.cancelled")}
                         </Badge>
                       )}
                     </div>
